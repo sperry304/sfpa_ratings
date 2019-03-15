@@ -1,0 +1,717 @@
+---
+title: "SFPA Ratings"
+author: "Skip Perry"
+date: "March 2019"
+output: html_document
+---
+  
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rvest)
+library(lubridate)
+setwd("/Users/v0p007p/Documents/sfpa_ratings")
+```
+
+```{r}
+# Set K based on optimization worksheet
+K <- 23
+
+# Data frame of players and team names in Spring 2019 - helper for next helper function
+players_by_team_19 <- 
+  bind_rows(
+    results_19_no_forfeits %>% distinct(home_team, home) %>% transmute(player = home, team = home_team),
+    results_19_no_forfeits %>% distinct(away_team, away) %>% transmute(player = away, team = away_team)
+  ) %>% 
+    distinct() %>% 
+    arrange(team, player)
+
+# Helper function to add team names to a data frame containing a column for player
+append_team_names <- function(df) {
+  df %>% 
+    full_join(players_by_team_19, by = "player")
+}
+
+# Helper function to get a player's rating
+get_rating <- function(player_name, ratings_df) {
+  ratings_df %>% 
+    filter(player == player_name) %>% 
+    pull(rating)
+}
+
+# Helper function to get player list
+full_player_list <- function(df) {
+  bind_rows(
+    df %>% select(home) %>% transmute(player = home), 
+    df %>% select(away) %>% transmute(player = away)
+  ) %>% 
+    distinct(player) %>% 
+    arrange(player)
+}
+
+# Helper function for ELO match win probability
+match_win_probability <- function(player_of_interest, home_rating, away_rating, home_advantage) {
+  if (player_of_interest == "home") {
+    prob <- 1 / (1 + 10 ^ ((away_rating - (home_rating + home_advantage)) / 400))
+  } else {
+    prob <- 1 / (1 + 10 ^ (((home_rating + home_advantage) - away_rating) / 400))
+  }
+  prob
+}
+
+# Construct summary data frame of base 1500 ratings using the distinct players seen in the time period
+elo_ratings <-
+  full_player_list(results_no_forfeits) %>% 
+  mutate(rating = 1500)
+
+# Update the ratings table
+for (i in 1:nrow(results_no_forfeits)) {
+  player1 <- results_no_forfeits$home[i]
+  player2 <- results_no_forfeits$away[i]
+  player1_rating <- get_rating(player1, elo_ratings)
+  player2_rating <- get_rating(player2, elo_ratings)
+  results_no_forfeits$p1_start_rating[i] <- player1_rating
+  results_no_forfeits$p2_start_rating[i] <- player2_rating
+  player1_expected <-
+    match_win_probability(
+      player_of_interest = "home", home_rating = player1_rating, away_rating = player2_rating,
+      home_advantage = home_advantage
+    )
+  player2_expected <-
+    match_win_probability(
+      player_of_interest = "away", home_rating = player1_rating, away_rating = player2_rating,
+      home_advantage = home_advantage
+    )
+  winner <- results_no_forfeits$game_winner[i]
+  S1 <- ifelse(winner == "home", 1, 0)
+  S2 <- ifelse(winner == "home", 0, 1)
+  player1_rating_new = player1_rating + K * (S1 - player1_expected)
+  player2_rating_new = player2_rating + K * (S2 - player2_expected)
+  elo_ratings$rating[elo_ratings$player == player1] <- player1_rating_new
+  elo_ratings$rating[elo_ratings$player == player2] <- player2_rating_new
+  results_no_forfeits$p1_end_rating[i] <- player1_rating_new
+  results_no_forfeits$p2_end_rating[i] <- player2_rating_new
+}
+
+elo_ratings %>% 
+  mutate(rating = round(rating)) %>% 
+  arrange(-rating) %>% 
+  append_team_names()
+```
+
+```{r}
+# Function to get a data frame of matches and real-time ratings for a particular player
+player_matches_and_ratings <- function(player_of_interest) {
+  df <- 
+    results_no_forfeits %>% 
+    filter(away == player_of_interest | home == player_of_interest) %>% 
+    mutate(
+      player = player_of_interest,
+      opponent = case_when(
+        away == player_of_interest ~ home,
+        TRUE ~ away
+      ),
+      opponent_rating = case_when(
+        away == player_of_interest ~ p1_start_rating,
+        TRUE ~ p2_start_rating
+      ),
+      result = case_when(
+        away == player_of_interest & game_winner == "away" ~ "W",
+        home == player_of_interest & game_winner == "home" ~ "W",
+        TRUE ~ "L"
+      ),
+      new_rating = case_when(
+        away == player_of_interest ~ p2_end_rating,
+        TRUE ~ p1_end_rating
+      )
+    ) %>% 
+    select(match_date, player, opponent, opponent_rating, result, new_rating)
+  
+  row1_start_date <- df %>% pull(match_date) %>% min() - 7
+  
+  new_row1 <- 
+    tribble(
+      ~match_date, ~player, ~opponent, ~opponent_rating, ~result, ~new_rating,
+      row1_start_date, player_of_interest, NA, NA, NA, 1500
+    )
+  
+  bind_rows(new_row1, df)
+}
+
+win_loss_record <- function(player_of_interest) {
+  player_matches_and_ratings(player_of_interest = player_of_interest) %>% 
+    slice(-1) %>% 
+    group_by(result) %>% 
+    count() %>% 
+    arrange(desc(result))
+}
+
+#win_loss_record(player_of_interest = "Mike Maxwell")
+#player_matches_and_ratings(player_of_interest = "Mike Maxwell")
+```
+
+```{r}
+# Helper functions to get a list of all the players in a team (ever, or just now)
+get_team_players <- function(team_name) {
+  home_players <- 
+    results_no_forfeits %>% 
+    filter(home_team == team_name) %>% 
+    select(home) %>% 
+    distinct() %>% 
+    pull()
+  
+  away_players <- 
+    results_no_forfeits %>% 
+    filter(away_team == team_name) %>% 
+    select(away) %>% 
+    distinct() %>% 
+    pull()
+  
+  unique(c(home_players, away_players))
+}
+
+get_current_team_players <- function(team_name) {
+  home_players <- 
+    results_19_no_forfeits %>% 
+    filter(home_team == team_name) %>% 
+    select(home) %>% 
+    distinct() %>% 
+    pull()
+  
+  away_players <- 
+    results_19_no_forfeits %>% 
+    filter(away_team == team_name) %>% 
+    select(away) %>% 
+    distinct() %>% 
+    pull()
+  
+  unique(c(home_players, away_players))
+}
+
+# Plot top players 
+top_players <-
+  elo_ratings %>% 
+  arrange(desc(rating)) %>% 
+  append_team_names() %>% 
+  filter(!is.na(team)) %>% 
+  slice(1:10) %>% 
+  pull(player)
+
+map_dfr(top_players, player_matches_and_ratings) %>% 
+  group_by(match_date, player) %>% 
+  slice(n()) %>% 
+  ggplot(aes(x = match_date, y = new_rating, group = player, color = player)) +
+  geom_hline(yintercept = 1500, color = "gray50") +
+  geom_line() +
+  geom_point(size = 0.8) +
+  labs(
+    x = "Match Date", y = "ELO Rating", title = "Top Player Ratings (ELO)"
+  ) +
+  theme(
+    legend.title = element_blank(),
+      plot.title = element_text(hjust = 0.5)
+  )
+
+# Plot all player ratings from a given team over time 
+plot_player_ratings_by_team <- function(team_name) {
+  map_dfr(get_current_team_players(team_name), player_matches_and_ratings) %>% 
+    group_by(match_date, player) %>% 
+    slice(n()) %>% 
+    ggplot(aes(x = match_date, y = new_rating, group = player, color = player)) +
+    geom_hline(yintercept = 1500, color = "white", size = 2) +
+    geom_line() +
+    geom_point(size = 0.8) +
+    labs(
+      x = "Match Date", y = "ELO Rating",
+      title = str_c(team_name, " Player Ratings (ELO)")
+    ) +
+    theme(
+      legend.title = element_blank(),
+      plot.title = element_text(hjust = 0.5)
+  )
+}
+  
+plot_player_ratings_by_team(team_name = "Lucky Horseshoe Caballeros")
+```
+
+
+
+```{r}
+# Summarize players' win-loss records against all relevant opponents
+# This appears not to be used for anything right now
+
+# Turn full player list into a vector instead of a data frame
+player_list_vector <- 
+  full_player_list(results_no_forfeits) %>% 
+  pull(player)
+
+# Construct data frame summary of a given player, their opponents, wins, and losses
+player_win_loss_summary <- function(player_of_interest) {
+  df <-
+    player_matches_and_ratings(player_of_interest) %>% 
+    slice(-1) %>%                        # Removes the blank line for 1500 starter rating
+    count(player, opponent, result) %>% 
+    spread(result, n)
+  
+  df <- 
+    if (("W") %in% names(df)) { 
+      df 
+    } else {
+      df %>% mutate(W = 0)
+    }
+
+  df <- 
+    if (("L") %in% names(df)) { 
+      df 
+    } else {
+      df %>% mutate(L = 0)
+    }
+  
+  df %>% 
+    transmute(
+      player, opponent,
+      W = replace_na(W, 0),
+      L = replace_na(L, 0),
+      total_games = W + L
+    ) %>% 
+    arrange(-total_games, -W)
+}
+
+full_win_loss_summary <- 
+  map_dfr(player_list_vector, player_win_loss_summary)
+
+#full_win_loss_summary
+```
+
+
+```{r}
+# Show plot with ratings by team and player to see best teams 
+# Includes column for the best 4 players on the team 
+elo_player_team_ratings <- 
+  elo_ratings %>% 
+  append_team_names() %>% 
+  filter(!is.na(team)) %>% 
+  group_by(team) %>% 
+  arrange(team, desc(rating)) %>% 
+  mutate(
+    team_rank = row_number(),
+    top4 = team_rank < 5
+  ) %>% 
+  ungroup() %>% 
+  mutate(qtile = as.factor(ntile(rating, 6)))
+
+elo_player_team_ratings %>% 
+  group_by(team) %>% 
+  mutate(team_mean = mean(rating)) %>% 
+  ggplot(aes(x = reorder(team, team_mean))) +
+  geom_point(aes(y = team_mean), color = "gray50", size = 1.7, alpha = 0.5) +
+  geom_point(aes(y = rating, color = qtile), alpha = 0.5) +
+  coord_flip() +
+  theme(
+    axis.title = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    title = "Ratings by Team and Player (Full Team)",
+    color = "Sextile"
+  )
+
+elo_player_team_ratings %>% 
+  filter(top4 == TRUE) %>% 
+  group_by(team) %>% 
+  mutate(team_mean = mean(rating)) %>% 
+  ggplot(aes(x = reorder(team, team_mean))) +
+  geom_point(aes(y = team_mean), color = "gray50", size = 1.7, alpha = 0.5) +
+  geom_point(aes(y = rating, color = qtile), alpha = 0.5) +
+  coord_flip() +
+  theme(
+    axis.title = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    title = "Ratings by Team and Player (Top 4 Only)",
+    color = "Sextile"
+  )
+```
+
+
+
+
+```{r}
+# Player improvement in the 2019 season 
+player_names_2019 <- 
+  bind_rows(
+    results_19_no_forfeits %>% select(home) %>% transmute(player = home),
+    results_19_no_forfeits %>% select(away) %>% transmute(player = away)
+  ) %>% 
+    distinct() %>% 
+    arrange(player)
+
+current_players_elo_history <-
+  map_dfr(player_names_2019 %>% pull(), player_matches_and_ratings)
+
+matches_current_season <- 
+  current_players_elo_history %>% 
+  filter(str_detect(match_date, "2019"))
+
+final_pre_2019_matches <-
+  current_players_elo_history %>% 
+  filter(str_detect(match_date, "2018")) %>% 
+  group_by(player) %>% 
+  slice(n())
+
+df <- 
+  bind_rows(matches_current_season, final_pre_2019_matches) %>% 
+  arrange(player, match_date)
+
+ratings_changes <- 
+  df %>% 
+    group_by(player) %>% 
+    slice(1, n()) %>% 
+    select(player, new_rating) %>% 
+    mutate(key = c("initial", "final")) %>% 
+    spread(key = "key", value = "new_rating") %>% 
+    mutate(diff = final - initial) %>% 
+    arrange(desc(diff)) %>% 
+    mutate(new_old = if_else(initial == 1500, "New player", "Old player")) %>% 
+    append_team_names() %>% 
+    select(player, initial, final, diff, new_old, team)
+
+ratings_changes
+```
+
+```{r}
+ratings_changes %>% 
+  #filter(new_old == "New player") %>% 
+  ggplot(aes(x = reorder(player, diff), y = diff, fill = new_old)) +
+  geom_col() +
+  theme(
+    axis.text.x = element_blank(),
+    axis.ticks.x = element_blank(),
+    axis.title = element_blank(),
+    legend.position = "bottom",
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    title = "ELO Rating Changes by Player, Spring 2019"
+  )
+```
+
+
+```{r}
+# Home vs. away performance - this doesn't show much of interest
+team_list <- 
+  bind_rows(
+    results_19_no_forfeits %>% select(home_team) %>% transmute(team = home_team),
+    results_19_no_forfeits %>% select(away_team) %>% transmute(team = away_team)
+  ) %>% 
+  distinct() %>% 
+  arrange(team) %>% 
+  pull()
+
+home_away_win_pct <- function(team_name) {
+  results_no_forfeits %>% 
+    filter(week_number < 50) %>% 
+    mutate(
+      location = if_else(
+        home_team == team_name, "home",
+        if_else(
+          away_team == team_name, "away", NA_character_
+        )
+      )
+    ) %>% 
+    filter(!is.na(location)) %>% 
+    mutate(
+      result = if_else(
+        (location == "home" & game_winner == "home") | (location == "away" & game_winner == "away"), 
+        1, 
+        0
+      )
+    ) %>% 
+    group_by(location) %>% 
+    summarize(
+      total_games = n(),
+      win_pct = mean(result)
+    ) %>% 
+    mutate(total_games = sum(total_games)) %>% 
+    spread(location, win_pct) %>% 
+    mutate(home_adv = home - away) %>% 
+    gather(key = "location", value = "win_pct", home, away, -home_adv, -total_games) %>% 
+    mutate(
+      team_name = team_name,
+      overall_win_pct = mean(win_pct)
+    )
+}
+  
+#map_dfr(team_list, home_away_win_pct) %>% 
+#  ggplot(aes(x = reorder(team_name, win_pct), y = win_pct, color = location)) +
+#  geom_point() +
+#  coord_flip() +
+#  theme(axis.title = element_blank())
+
+map_dfr(team_list, home_away_win_pct) %>% 
+  distinct(home_adv, team_name) %>% 
+  group_by(home_adv > 0) %>% 
+  count()
+```
+
+
+
+
+
+
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  h1("My app"),
+  mainPanel(
+    plotOutput(
+      "plot1",
+      click = "plot_click",
+      dblclick = "plot_dblclick",
+      hover = "plot_hover",
+      brush = "plot_brush"
+    )
+  ),
+  verbatimTextOutput("info")
+)
+
+server <- function(input, output) {
+  output$plot1 <- renderPlot({
+    map_dfr(get_team_players("Tandy Tokers"), player_rating_progress) %>% 
+      group_by(match_date, player) %>% 
+      slice(n()) %>% 
+      ggplot(aes(x = match_date, y = new_rating, group = player, color = player)) +
+      geom_hline(yintercept = 1500, color = "gray50") +
+      geom_line() +
+      geom_point()
+  })
+  
+  output$info <- renderText({
+    xy_str <- function(e) {
+      if(is.null(e)) return("NULL\n")
+      paste0("x=", round(e$x, 1), " y=", round(e$y, 1), "\n")
+    }
+    xy_range_str <- function(e) {
+      if(is.null(e)) return("NULL\n")
+      paste0("xmin=", round(e$xmin, 1), " xmax=", round(e$xmax, 1), 
+             " ymin=", round(e$ymin, 1), " ymax=", round(e$ymax, 1))
+    }
+
+    paste0(
+      "click: ", xy_str(input$plot_click),
+      "dblclick: ", xy_str(input$plot_dblclick),
+      "hover: ", xy_str(input$plot_hover),
+      "brush: ", xy_range_str(input$plot_brush)
+    )
+  })
+
+}
+
+shinyApp(ui, server)
+```
+
+
+```{r}
+distinct_players <- 
+  bind_rows(
+    home_players, 
+    away_players
+  ) %>% 
+  distinct(player) %>% 
+  pull()
+
+df <-
+  results_no_forfeits %>% 
+  count(home, away, game_winner) %>% 
+  mutate(game_winner = if_else(game_winner == "home", "home_win", "away_win")) %>% 
+  spread(key = game_winner, value = n) %>% 
+  mutate(
+    home_win = replace_na(away_win, 0),
+    away_win = replace_na(away_win, 0),
+    home = factor(home, levels = unique(c(home, away))),
+    away = factor(away, levels = levels(home))
+  )
+
+install.packages("Matrix.utils")
+library(Matrix.utils)
+library(BradleyTerryScalable)
+
+btdata <- btdata(df)
+btdata_fit <- btfit(btdata, 1)
+summary(btdata_fit)
+coef(btdata_fit)
+summary.btfit(btdata_fit)
+
+
+df$away %>% fct_relevel(distinct_players)
+df$home %>% fct_relevel(distinct_players)
+
+
+levels(df$home)
+
+countsToBinomial(df)
+library(BradleyTerry2)
+citeModel <- BTm(cbind(home_win, away_win), home, away, data = df)
+citeModel
+3;
+```
+
+
+
+
+
+
+
+```{r}
+A_rating <- 1650
+B_rating <- 1550
+C_rating <- 1550
+D_rating <- 1450
+
+set.seed(10)
+
+df <- 
+  tribble(
+    ~home, ~away, ~game_winner,
+    "A", "B", "home",
+    "A", "C", "away",
+    "A", "D", "home",
+    "B", "C", "home",
+    "B", "D", "home",
+    "C", "D", "away",
+    "A", "B", "home",
+    "A", "C", "home",
+    "A", "D", "home",
+    "B", "C", "away",
+    "B", "D", "home",
+    "C", "D", "home"
+  )
+
+fargo_ratings <-
+  tibble(
+    player = c("A", "B", "C", "D"),
+    rating = rep(1500, 4)
+  )
+
+df %>% 
+  filter(str_detect(home, "A"))
+
+f <- function(A) (A / (A + B_rating))
+
+f(1650)
+
+```
+
+
+
+
+
+
+
+
+```{r}
+url <- 'https://www.sfpapool.org/stats/player/3945/'
+
+webpage <- read_html(url)
+
+player_name <- 
+  webpage %>% 
+  html_nodes("h3") %>% 
+  html_text() %>% 
+  str_extract("\\w+\\s\\w+")
+
+player_team_name <- 
+  webpage %>% 
+  html_nodes("tbody") %>% 
+  html_nodes("tr") %>% 
+  html_text() %>% 
+  as_tibble() %>% 
+  filter(str_detect(value, "Spring 2019")) %>% 
+  mutate(value = str_extract(value, pattern = "(.)+\n\\s+\\w+\\s\\w+")) %>% 
+  mutate(value = str_remove(value, pattern = "(.)+\n\\s+")) %>% 
+  as.character()
+
+webpage %>% 
+  html_nodes("tbody") %>% 
+  html_nodes("tr") %>% 
+  html_text() %>% 
+  
+webpage %>% 
+  html_nodes("div") %>% 
+  html_text() %>% 
+  as_tibble() %>% 
+  filter(str_detect(value, "^\\w")) %>% 
+  separate(value, into = c("information", "matches"), sep = "TR") %>% 
+  mutate(
+    date = str_extract(information, pattern = "^\\w+\\.\\s\\d+\\,\\s\\d+"),
+    week = str_extract(information, pattern = "Week\\s\\d+"),
+    week = as.numeric(str_extract(information, pattern = "\\d+"))
+  ) %>% 
+  separate(matches, into = c("match1", "match2", "match3", "match4"), sep = "\n\\s+\n") %>% 
+  mutate(match1 = str_remove(match1, pattern = "^\n\\s")) %>% 
+  separate(match1, into = c("gm1_op", "gm1_result"), sep = "\n") %>% 
+  separate(match2, into = c("gm2_op", "gm2_result"), sep = "\n") %>% 
+  separate(match3, into = c("gm3_op", "gm3_result"), sep = "\n") %>% 
+  separate(match4, into = c("gm4_op", "gm4_result"), sep = "\n")
+
+webpage %>% 
+  html_nodes("tr") %>% 
+  html_text() %>% 
+  as_tibble() %>% 
+  filter(!str_detect(value, "@|Opponent")) %>% 
+  mutate(value = str_extract(value, "(.)+\n\\s+\\w")) %>% 
+  mutate(player1 = player_name) %>% 
+  separate(value, into = c("player2", "result"), sep = "\n")
+
+webpage %>% 
+  html_nodes("div") %>% 
+  html_nodes("div") %>% 
+  html_nodes("div") %>% 
+  html_text() %>% 
+  as_tibble() %>% 
+  filter(str_detect(value, "\\w+\\s\\w+|--")) %>% 
+  filter(!str_detect(value, "^\n"))
+```
+
+```{r}
+#elo_ratings
+get_win_loss_record <- function(player_of_interest) {
+  df <- 
+    results_19_no_forfeits %>% 
+    filter(home == player_of_interest | away == player_of_interest) %>% 
+    mutate(
+      player = player_of_interest,
+      game_result = case_when(
+        away == player_of_interest & game_winner == "away" ~ "W",
+        home == player_of_interest & game_winner == "home" ~ "W",
+        TRUE ~ "L"
+      )
+    ) %>% 
+    count(player, game_result) %>% 
+    spread(game_result, n)
+  
+  df <- 
+    if (("W") %in% names(df)) { 
+      df 
+    } else {
+      df %>% mutate(W = 0)
+    }
+
+  df <- 
+    if (("L") %in% names(df)) { 
+      df 
+    } else {
+      df %>% mutate(L = 0)
+    }
+
+  df %>% 
+    select(player, W, L) %>% 
+    mutate(pct = W / L) %>% 
+    left_join(elo_ratings, by = "player")
+}
+get_win_loss_record(player_of_interest = "Buddy Jacques")
+
+
+```
