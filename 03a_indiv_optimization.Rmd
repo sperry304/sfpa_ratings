@@ -11,7 +11,6 @@ library(tidyverse)
 library(rvest)
 library(lubridate)
 library(pROC)
-setwd("/Users/v0p007p/Documents/sfpa_ratings")
 ```
 
 ```{r}
@@ -59,53 +58,10 @@ match_win_probability <- function(player_of_interest, home_rating, away_rating, 
 ```
 
 ```{r}
-K <- 20
-
-# Construct summary data frame of base 1500 ratings using the distinct players seen in the time period
-elo_ratings <-
-  full_player_list(train) %>% 
-  mutate(rating = 1500)
-
-for (i in 1:nrow(train)) {
-  player1 <- train$home[i]
-  player2 <- train$away[i]
-  player1_rating <- get_rating(player1, elo_ratings)
-  player2_rating <- get_rating(player2, elo_ratings)
-  train$p1_start_rating[i] <- player1_rating
-  train$p2_start_rating[i] <- player2_rating
-  player1_expected <-
-    match_win_probability(
-      player_of_interest = "home", home_rating = player1_rating, away_rating = player2_rating,
-      home_advantage = home_advantage
-    )
-  player2_expected <-
-    match_win_probability(
-      player_of_interest = "away", home_rating = player1_rating, away_rating = player2_rating,
-      home_advantage = home_advantage
-    )
-  winner <- train$game_winner[i]
-  S1 <- ifelse(winner == "home", 1, 0)
-  S2 <- ifelse(winner == "home", 0, 1)
-  player1_rating_new = player1_rating + K * (S1 - player1_expected)
-  player2_rating_new = player2_rating + K * (S2 - player2_expected)
-  elo_ratings$rating[elo_ratings$player == player1] <- player1_rating_new
-  elo_ratings$rating[elo_ratings$player == player2] <- player2_rating_new
-  train$p1_end_rating[i] <- player1_rating_new
-  train$p2_end_rating[i] <- player2_rating_new
-}
-
-elo_ratings %>% 
-  mutate(rating = round(rating)) %>% 
-  arrange(-rating) %>% 
-  append_team_names()
-```
-
-
-
-```{r}
-# Test set performance
+# Function for simulating results at different levels of K
 k_testing <- function(K) {
   print(str_c("Starting k = ", K))
+  
   elo_ratings <-
     full_player_list(train) %>% 
     mutate(rating = 1500)
@@ -173,8 +129,13 @@ k_testing <- function(K) {
       K = K
     )
 }
+```
 
-k_results <- map_dfr(seq(6, 40, by = 1), k_testing)
+```{r}
+# Run models
+k_results <- map_dfr(seq(6, 46, by = 1), k_testing)
+
+saveRDS(k_results, str_c("other_data/k_results_", today(), ".Rdata"))
 ```
 
 ```{r}
@@ -186,9 +147,8 @@ k_results %>%
   geom_line()
 ```
 
-
 ```{r}
-# Weighted mean absolute error by rounded probability (to 1 digit)
+# Weighted mean absolute error by probability (rounded to 1 digit)
 k_results %>% 
   mutate(diff = abs(win_pct - prob)) %>% 
   group_by(K) %>% 
@@ -209,7 +169,6 @@ k_results %>%
   geom_line() +
   coord_fixed(xlim = c(0, 1), ylim = c(0, 1))
 ```
-
 
 ```{r}
 df %>% 

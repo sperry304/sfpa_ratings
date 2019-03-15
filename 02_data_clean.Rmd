@@ -10,7 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(rvest)
 library(lubridate)
-setwd("/Users/v0p007p/Documents/sfpa_ratings")
 ```
 
 ```{r}
@@ -20,9 +19,10 @@ fall18 <- readRDS("match_data/all_matches_2018fall.Rdata")
 fall18playoffs <- readRDS("match_data/all_matches_2018fallplayoffs.Rdata")
 spring19 <- readRDS("match_data/all_matches_2019spring.Rdata")
 
-spring19 <- 
-  spring19 %>% 
-  bind_rows(week_urls_to_all_matches("https://www.sfpapool.org/stats/week/62/"))
+# With this, need functions from 01_data_scrape.Rmd
+#spring19 <- 
+#  spring19 %>% 
+#  bind_rows(week_urls_to_all_matches("https://www.sfpapool.org/stats/week/62/"))
 
 # Get combined file
 results <-
@@ -45,7 +45,7 @@ results_17_18 <-
 results_19 <-
   spring19
 
-# Pull out forfeits and omitted playoff games from data frames
+# Pull out forfeits and omitted playoff games from data frames, clean names
 remove_forfeits <- function(results_df) {
   results_df %>% 
     filter(is.na(forfeit)) %>% 

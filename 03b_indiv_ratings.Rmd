@@ -10,7 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(rvest)
 library(lubridate)
-setwd("/Users/v0p007p/Documents/sfpa_ratings")
 ```
 
 ```{r}
