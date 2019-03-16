@@ -1,7 +1,7 @@
 SFPA Team ELO Ratings
 ================
 Skip Perry
-3/11/2019
+3/15/2019
 
 ``` r
 # Set K based on optimization

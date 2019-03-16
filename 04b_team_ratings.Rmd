@@ -1,7 +1,7 @@
 ---
 title: "SFPA Team ELO Ratings"
 author: "Skip Perry"
-date: "3/11/2019"
+date: "3/15/2019"
 output: github_document
 ---
 
@@ -65,6 +65,7 @@ elo_ratings <-
   team_names %>% 
   mutate(rating = 1500)
 
+# Populate real-time match ratings throughout results data frame
 for (i in 1:nrow(results_no_forfeits)) {
   team1 <- results_no_forfeits$home_team[i]
   team2 <- results_no_forfeits$away_team[i]
@@ -93,11 +94,11 @@ for (i in 1:nrow(results_no_forfeits)) {
   results_no_forfeits$p2_end_rating[i] <- team2_rating_new
 }
 
-elo_ratings %>% 
-  inner_join(team_names_2019, by = "team") %>% 
-  mutate(rating = round(rating)) %>% 
-  arrange(-rating) %>% 
-  knitr::kable()
+#elo_ratings %>% 
+#  inner_join(team_names_2019, by = "team") %>% 
+#  mutate(rating = round(rating)) %>% 
+#  arrange(-rating) %>% 
+#  knitr::kable()
 ```
 
 ```{r}
@@ -149,6 +150,41 @@ team_matches_and_ratings_sliced <-
   mutate(new_rating = round(new_rating))
 
 saveRDS(team_matches_and_ratings_sliced, str_c("other_data/team_matches_and_ratings_sliced", today(), ".Rdata"))
+
+win_pct_2019 <- 
+  team_matches_and_ratings %>% 
+  filter(!is.na(result), match_date > "2019-01-01") %>% 
+  group_by(team, result) %>% 
+  count() %>% 
+  ungroup() %>% 
+  spread(result, n) %>% 
+  transmute(
+    team, 
+    win_pct = W / (W + L)
+  )
+```
+
+```{r}
+elo_ratings %>% 
+  inner_join(team_names_2019, by = "team") %>% 
+  left_join(win_pct_2019, by = "team") %>% 
+  mutate(rating = round(rating)) %>% 
+  ggplot(aes(x = reorder(team, rating), y = rating, fill = win_pct > 0.5)) +
+  geom_hline(yintercept = 1500, size = 2, color = "white") +
+  geom_col() + 
+  geom_text(aes(label = rating, y = rating - 20), color = "white", size = 3) + 
+  coord_flip(ylim = c(1200, 1700)) +
+  scale_y_continuous(
+    expand = c(0, 0)
+  ) +
+  labs(
+    y = "Rating"
+  ) + 
+  theme(
+    axis.title.y = element_blank()
+  )
+
+
 ```
 
 ```{r}
@@ -168,7 +204,7 @@ plot_teams <- function(teams_of_interest) {
     ) +
     labs(
       x = "Match Date", y = "ELO Rating",
-      title = "Team Ratings (ELO)"
+      title = "SFPA Team Rating Trends, 2018-2019"
     ) +
     theme(
       legend.title = element_blank(),
@@ -186,6 +222,6 @@ plot_teams(team_list)
 ```
 
 ```{r}
-
+team_names
 ```
 

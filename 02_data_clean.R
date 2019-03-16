@@ -2,11 +2,11 @@ library(tidyverse)
 library(rvest)
 library(lubridate)
 
-spring18 <- readRDS("match_data/all_matches_2018spring.Rdata")
-spring18playoffs <- readRDS("match_data/all_matches_2018springplayoffs.Rdata")
-fall18 <- readRDS("match_data/all_matches_2018fall.Rdata")
-fall18playoffs <- readRDS("match_data/all_matches_2018fallplayoffs.Rdata")
-spring19 <- readRDS("match_data/all_matches_2019spring.Rdata")
+spring18 <- readRDS("/Users/v0p007p/Documents/sfpa_ratings/match_data/all_matches_2018spring.Rdata")
+spring18playoffs <- readRDS("/Users/v0p007p/Documents/sfpa_ratings/match_data/all_matches_2018springplayoffs.Rdata")
+fall18 <- readRDS("/Users/v0p007p/Documents/sfpa_ratings/match_data/all_matches_2018fall.Rdata")
+fall18playoffs <- readRDS("/Users/v0p007p/Documents/sfpa_ratings/match_data/all_matches_2018fallplayoffs.Rdata")
+spring19 <- readRDS("/Users/v0p007p/Documents/sfpa_ratings/match_data/all_matches_2019spring.Rdata")
 
 # With this, need functions from 01_data_scrape.Rmd
 #spring19 <- 
@@ -64,8 +64,14 @@ remove_forfeits <- function(results_df) {
       away_team = if_else(away_team == "The Black Willows", "Black Willows", away_team),
       home_team = if_else(home_team == "Lucky Horseshoe", "Lucky Horseshoe Caballeros", home_team),
       away_team = if_else(away_team == "Lucky Horseshoe", "Lucky Horseshoe Caballeros", away_team),
+      home_team = if_else(home_team == "6 Holes of Napper Tandy", "Bare Naked 6 Holes", home_team),
+      away_team = if_else(away_team == "6 Holes of Napper Tandy", "Bare Naked 6 Holes", away_team),
       home_team = if_else(home_team == "Smoke and Rumors", "Smoke & Rumors", home_team),
       away_team = if_else(away_team == "Smoke and Rumors", "Smoke & Rumors", away_team),
+      home_team = if_else(home_team == "Lucky Break", "Lone Star Rebels", home_team),
+      away_team = if_else(away_team == "Lucky Break", "Lone Star Rebels", away_team),
+      home_team = if_else(home_team == "Mixing in Action", "Mix VANGIE", home_team),
+      away_team = if_else(away_team == "Mixing in Action", "Mix VANGIE", away_team),
       p1_start_rating = as.numeric(NA), 
       p1_end_rating = as.numeric(NA),
       p2_start_rating = as.numeric(NA), 
