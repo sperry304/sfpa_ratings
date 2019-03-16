@@ -190,6 +190,15 @@ week_urls_to_all_matches <- function(week_urls) {
 ```
 
 ```{r}
+# Summarize previous file
+prev_matches <- readRDS("match_data/all_matches_2019spring.Rdata")
+
+prev_matches %>% 
+  group_by(match_date) %>% 
+  count()
+```
+
+```{r}
 # Get updated Spring 2019 results
 week_urls_2019spring <- str_c("https://www.sfpapool.org/stats/week/", c(57:62)) # Spring 2019
 all_matches_2019spring <- week_urls_to_all_matches(week_urls_2019spring)

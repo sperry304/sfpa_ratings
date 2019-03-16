@@ -233,8 +233,6 @@ plot_player_ratings_by_team <- function(team_name) {
 plot_player_ratings_by_team(team_name = "Lucky Horseshoe Caballeros")
 ```
 
-
-
 ```{r}
 # Summarize players' win-loss records against all relevant opponents
 # This appears not to be used for anything right now
@@ -332,9 +330,6 @@ elo_player_team_ratings %>%
     color = "Sextile"
   )
 ```
-
-
-
 
 ```{r}
 # Player improvement in the 2019 season 
