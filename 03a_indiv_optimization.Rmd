@@ -11,6 +11,7 @@ library(tidyverse)
 library(rvest)
 library(lubridate)
 library(pROC)
+source("02_data_clean.R")
 ```
 
 ```{r}
