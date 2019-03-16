@@ -1,19 +1,9 @@
----
-title: "SFPA Ratings"
-author: "Skip Perry"
-date: "March 2019"
-output: github_document
----
-  
-```{r setup, include=FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
-library(rvest)
-library(lubridate)
-source("02_data_clean.R")
-```
+SFPA Ratings
+================
+Skip Perry
+March 2019
 
-```{r}
+``` r
 # Set K based on optimization worksheet
 K <- 23
 
@@ -99,7 +89,22 @@ elo_ratings %>%
   append_team_names()
 ```
 
-```{r}
+    ## # A tibble: 327 x 3
+    ##    player          rating team                      
+    ##    <chr>            <dbl> <chr>                     
+    ##  1 Skip Perry        1803 Tandy Tokers              
+    ##  2 Hector Ortega     1789 <NA>                      
+    ##  3 Ryan Piaget       1770 Clean Slate               
+    ##  4 Mike Maxwell      1760 Route 101 Rawhides        
+    ##  5 Wyatt Moss        1724 Naked Lunch Nice Rack     
+    ##  6 Evan Burgess      1710 Lucky Horseshoe Caballeros
+    ##  7 Tom Seymour       1698 Route 101 Rawhides        
+    ##  8 Andy Luong        1697 <NA>                      
+    ##  9 Rhys Hughes       1696 Golden Slate Warriors     
+    ## 10 Thayer McDougle   1690 Lucky Horseshoe Caballeros
+    ## # … with 317 more rows
+
+``` r
 # Function to get a data frame of matches and real-time ratings for a particular player
 player_matches_and_ratings <- function(player_of_interest) {
   df <- 
@@ -150,7 +155,7 @@ win_loss_record <- function(player_of_interest) {
 #player_matches_and_ratings(player_of_interest = "Mike Maxwell")
 ```
 
-```{r}
+``` r
 # Helper functions to get a list of all the players in a team (ever, or just now)
 get_team_players <- function(team_name) {
   home_players <- 
@@ -222,20 +227,29 @@ plot_player_ratings_by_group(
   player_list = top_players,
   list_name = "Top 10"
 )
+```
 
+![](03b_indiv_ratings_files/figure-markdown_github/unnamed-chunk-3-1.png)
+
+``` r
 plot_player_ratings_by_group(
   player_list = get_current_team_players("Tandy Tokers"),
   list_name = "Tandy Tokers"
 )
+```
 
+![](03b_indiv_ratings_files/figure-markdown_github/unnamed-chunk-3-2.png)
+
+``` r
 plot_player_ratings_by_group(
   player_list = get_current_team_players("Lucky Horseshoe Caballeros"),
   list_name = "Lucky Horseshoe Caballeros"
 )
-
 ```
 
-```{r}
+![](03b_indiv_ratings_files/figure-markdown_github/unnamed-chunk-3-3.png)
+
+``` r
 # Show plot with ratings by team and player to see best teams 
 # Includes column for the best 4 players on the team 
 elo_player_team_ratings <- 
@@ -266,7 +280,11 @@ elo_player_team_ratings %>%
     title = "Ratings by Team and Player (Full Team)",
     color = "Sextile"
   )
+```
 
+![](03b_indiv_ratings_files/figure-markdown_github/unnamed-chunk-4-1.png)
+
+``` r
 elo_player_team_ratings %>% 
   filter(top4 == TRUE) %>% 
   group_by(team) %>% 
@@ -285,7 +303,9 @@ elo_player_team_ratings %>%
   )
 ```
 
-```{r}
+![](03b_indiv_ratings_files/figure-markdown_github/unnamed-chunk-4-2.png)
+
+``` r
 # Player improvement in the 2019 season 
 player_names_2019 <- 
   bind_rows(
@@ -328,7 +348,23 @@ ratings_changes <-
 ratings_changes
 ```
 
-```{r}
+    ## # A tibble: 211 x 6
+    ## # Groups:   player [211]
+    ##    player         initial final  diff new_old    team                    
+    ##    <chr>            <dbl> <dbl> <dbl> <chr>      <chr>                   
+    ##  1 Jon Williams     1500  1614. 114.  New player Cafe Ballbusters        
+    ##  2 Tae Yim          1500  1609. 109.  New player Cafe 2 for 1's          
+    ##  3 Erik Proctor     1377. 1473.  95.4 Old player Cafe Cafaholics         
+    ##  4 Troy Brunet      1361. 1453.  91.8 Old player Hole in the Wall Bangers
+    ##  5 Darrell Haslip   1570. 1657.  87.0 Old player Smoke & Rumors          
+    ##  6 Justin Taylor    1508. 1594.  85.6 Old player Mixfits                 
+    ##  7 Rene Denis       1564. 1649.  84.7 Old player Smoke & Rumors          
+    ##  8 Jason Rogers     1511. 1591.  79.9 Old player Clean Slate             
+    ##  9 Bob Rice         1500  1573.  72.8 New player Cafe Cafaholics         
+    ## 10 David Norris     1452. 1521.  68.9 Old player House of Ginger         
+    ## # … with 201 more rows
+
+``` r
 ratings_changes %>% 
   #filter(new_old == "New player") %>% 
   ggplot(aes(x = reorder(player, diff), y = diff, fill = new_old)) +
@@ -345,7 +381,4 @@ ratings_changes %>%
   )
 ```
 
-```{r}
-
-```
-
+![](03b_indiv_ratings_files/figure-markdown_github/unnamed-chunk-6-1.png)
