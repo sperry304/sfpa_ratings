@@ -23,25 +23,25 @@ source("02_data_clean.R")
 
 ```{r}
 # Set K based on optimization
-K <- 3
+K <- 4
 
 # Data frame of all team names for all seasons
 team_names <- 
   bind_rows(
-    results_no_forfeits %>% select(home_team) %>% transmute(team = home_team),
-    results_no_forfeits %>% select(away_team) %>% transmute(team = away_team)
+    results_no_forfeits %>% transmute(team = home_team),
+    results_no_forfeits %>% transmute(team = away_team)
   ) %>% 
-    distinct() %>% 
-    arrange(team)
+  distinct() %>% 
+  arrange(team)
 
 # Data frame of team names in the current Spring 2019 season
 team_names_2019 <- 
   bind_rows(
-    results_19_no_forfeits %>% select(home_team) %>% transmute(team = home_team),
-    results_19_no_forfeits %>% select(away_team) %>% transmute(team = away_team)
+    results_19_no_forfeits %>% transmute(team = home_team),
+    results_19_no_forfeits %>% transmute(team = away_team)
   ) %>% 
-    distinct() %>% 
-    arrange(team)
+  distinct() %>% 
+  arrange(team)
 
 # Helper function for ELO match win probability
 match_win_probability <- function(team_of_interest, home_rating, away_rating, home_advantage) {
@@ -61,7 +61,7 @@ get_rating <- function(team_name, ratings_df) {
 }
 
 # Initialize ratings at 1500
-elo_ratings <-
+elo_team_ratings <-
   team_names %>% 
   mutate(rating = 1500)
 
@@ -69,8 +69,8 @@ elo_ratings <-
 for (i in 1:nrow(results_no_forfeits)) {
   team1 <- results_no_forfeits$home_team[i]
   team2 <- results_no_forfeits$away_team[i]
-  team1_rating <- get_rating(team1, elo_ratings)
-  team2_rating <- get_rating(team2, elo_ratings)
+  team1_rating <- get_rating(team1, elo_team_ratings)
+  team2_rating <- get_rating(team2, elo_team_ratings)
   results_no_forfeits$p1_start_rating[i] <- team1_rating
   results_no_forfeits$p2_start_rating[i] <- team2_rating
   team1_expected <-
@@ -86,15 +86,15 @@ for (i in 1:nrow(results_no_forfeits)) {
   winner <- results_no_forfeits$game_winner[i]
   S1 <- ifelse(winner == "home", 1, 0)
   S2 <- ifelse(winner == "home", 0, 1)
-  team1_rating_new = team1_rating + K * (S1 - team1_expected)
-  team2_rating_new = team2_rating + K * (S2 - team2_expected)
-  elo_ratings$rating[elo_ratings$team == team1] <- team1_rating_new
-  elo_ratings$rating[elo_ratings$team == team2] <- team2_rating_new
+  team1_rating_new <- team1_rating + K * (S1 - team1_expected)
+  team2_rating_new <- team2_rating + K * (S2 - team2_expected)
+  elo_team_ratings$rating[elo_team_ratings$team == team1] <- team1_rating_new
+  elo_team_ratings$rating[elo_team_ratings$team == team2] <- team2_rating_new
   results_no_forfeits$p1_end_rating[i] <- team1_rating_new
   results_no_forfeits$p2_end_rating[i] <- team2_rating_new
 }
 
-#elo_ratings %>% 
+#elo_team_ratings %>% 
 #  inner_join(team_names_2019, by = "team") %>% 
 #  mutate(rating = round(rating)) %>% 
 #  arrange(-rating) %>% 
@@ -149,7 +149,7 @@ team_matches_and_ratings_sliced <-
   ungroup() %>% 
   mutate(new_rating = round(new_rating))
 
-saveRDS(team_matches_and_ratings_sliced, str_c("other_data/team_matches_and_ratings_sliced", today(), ".Rdata"))
+#saveRDS(team_matches_and_ratings_sliced, str_c("other_data/team_matches_and_ratings_sliced", today(), ".Rdata"))
 
 win_pct_2019 <- 
   team_matches_and_ratings %>% 
@@ -160,16 +160,18 @@ win_pct_2019 <-
   spread(result, n) %>% 
   transmute(
     team, 
-    win_pct = W / (W + L)
+    win_pct = W / (W + L),
+    record = if_else(win_pct >= 0.5, ".500+", "<.500")
   )
 ```
 
 ```{r}
-elo_ratings %>% 
-  inner_join(team_names_2019, by = "team") %>% 
-  left_join(win_pct_2019, by = "team") %>% 
+# Plot current ratings by team with shading for winning/losing record
+elo_team_ratings %>% 
   mutate(rating = round(rating)) %>% 
-  ggplot(aes(x = reorder(team, rating), y = rating, fill = win_pct > 0.5)) +
+  inner_join(team_names_2019, by = "team") %>% 
+  left_join(win_pct_2019, by = "team") %>%  
+  ggplot(aes(x = reorder(team, rating), y = rating, fill = record)) +
   geom_hline(yintercept = 1500, size = 2, color = "white") +
   geom_col() + 
   geom_text(aes(label = rating, y = rating - 20), color = "white", size = 3) + 
@@ -178,13 +180,14 @@ elo_ratings %>%
     expand = c(0, 0)
   ) +
   labs(
-    y = "Rating"
+    y = "Rating",
+    title = "SFPA Team ELO Ratings",
+    fill = "Record"
   ) + 
   theme(
-    axis.title.y = element_blank()
+    axis.title.y = element_blank(),
+    plot.title = element_text(hjust = 0.5)
   )
-
-
 ```
 
 ```{r}
@@ -222,6 +225,6 @@ plot_teams(team_list)
 ```
 
 ```{r}
-team_names
+
 ```
 

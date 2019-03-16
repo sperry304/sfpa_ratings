@@ -149,7 +149,7 @@ k_results %>%
 ```{r}
 # Plot results
 k_results %>% 
-  filter(K %in% seq(1, 6, 1)) %>% 
+  filter(K %in% seq(3, 8, 1)) %>% 
   mutate(K = as.factor(K)) %>% 
   ggplot(aes(x = prob, y = win_pct, color = K, group = K)) +
   geom_abline(slope = 1, intercept = 0, color = "white", size = 2) +

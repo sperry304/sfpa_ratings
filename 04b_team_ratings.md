@@ -5,25 +5,25 @@ Skip Perry
 
 ``` r
 # Set K based on optimization
-K <- 3
+K <- 4
 
 # Data frame of all team names for all seasons
 team_names <- 
   bind_rows(
-    results_no_forfeits %>% select(home_team) %>% transmute(team = home_team),
-    results_no_forfeits %>% select(away_team) %>% transmute(team = away_team)
+    results_no_forfeits %>% transmute(team = home_team),
+    results_no_forfeits %>% transmute(team = away_team)
   ) %>% 
-    distinct() %>% 
-    arrange(team)
+  distinct() %>% 
+  arrange(team)
 
 # Data frame of team names in the current Spring 2019 season
 team_names_2019 <- 
   bind_rows(
-    results_19_no_forfeits %>% select(home_team) %>% transmute(team = home_team),
-    results_19_no_forfeits %>% select(away_team) %>% transmute(team = away_team)
+    results_19_no_forfeits %>% transmute(team = home_team),
+    results_19_no_forfeits %>% transmute(team = away_team)
   ) %>% 
-    distinct() %>% 
-    arrange(team)
+  distinct() %>% 
+  arrange(team)
 
 # Helper function for ELO match win probability
 match_win_probability <- function(team_of_interest, home_rating, away_rating, home_advantage) {
@@ -43,15 +43,16 @@ get_rating <- function(team_name, ratings_df) {
 }
 
 # Initialize ratings at 1500
-elo_ratings <-
+elo_team_ratings <-
   team_names %>% 
   mutate(rating = 1500)
 
+# Populate real-time match ratings throughout results data frame
 for (i in 1:nrow(results_no_forfeits)) {
   team1 <- results_no_forfeits$home_team[i]
   team2 <- results_no_forfeits$away_team[i]
-  team1_rating <- get_rating(team1, elo_ratings)
-  team2_rating <- get_rating(team2, elo_ratings)
+  team1_rating <- get_rating(team1, elo_team_ratings)
+  team2_rating <- get_rating(team2, elo_team_ratings)
   results_no_forfeits$p1_start_rating[i] <- team1_rating
   results_no_forfeits$p2_start_rating[i] <- team2_rating
   team1_expected <-
@@ -67,57 +68,20 @@ for (i in 1:nrow(results_no_forfeits)) {
   winner <- results_no_forfeits$game_winner[i]
   S1 <- ifelse(winner == "home", 1, 0)
   S2 <- ifelse(winner == "home", 0, 1)
-  team1_rating_new = team1_rating + K * (S1 - team1_expected)
-  team2_rating_new = team2_rating + K * (S2 - team2_expected)
-  elo_ratings$rating[elo_ratings$team == team1] <- team1_rating_new
-  elo_ratings$rating[elo_ratings$team == team2] <- team2_rating_new
+  team1_rating_new <- team1_rating + K * (S1 - team1_expected)
+  team2_rating_new <- team2_rating + K * (S2 - team2_expected)
+  elo_team_ratings$rating[elo_team_ratings$team == team1] <- team1_rating_new
+  elo_team_ratings$rating[elo_team_ratings$team == team2] <- team2_rating_new
   results_no_forfeits$p1_end_rating[i] <- team1_rating_new
   results_no_forfeits$p2_end_rating[i] <- team2_rating_new
 }
 
-elo_ratings %>% 
-  inner_join(team_names_2019, by = "team") %>% 
-  mutate(rating = round(rating)) %>% 
-  arrange(-rating) %>% 
-  knitr::kable()
+#elo_team_ratings %>% 
+#  inner_join(team_names_2019, by = "team") %>% 
+#  mutate(rating = round(rating)) %>% 
+#  arrange(-rating) %>% 
+#  knitr::kable()
 ```
-
-| team                         |  rating|
-|:-----------------------------|-------:|
-| Golden Slate Warriors        |    1641|
-| Route 101 Rawhides           |    1631|
-| Lucky Horseshoe Caballeros   |    1620|
-| Clean Slate                  |    1591|
-| Smoke & Rumors               |    1580|
-| Dovre & Out                  |    1559|
-| Cafe Ballbusters             |    1549|
-| Cafe Cafaholics              |    1542|
-| Rumors Never Die             |    1528|
-| Tandy Tokers                 |    1526|
-| Mixfits                      |    1520|
-| Cinch You're Down There      |    1516|
-| Ice Willows                  |    1516|
-| Naked Lunch Nice Rack        |    1510|
-| Ginger Strokes               |    1506|
-| Cinch Pack                   |    1505|
-| Cafe Strikes Again           |    1497|
-| Pilsner Penguins             |    1497|
-| Lucky Horseshoe Glue Factory |    1492|
-| Bare Naked 6 Holes           |    1488|
-| Cinch Phoenix                |    1481|
-| Mix VANGIE                   |    1479|
-| Harry's Hooligans            |    1473|
-| Cinchsationals               |    1468|
-| Pilsner Innmates             |    1465|
-| Hole in the Wall Howlers     |    1462|
-| Hole in the Wall Bangers     |    1458|
-| Wicked Bitches of the West   |    1451|
-| Black Willows                |    1444|
-| House of Ginger              |    1428|
-| Harry's Humdingers           |    1427|
-| Cafe 2 for 1's               |    1407|
-| Lone Star Rebels             |    1405|
-| Lone Star Longhorns          |    1380|
 
 ``` r
 team_matches_and_ratings <- function(team_of_interest) {
@@ -167,8 +131,48 @@ team_matches_and_ratings_sliced <-
   ungroup() %>% 
   mutate(new_rating = round(new_rating))
 
-saveRDS(team_matches_and_ratings_sliced, str_c("other_data/team_matches_and_ratings_sliced", today(), ".Rdata"))
+#saveRDS(team_matches_and_ratings_sliced, str_c("other_data/team_matches_and_ratings_sliced", today(), ".Rdata"))
+
+win_pct_2019 <- 
+  team_matches_and_ratings %>% 
+  filter(!is.na(result), match_date > "2019-01-01") %>% 
+  group_by(team, result) %>% 
+  count() %>% 
+  ungroup() %>% 
+  spread(result, n) %>% 
+  transmute(
+    team, 
+    win_pct = W / (W + L),
+    record = if_else(win_pct >= 0.5, ".500+", "<.500")
+  )
 ```
+
+``` r
+# Plot current ratings by team with shading for winning/losing record
+elo_team_ratings %>% 
+  mutate(rating = round(rating)) %>% 
+  inner_join(team_names_2019, by = "team") %>% 
+  left_join(win_pct_2019, by = "team") %>%  
+  ggplot(aes(x = reorder(team, rating), y = rating, fill = record)) +
+  geom_hline(yintercept = 1500, size = 2, color = "white") +
+  geom_col() + 
+  geom_text(aes(label = rating, y = rating - 20), color = "white", size = 3) + 
+  coord_flip(ylim = c(1200, 1700)) +
+  scale_y_continuous(
+    expand = c(0, 0)
+  ) +
+  labs(
+    y = "Rating",
+    title = "SFPA Team ELO Ratings",
+    fill = "Record"
+  ) + 
+  theme(
+    axis.title.y = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
+![](04b_team_ratings_files/figure-markdown_github/unnamed-chunk-4-1.png)
 
 ``` r
 plot_teams <- function(teams_of_interest) {
@@ -187,7 +191,7 @@ plot_teams <- function(teams_of_interest) {
     ) +
     labs(
       x = "Match Date", y = "ELO Rating",
-      title = "Team Ratings (ELO)"
+      title = "SFPA Team Rating Trends, 2018-2019"
     ) +
     theme(
       legend.title = element_blank(),
@@ -204,4 +208,4 @@ team_list <- c(
 plot_teams(team_list)
 ```
 
-![](04b_team_ratings_files/figure-markdown_github/unnamed-chunk-4-1.png)
+![](04b_team_ratings_files/figure-markdown_github/unnamed-chunk-5-1.png)
