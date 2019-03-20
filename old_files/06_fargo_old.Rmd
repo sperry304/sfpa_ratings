@@ -1,0 +1,420 @@
+---
+title: "SFPA Fargo Ratings"
+author: "Skip Perry"
+date: "March 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rvest)
+library(lubridate)
+```
+
+```{r}
+spring18 <- readRDS("match_data/all_matches_2018spring.Rdata")
+spring18playoffs <- readRDS("match_data/all_matches_2018springplayoffs.Rdata")
+fall18 <- readRDS("match_data/all_matches_2018fall.Rdata")
+fall18playoffs <- readRDS("match_data/all_matches_2018fallplayoffs.Rdata")
+spring19 <- readRDS("match_data/all_matches_2019spring.Rdata")
+# Get combined file
+results <-
+  bind_rows(
+    spring18,
+    spring18playoffs,
+    fall18,
+    fall18playoffs,
+    spring19
+  )
+results_17_18 <-
+  bind_rows(
+    spring18,
+    spring18playoffs,
+    fall18,
+    fall18playoffs
+  )
+results_19 <-
+  spring19
+# Pull out forfeits and omitted playoff games from data frames
+remove_forfeits <- function(results_df) {
+  results_df %>% 
+    filter(is.na(forfeit)) %>% 
+    filter(!is.na(game_winner)) %>% 
+    filter(home != "Forfeited Game") %>% 
+    filter(away != "Forfeited Game") %>% 
+    mutate(
+      home = str_replace(home, "\\(", ""),
+      home = str_replace(home, "\\)", ""),
+      away = str_replace(away, "\\(", ""),
+      away = str_replace(away, "\\)", ""),
+      home = str_replace_all(home, '\\"', ""),
+      away = str_replace_all(away, '\\"', ""),
+      home = str_replace(home, "\\'HJ\\'", "HJ"),
+      away = str_replace(away, "\\'HJ\\'", "HJ"),
+      home = str_replace(home, "\\'Stkyrice\\'\\s", ""),
+      away = str_replace(away, "\\'Stkyrice\\'\\s", ""),
+      home_team = str_replace(home_team, "é", "e"),
+      away_team = str_replace(away_team, "é", "e"),
+      home_team = str_replace(home_team, "!", ""),
+      away_team = str_replace(away_team, "!", ""),
+      home = if_else(home == "Chris L", "Chris Logan", home),
+      away = if_else(away == "Chris L", "Chris Logan", away),
+      home = if_else(home == "Jerz", "Jerz Zuluaga", home),
+      away = if_else(away == "Jerz", "Jerz Zuluaga", away),
+      home_team = if_else(home_team == "Lucky Horseshoe", "Lucky Horseshoe Caballeros", home_team),
+      away_team = if_else(away_team == "Lucky Horseshoe", "Lucky Horseshoe Caballeros", away_team),
+      home_team = if_else(home_team == "Smoke and Rumors", "Smoke & Rumors", home_team),
+      away_team = if_else(away_team == "Smoke and Rumors", "Smoke & Rumors", away_team),
+      p1_start_rating = as.numeric(NA), 
+      p1_end_rating = as.numeric(NA),
+      p2_start_rating = as.numeric(NA), 
+      p2_end_rating = as.numeric(NA)
+    )
+}
+results_17_18_no_forfeits <- remove_forfeits(results_17_18)
+results_19_no_forfeits <- remove_forfeits(results_19)
+results_no_forfeits <- remove_forfeits(results)
+train <- results_17_18_no_forfeits
+test <- results_19_no_forfeits
+```
+
+
+
+```{r}
+# HELPER FUNCTIONS
+# Helper function to get player list
+full_player_list <- function(df) {
+  bind_rows(
+    df %>% select(home) %>% transmute(player = home), 
+    df %>% select(away) %>% transmute(player = away)
+  ) %>% 
+    distinct(player) %>% 
+    arrange(player)
+}
+# Helper function to add team names to a data frame containing a column for player
+append_team_names <- function(df) {
+  df %>% 
+    full_join(players_by_team_19, by = "player")
+}
+# Function to get a data frame of matches and real-time ratings for a particular player
+player_matches_and_ratings <- function(player_of_interest) {
+  df <- 
+    results_no_forfeits %>% 
+    filter(away == player_of_interest | home == player_of_interest) %>% 
+    mutate(
+      player = player_of_interest,
+      opponent = case_when(
+        away == player_of_interest ~ home,
+        TRUE ~ away
+      ),
+      opponent_rating = case_when(
+        away == player_of_interest ~ p1_start_rating,
+        TRUE ~ p2_start_rating
+      ),
+      result = case_when(
+        away == player_of_interest & game_winner == "away" ~ "W",
+        home == player_of_interest & game_winner == "home" ~ "W",
+        TRUE ~ "L"
+      ),
+      new_rating = case_when(
+        away == player_of_interest ~ p2_end_rating,
+        TRUE ~ p1_end_rating
+      )
+    ) %>% 
+    select(match_date, player, opponent, opponent_rating, result, new_rating)
+  
+  row1_start_date <- df %>% pull(match_date) %>% min() - 7
+  
+  new_row1 <- 
+    tribble(
+      ~match_date, ~player, ~opponent, ~opponent_rating, ~result, ~new_rating,
+      row1_start_date, player_of_interest, NA, NA, NA, 1500
+    )
+  
+  bind_rows(new_row1, df)
+}
+# Turn full player list into a vector instead of a data frame
+player_list_vector <- 
+  full_player_list(results_no_forfeits) %>% 
+  pull(player)
+# Construct data frame summary of a given player, their opponents, wins, and losses
+player_win_loss_summary <- function(player_of_interest) {
+  df <-
+    player_matches_and_ratings(player_of_interest) %>% 
+    slice(-1) %>%                        # Removes the blank line for 1500 starter rating
+    count(player, opponent, result) %>% 
+    spread(result, n)
+  
+  df <- 
+    if (("W") %in% names(df)) { 
+      df 
+    } else {
+      df %>% mutate(W = 0)
+    }
+  df <- 
+    if (("L") %in% names(df)) { 
+      df 
+    } else {
+      df %>% mutate(L = 0)
+    }
+  
+  df %>% 
+    transmute(
+      player, opponent,
+      W = replace_na(W, 0),
+      L = replace_na(L, 0),
+      total_games = W + L
+    ) %>% 
+    arrange(-total_games, -W)
+}
+full_win_loss_summary <- 
+  map_dfr(player_list_vector, player_win_loss_summary)
+# Data frame that counts the total number of games played by each player
+# (Also produces data frame column of distinct players as a byproduct)
+total_games_by_player <- 
+  full_win_loss_summary %>% 
+  group_by(player) %>% 
+  summarize(total_games = sum(total_games)) %>% 
+  arrange(desc(total_games))
+# Data frame of players and team names in Spring 2019
+players_by_team_19 <- 
+  bind_rows(
+    results_19_no_forfeits %>% distinct(home_team, home) %>% transmute(player = home, team = home_team),
+    results_19_no_forfeits %>% distinct(away_team, away) %>% transmute(player = away, team = away_team)
+  ) %>% 
+    distinct() %>% 
+    arrange(team, player)
+```
+
+```{r}
+# TRAIN FARGO RATINGS
+# The formula used here came from https://www.stat.berkeley.edu/~aldous/Colloq/lange-talk.pdf 
+# MAP estimate: gamma prior http://www.stats.ox.ac.uk/~doucet/caron_doucet_bayesianbradleyterry.pdf 
+# Since gamma mean is a / b, choose a to represent number of games and set (a - 1) / 500
+# to get an overall mean rating of 500
+# Starter ratings of 500
+fargo_ratings <- 
+  full_player_list(results_no_forfeits) %>% 
+  mutate(rating = 500)
+# Function to get new rating
+
+new_fargo_rating <- function(player_of_interest, a = 1) {
+  b <- ifelse(a > 1, (a - 1) / 500, 0)
+  player_win_loss_summary(player_of_interest) %>% 
+    left_join(
+      fargo_ratings %>% transmute(opponent = player, opp_rating = rating), 
+      by = "opponent"
+    ) %>% 
+    left_join(
+      fargo_ratings %>% transmute(player, current_rating = rating), 
+      by = "player"
+    ) %>% 
+    select(player, opponent, W, L, total_games, opp_rating, current_rating) %>% 
+    mutate(A = total_games / (current_rating + opp_rating)) %>% 
+    summarize(numerator = sum(W), denominator = sum(A)) %>% 
+    mutate(rating = (a - 1 + numerator) / (b + denominator)) %>% 
+    pull(rating)
+}
+starter_ratings <- fargo_ratings %>% pull(rating)
+old_ratings <- starter_ratings 
+gamma_prior <- 5
+
+for (j in 1:20) {
+  print(str_c("j = ", j))
+  for (i in 1:nrow(total_games_by_player)) {
+    player_of_interest <- total_games_by_player$player[i]
+    total_games_played <- total_games_by_player$total_games[i]
+    new_rating <- new_fargo_rating(player_of_interest, a = gamma_prior)
+    fargo_ratings$rating[fargo_ratings$player == player_of_interest] <- new_rating
+    #fargo_ratings$rating[fargo_ratings$player == player_of_interest] <- 
+    #  (total_games_played * new_rating + prior_weight * 500) / (total_games_played + prior_weight)
+  }
+  new_ratings <- fargo_ratings %>% pull(rating)
+  sum_of_abs_diff <- sum(abs(new_ratings - old_ratings))
+  print(str_c("Sum of absolute differences: ", sum_of_abs_diff))
+  old_ratings <- new_ratings
+}
+fargo_ratings %>% 
+  ggplot(aes(x = rating)) +
+  geom_histogram(bins = 50)
+fargo_ratings %>% 
+  summarize(mean = mean(rating))
+fargo_ratings %>% 
+  arrange(desc(rating)) %>% 
+  mutate(rating = round(rating)) %>% 
+  append_team_names()
+```
+
+
+
+
+
+
+```{r}
+# Find best prior parameter
+# modify functions
+player_list_vector <- 
+  full_player_list(train) %>% 
+  pull(player)
+player_matches_and_ratings_train <- function(player_of_interest) {
+  df <- 
+    train %>% 
+    filter(away == player_of_interest | home == player_of_interest) %>% 
+    mutate(
+      player = player_of_interest,
+      opponent = case_when(
+        away == player_of_interest ~ home,
+        TRUE ~ away
+      ),
+      opponent_rating = case_when(
+        away == player_of_interest ~ p1_start_rating,
+        TRUE ~ p2_start_rating
+      ),
+      result = case_when(
+        away == player_of_interest & game_winner == "away" ~ "W",
+        home == player_of_interest & game_winner == "home" ~ "W",
+        TRUE ~ "L"
+      ),
+      new_rating = case_when(
+        away == player_of_interest ~ p2_end_rating,
+        TRUE ~ p1_end_rating
+      )
+    ) %>% 
+    select(match_date, player, opponent, opponent_rating, result, new_rating)
+  
+  row1_start_date <- df %>% pull(match_date) %>% min() - 7
+  
+  new_row1 <- 
+    tribble(
+      ~match_date, ~player, ~opponent, ~opponent_rating, ~result, ~new_rating,
+      row1_start_date, player_of_interest, NA, NA, NA, 1500
+    )
+  
+  bind_rows(new_row1, df)
+}
+player_win_loss_summary_train <- function(player_of_interest) {
+  df <-
+    player_matches_and_ratings_train(player_of_interest) %>% 
+    slice(-1) %>%                        # Removes the blank line for 1500 starter rating
+    count(player, opponent, result) %>% 
+    spread(result, n)
+  
+  df <- 
+    if (("W") %in% names(df)) { 
+      df 
+    } else {
+      df %>% mutate(W = 0)
+    }
+  df <- 
+    if (("L") %in% names(df)) { 
+      df 
+    } else {
+      df %>% mutate(L = 0)
+    }
+  
+  df %>% 
+    transmute(
+      player, opponent,
+      W = replace_na(W, 0),
+      L = replace_na(L, 0),
+      total_games = W + L
+    ) %>% 
+    arrange(-total_games, -W)
+}
+full_win_loss_summary_train <- 
+  map_dfr(player_list_vector, player_win_loss_summary_train)
+# Data frame that counts the total number of games played by each player
+# (Also produces data frame column of distinct players as a byproduct)
+total_games_by_player <- 
+  full_win_loss_summary_train %>% 
+  group_by(player) %>% 
+  summarize(total_games = sum(total_games)) %>% 
+  arrange(desc(total_games))
+```
+
+```{r}
+# Function to get new rating
+new_fargo_rating <- function(player_of_interest, a = 1) {
+  b <- ifelse(a > 1, (a - 1) / 500, 0)
+  player_win_loss_summary_train(player_of_interest) %>% 
+    left_join(
+      fargo_ratings %>% transmute(opponent = player, opp_rating = rating), 
+      by = "opponent"
+    ) %>% 
+    left_join(
+      fargo_ratings %>% transmute(player, current_rating = rating), 
+      by = "player"
+    ) %>% 
+    select(player, opponent, W, L, total_games, opp_rating, current_rating) %>% 
+    mutate(A = total_games / (current_rating + opp_rating)) %>% 
+    summarize(numerator = sum(W), denominator = sum(A)) %>% 
+    mutate(rating = (a - 1 + numerator) / (b + denominator)) %>% 
+    pull(rating)
+}
+```
+
+```{r}
+# Starter ratings of 500
+fargo_ratings <- 
+  full_player_list(train) %>% 
+  mutate(rating = 500)
+starter_ratings <- fargo_ratings %>% pull(rating)
+old_ratings <- starter_ratings 
+gamma_prior <- 5
+for (j in 1:20) {
+  print(str_c("j = ", j))
+  for (i in 1:nrow(total_games_by_player)) {
+    player_of_interest <- total_games_by_player$player[i]
+    total_games_played <- total_games_by_player$total_games[i]
+    new_rating <- new_fargo_rating(player_of_interest, a = gamma_prior)
+    fargo_ratings$rating[fargo_ratings$player == player_of_interest] <- new_rating
+    #fargo_ratings$rating[fargo_ratings$player == player_of_interest] <- 
+    #  (total_games_played * new_rating + prior_weight * 500) / (total_games_played + prior_weight)
+  }
+  new_ratings <- fargo_ratings %>% pull(rating)
+  sum_of_abs_diff <- sum(abs(new_ratings - old_ratings))
+  print(str_c("Sum of absolute differences: ", sum_of_abs_diff))
+  old_ratings <- new_ratings
+}
+fargo_ratings %>% 
+  arrange(desc(rating)) %>% 
+  mutate(rating = round(rating)) %>% 
+  append_team_names()
+# Test set performance
+df <- 
+  test %>% 
+  select(home_player = home, away_player = away, game_winner) %>% 
+  inner_join(
+    fargo_ratings %>% transmute(home_player = player, home_rating = rating),
+    by = "home_player"
+  ) %>% 
+  inner_join(
+    fargo_ratings %>% transmute(away_player = player, away_rating = rating),
+    by = "away_player"
+  ) %>% 
+  mutate(
+    home_win = if_else(game_winner == "home", 1, 0),
+    home_win_prob = home_rating / (home_rating + away_rating),
+    prob = round(home_win_prob, 1)
+  )
+df %>% 
+  group_by(prob) %>% 
+  summarize(
+    pct_correct = sum(home_win) / n(),
+    total = n()
+  )
+df %>% 
+  group_by(prob) %>% 
+  summarize(
+    pct_correct = sum(home_win) / n(),
+    total = n()
+  ) %>% 
+  filter(prob > 0.25 & prob < 0.75) %>% 
+  mutate(diff = abs(prob - pct_correct)) %>% 
+  pull(diff) %>% 
+  sum()
+```
+
+```{r}
+```

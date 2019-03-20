@@ -62,8 +62,8 @@ remove_forfeits <- function(results_df) {
       away = if_else(away == "Jerz", "Jerz Zuluaga", away),
       home_team = if_else(home_team == "The Black Willows", "Black Willows", home_team),
       away_team = if_else(away_team == "The Black Willows", "Black Willows", away_team),
-      home_team = if_else(home_team == "Lucky Horseshoe", "Lucky Horseshoe Caballeros", home_team),
-      away_team = if_else(away_team == "Lucky Horseshoe", "Lucky Horseshoe Caballeros", away_team),
+      home_team = if_else(home_team == "Lucky Horseshoe", "Lucky Horseshoe Unnamed", home_team),
+      away_team = if_else(away_team == "Lucky Horseshoe", "Lucky Horseshoe Unnamed", away_team),
       home_team = if_else(home_team == "6 Holes of Napper Tandy", "Bare Naked 6 Holes", home_team),
       away_team = if_else(away_team == "6 Holes of Napper Tandy", "Bare Naked 6 Holes", away_team),
       home_team = if_else(home_team == "Smoke and Rumors", "Smoke & Rumors", home_team),
@@ -72,10 +72,14 @@ remove_forfeits <- function(results_df) {
       away_team = if_else(away_team == "Lucky Break", "Lone Star Rebels", away_team),
       home_team = if_else(home_team == "Mixing in Action", "Mix VANGIE", home_team),
       away_team = if_else(away_team == "Mixing in Action", "Mix VANGIE", away_team),
-      p1_start_rating = as.numeric(NA), 
-      p1_end_rating = as.numeric(NA),
-      p2_start_rating = as.numeric(NA), 
-      p2_end_rating = as.numeric(NA)
+      p1_start_rating = NA_real_, 
+      p1_end_rating = NA_real_,
+      p2_start_rating = NA_real_, 
+      p2_end_rating = NA_real_,
+      t1_start_rating = NA_real_, 
+      t1_end_rating = NA_real_,
+      t2_start_rating = NA_real_, 
+      t2_end_rating = NA_real_
     )
 }
 

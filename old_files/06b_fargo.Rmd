@@ -1,0 +1,291 @@
+---
+title: "SFPA Fargo Ratings v.2"
+author: "Skip Perry"
+date: "March 2019"
+output: github_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rvest)
+library(lubridate)
+library(pROC)
+
+# Get latest match data
+latest_date <- 
+  list.files("other_data", pattern = "elo_ratings") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits_path <-
+  str_c("match_data/results_no_forfeits_", latest_date, ".Rdata")
+
+results_no_forfeits <- 
+  results_no_forfeits_path %>% 
+  read_rds()
+
+test_data <- 
+  results_no_forfeits %>% 
+  filter(season == "Spring 2019") %>% 
+  select(-c(forfeit:t2_end_rating))
+
+train_data <- 
+  results_no_forfeits %>% 
+  filter(season != "Spring 2019") %>% 
+  select(-c(forfeit:t2_end_rating))
+
+cv_folds <- 4
+
+set.seed(13)
+full_data <- 
+  bind_rows(train_data, test_data) %>% 
+  mutate(cv = sample.int(cv_folds, nrow(.), replace = TRUE))
+```
+
+```{r}
+current_fargo_ratings <- 
+  bind_rows(full_data %>% select(player = home), full_data %>% select(player = away)) %>% 
+  distinct() %>%
+  arrange(player) %>% 
+  mutate(rating = 500)
+
+player_record <- function(player_of_interest, results_df) {
+  results_df %>% 
+  filter(away == player_of_interest | home == player_of_interest) %>% 
+  mutate(
+    player = player_of_interest,
+    opponent = if_else(home == player_of_interest, away, home),
+    game_result = case_when(
+      home == player_of_interest & game_winner == "home" ~ "W",
+      away == player_of_interest & game_winner == "away" ~ "W",
+      TRUE ~ "L"
+    )
+  )
+}
+
+player_record_summarized <- function(player_of_interest, results_df) {
+  df <- 
+    player_record(player_of_interest = player_of_interest, results_df = results_df) %>% 
+    group_by(player, opponent) %>% 
+    count(game_result) %>% 
+    spread(game_result, n) %>% 
+    ungroup()
+  
+  df <- 
+    if (("W") %in% names(df)) { df } 
+    else { df %>% mutate(W = 0) }
+
+  df <- 
+    if (("L") %in% names(df)) { df } 
+    else { df %>% mutate(L = 0) }
+
+  df %>% 
+    mutate_if(is.numeric, replace_na, 0) %>% 
+    transmute(player, opponent, W, L, games_vs_opponent = W + L) %>% 
+    arrange(-games_vs_opponent, -W)
+}
+
+append_fargo_ratings <- function(player_record_summarized, current_fargo_ratings) {
+  player_record_summarized %>% 
+    inner_join(
+      current_fargo_ratings %>% transmute(player, player_rating = rating), 
+      by = "player"
+    ) %>% 
+    inner_join(
+      current_fargo_ratings %>% transmute(opponent = player, opponent_rating = rating), 
+      by = "opponent"
+    )
+}
+
+updated_fargo_rating <- function(player_of_interest, gamma_prior = 1, results_df, current_fargo_ratings) {
+  b <- ifelse(gamma_prior > 1, (gamma_prior - 1) / 500, 0)
+  player_record_summarized(player_of_interest, results_df) %>% 
+    append_fargo_ratings(current_fargo_ratings) %>% 
+    mutate(A = games_vs_opponent / (player_rating + opponent_rating)) %>% 
+    summarize(
+      numerator = sum(W), 
+      denominator = sum(A)
+    ) %>% 
+    mutate(rating = (gamma_prior - 1 + numerator) / (b + denominator)) %>% 
+    pull(rating)
+}
+
+updated_fargo_rating(
+  player_of_interest = "Ari Cowen", 
+  gamma_prior = 5, 
+  results_df = full_data, 
+  current_fargo_ratings = current_fargo_ratings
+)
+```
+
+```{r}
+cv_prior_testing <- function(gamma_prior) {
+  auc_results <- rep(0, cv_folds)
+  
+  probs_vs_wins <- 
+    tribble(
+      ~prob, ~wins, ~nsize
+    )
+  
+  print(str_c("Testing gamma prior ", gamma_prior))
+  
+  for (c in 1:cv_folds) {
+    print(str_c("CV fold ", c))
+    train_data <- full_data %>% filter(cv != c)
+    test_data <- full_data %>% filter(cv == c)
+    
+    current_fargo_ratings <- 
+      bind_rows(train_data %>% select(player = home), full_data %>% select(player = away)) %>% 
+      distinct() %>%
+      arrange(player) %>% 
+      mutate(rating = 500)
+  
+    mean_abs_diff <- 10000
+    n_iter <- 0
+    
+    while (mean_abs_diff > 100) {
+      n_iter <- n_iter + 1
+      old_ratings <- current_fargo_ratings %>% pull(rating)
+      for (i in 1:nrow(current_fargo_ratings)) {
+        player_of_interest <- current_fargo_ratings$player[i]
+        current_fargo_ratings$rating[i] <- updated_fargo_rating(
+          player_of_interest = player_of_interest, 
+          gamma_prior = gamma_prior, 
+          results_df = train_data, 
+          current_fargo_ratings = current_fargo_ratings
+        )
+      }
+      new_ratings <- current_fargo_ratings %>% pull(rating)
+      #print(str_c("Mean absolute difference: ", sum(abs(old_ratings - new_ratings))))
+      mean_abs_diff <- sum(abs(old_ratings - new_ratings))
+    }
+    print(str_c("Converged in ", n_iter, " iterations"))
+    
+    test_set_with_win_probs <-
+      test_data %>% 
+        transmute(player = home, opponent = away, game_winner) %>% 
+        append_fargo_ratings(current_fargo_ratings)  %>% 
+        mutate(
+          player_win = if_else(game_winner == "home", 1, 0),
+          player_win_prob = player_rating / (player_rating + opponent_rating),
+          prob = round(player_win_prob, 1)
+        )
+    
+    match_results <- test_set_with_win_probs %>% pull(player_win)
+    match_probabilities <- test_set_with_win_probs %>% pull(player_win_prob)
+    
+    auc_results[c] <- as.numeric(auc(roc(match_results, match_probabilities)))
+    
+    probs_vs_wins_cv <- 
+      test_set_with_win_probs %>% 
+        group_by(prob) %>% 
+        summarize(
+          wins = sum(player_win),
+          nsize = n()
+        )
+    
+    probs_vs_wins <- 
+      bind_rows(
+        probs_vs_wins,
+        probs_vs_wins_cv
+      )
+  }
+  
+  mean_auc <- mean(auc_results)
+  
+  probs_vs_wins %>% 
+    group_by(prob) %>% 
+    summarize(
+      wins = sum(wins),
+      nsize = sum(nsize)
+    ) %>% 
+    mutate(
+      win_pct = wins / nsize,
+      auc = mean_auc,
+      gamma_prior = gamma_prior
+    )
+}
+```
+
+```{r}
+#df_test <- 
+#  cv_prior_testing(5)
+
+df_test <-
+  bind_rows(
+    df_test,
+    map_dfr(c(3.5, 4, 4.5, 5.5, 6), cv_prior_testing)
+  )
+
+cv_testing <- 
+  map_dfr(c(1.1, seq(1.5, 10, by = 0.5)), cv_prior_testing)
+
+saveRDS(cv_testing, "other_data/cv_results_318.Rdata")
+```
+
+```{r}
+cv_testing %>% 
+  filter(gamma_prior > 2.5, gamma_prior < 5.5) %>% 
+  mutate(gamma_prior = as.factor(gamma_prior)) %>% 
+  ggplot(aes(x = prob, y = win_pct, color = gamma_prior, group = gamma_prior)) +
+  geom_line() +
+  geom_abline(slope = 1, intercept = 0, color = "white", size = 2) +
+  geom_point() +
+  geom_line() +
+  coord_fixed(xlim = c(0, 1), ylim = c(0, 1))
+```
+
+```{r}
+cv_testing %>% 
+  mutate(diff = abs(win_pct - prob)) %>% 
+  group_by(gamma_prior) %>% 
+  summarize(err = sum(diff * nsize / sum(nsize))) %>% 
+  ggplot(aes(x = gamma_prior, y = err)) + 
+  geom_point() + 
+  geom_line() +
+  geom_hline(yintercept = 0, color = "white", size = 2)
+```
+
+```{r}
+cv_testing %>% 
+  distinct(auc, gamma_prior) %>% 
+  ggplot(aes(x = gamma_prior, y = auc)) +
+  geom_point() +
+  geom_line()
+```
+
+```{r}
+gamma_prior <- 3
+
+final_fargo_ratings <- 
+  bind_rows(full_data %>% select(player = home), full_data %>% select(player = away)) %>% 
+  distinct() %>%
+  arrange(player) %>% 
+  mutate(rating = 500)
+
+mean_abs_diff <- 10000
+n_iter <- 0
+
+while (mean_abs_diff > 50) {
+  n_iter <- n_iter + 1
+  old_ratings <- final_fargo_ratings %>% pull(rating)
+  for (i in 1:nrow(final_fargo_ratings)) {
+    player_of_interest <- final_fargo_ratings$player[i]
+    final_fargo_ratings$rating[i] <- updated_fargo_rating(
+      player_of_interest = player_of_interest, 
+      gamma_prior = gamma_prior, 
+      results_df = full_data, 
+      current_fargo_ratings = final_fargo_ratings
+    )
+  }
+  new_ratings <- final_fargo_ratings %>% pull(rating)
+  print(str_c("Mean absolute difference: ", sum(abs(old_ratings - new_ratings))))
+  mean_abs_diff <- sum(abs(old_ratings - new_ratings))
+}
+print(str_c("Converged in ", n_iter, " iterations"))
+
+final_fargo_ratings %>% 
+  arrange(desc(rating))
+```
+
