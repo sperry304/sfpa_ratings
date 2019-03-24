@@ -285,6 +285,8 @@ current_elo_team_ratings %>%
   arrange(desc(rating))
 ```
 
+
+
 ```{r}
 # Data frame of players and team names in Spring 2019 - helper for next helper function
 players_by_team_19 <- 

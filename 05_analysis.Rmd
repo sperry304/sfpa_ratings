@@ -165,6 +165,7 @@ elo_ratings %>%
 # Plot player ratings over time
 plot_player_ratings_by_group <- function(player_list, list_name) {
   map_dfr(player_list, player_matches_and_ratings) %>% 
+    #filter(match_date > "2018-12-11") %>% 
     group_by(match_date, player) %>% 
     slice(n()) %>% 
     ggplot(aes(x = match_date, y = new_rating, group = player, color = player)) +
@@ -390,7 +391,7 @@ plot_teams <- function(teams_of_interest) {
 
 team_list <- c(
   "Tandy Tokers", "Route 101 Rawhides", "Golden Slate Warriors", "Clean Slate",
-  "Lucky Horseshoe Caballeros", "Smoke & Rumors", "Mix VANGIE"
+  "Lucky Horseshoe Caballeros", "Smoke & Rumors"
 )
 
 plot_teams(team_list)

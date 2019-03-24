@@ -38,6 +38,8 @@ player_record <- function(player_of_interest, results_df) {
   )
 }
 
+player_record("Skip Perry", full_data) %>% count()
+
 append_ratings_to_player_record <- function(player_record, current_ratings) {
   player_record %>% 
     inner_join(
@@ -50,70 +52,23 @@ append_ratings_to_player_record <- function(player_record, current_ratings) {
     )
 }
 
-generate_robustness <- function(results_df) {
-  robustness <- 
-    bind_rows(results_df %>% select(player = home), results_df %>% select(player = away)) %>% 
-    distinct() %>% 
-    arrange(player) %>% 
-    mutate(robustness = NA_integer_)
-  
-  for (i in 1:nrow(robustness)) {
-    robustness$robustness[i] <- player_record(robustness$player[i], results_df) %>% count() %>% pull()
-  }
-  
-  robustness %>% 
-    transmute(
-      player, 
-      R = if_else(robustness > 25, 1, robustness / 25)
-    )
-}
-
-generate_latest_match_date <- function(results_df) {
-  latest_match_date <- 
-    bind_rows(results_df %>% select(player = home), results_df %>% select(player = away)) %>% 
-      distinct() %>% 
-      arrange(player) %>% 
-      mutate(latest_match_date = today() - 1500)
-  
-  for (i in 1:nrow(latest_match_date)) {
-      latest_match_date$latest_match_date[i] <- 
-        player_record(latest_match_date$player[i], results_df) %>% pull(match_date) %>% max()
-  }
-  
-  latest_match_date
-}
-
 updated_fargo_rating <- function(
-  player_of_interest, gamma_prior = 1, results_df, current_ratings, decay_factor = 1500, robustness_df,
-  latest_match_date_df
+  player_of_interest, gamma_prior = 1, results_df, current_ratings, decay_factor = 1500
 ) {
   b <- ifelse(gamma_prior > 1, (gamma_prior - 1) / 500, 0)
-  latest_match_date <- 
-    latest_match_date_df %>% filter(player == player_of_interest) %>% pull(latest_match_date)
-  
   player_record(player_of_interest = player_of_interest, results_df = results_df) %>% 
     append_ratings_to_player_record(current_ratings) %>% 
-    left_join(robustness_df %>% transmute(opponent = player, R), by = "opponent") %>% 
     mutate(
       A = 1 / (player_rating + opponent_rating),
       W = if_else(game_result == "W", 1, 0),
-      latest_match_date = latest_match_date,
-      time_decay = (decay_factor - as.numeric(latest_match_date - match_date)) / decay_factor
+      time_decay = (decay_factor - as.numeric(today() - match_date)) / decay_factor,
+      time_decay = if_else(time_decay < 0, 0, time_decay)
     ) %>% 
-    summarize(A = sum(A * time_decay * R), W = sum(W * time_decay * R)) %>% 
+    summarize(A = sum(A * time_decay), W = sum(W * time_decay)) %>% 
     mutate(rating = (gamma_prior - 1 + W) / (b + A)) %>% 
     pull(rating)
 }
-```
 
-```{r}
-
-```
-
-```{r}
-# Needs from out of function:
-# cv_folds number
-# full_data, robustness, latest_match_date data frames
 cv_prior_testing <- function(gamma_prior) {
   auc_results <- rep(0, cv_folds)
   log_loss_results <- rep(0, cv_folds)
@@ -124,11 +79,6 @@ cv_prior_testing <- function(gamma_prior) {
       ~prob, ~wins, ~nsize
     )
   
-  decay_factor <- 1500
-  
-  robustness_df <- generate_robustness(full_data)
-  latest_match_date_df <- generate_latest_match_date(full_data)
-
   print(str_c("Testing gamma prior ", gamma_prior))
   
   for (c in 1:cv_folds) {
@@ -144,6 +94,7 @@ cv_prior_testing <- function(gamma_prior) {
     
     mean_abs_diff <- 10000
     n_iter <- 0
+    decay_factor <- 1500
     
     while (mean_abs_diff > 100) {
       n_iter <- n_iter + 1
@@ -155,9 +106,7 @@ cv_prior_testing <- function(gamma_prior) {
           gamma_prior = gamma_prior, 
           results_df = train_data, 
           current_ratings = current_fargo_ratings,
-          decay_factor = decay_factor,
-          robustness_df = robustness_df,
-          latest_match_date_df = latest_match_date_df
+          decay_factor = decay_factor
         )
       }
       new_ratings <- current_fargo_ratings %>% pull(rating)
@@ -221,25 +170,16 @@ cv_prior_testing <- function(gamma_prior) {
 ```
 
 ```{r}
-
-
-cv_testing_4 <- map_dfr(c(1.1, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5), cv_prior_testing)
-
-map_dfr(2.5, cv_prior_testing)
-```
-
-```{r}
 #cv_testing_3 <- 
 #  map_dfr(c(4, 5), cv_prior_testing)
 
-# saveRDS(cv_testing_3, "other_data/cv_testing_320.Rdata")
-saveRDS(cv_testing_4, "other_data/cv_testing_321.Rdata")
+#saveRDS(cv_testing_3, "other_data/cv_testing_320.Rdata")
 ```
 
 ```{r}
 cv_testing_3 <- readRDS("other_data/cv_testing_320.Rdata")
 
-cv_testing_4 %>% 
+cv_testing_3 %>% 
   #filter(gamma_prior > 2.5, gamma_prior < 5.5) %>% 
   mutate(gamma_prior = as.factor(gamma_prior)) %>% 
   ggplot(aes(x = prob, y = win_pct, color = gamma_prior, group = gamma_prior)) +
@@ -257,7 +197,7 @@ cv_testing_4 %>%
 ```
 
 ```{r}
-cv_testing_4 %>% 
+cv_testing_3 %>% 
   mutate(diff = abs(win_pct - prob)) %>% 
   group_by(gamma_prior) %>% 
   summarize(err = sum(diff * nsize / sum(nsize))) %>% 
@@ -274,7 +214,7 @@ cv_testing_4 %>%
 ```
 
 ```{r}
-cv_testing_4 %>% 
+cv_testing_3 %>% 
   distinct(auc, log_loss, accuracy, gamma_prior) %>% 
   gather(metric, value, -gamma_prior) %>% 
   ggplot(aes(x = gamma_prior, y = value, color = metric, group = metric)) +
@@ -289,10 +229,8 @@ cv_testing_4 %>%
 ```
 
 ```{r}
-# NEED TO UPDATE
-
 # Select best gamma prior and run ratings on full data set
-gamma_prior <- 2.5
+gamma_prior <- 2
 
 final_fargo_ratings <- 
   bind_rows(full_data %>% select(player = home), full_data %>% select(player = away)) %>% 
@@ -301,7 +239,6 @@ final_fargo_ratings <-
   mutate(rating = 500)
 
 mean_abs_diff <- 10000
-decay_factor <- 1500
 n_iter <- 0
 
 while (mean_abs_diff > 50) {
@@ -313,9 +250,8 @@ while (mean_abs_diff > 50) {
       player_of_interest = player_of_interest, 
       gamma_prior = gamma_prior, 
       results_df = full_data, 
-      current_ratings = final_fargo_ratings,
-      decay_factor = decay_factor,
-      robustness_df = robustness
+      current_ratings = final_fargo_ratings, 
+      decay_factor = 1500
     )
   }
   new_ratings <- final_fargo_ratings %>% pull(rating)
@@ -327,12 +263,6 @@ print(str_c("Converged in ", n_iter, " iterations"))
 final_fargo_ratings %>% 
   arrange(desc(rating))
 
-saveRDS(final_fargo_ratings, "other_data/fargo_ratings_321.Rdata")
-```
-
-
-```{r}
-results_no_forfeits %>% 
-  filter(away == "Jonathan")
+saveRDS(final_fargo_ratings, "other_data/fargo_ratings_320.Rdata")
 ```
 
