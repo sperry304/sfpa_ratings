@@ -318,6 +318,8 @@ saveRDS(df_test_3, "other_data/fargo_3_seasons_initial.Rdata")
 ```
 
 ```{r}
+fargo_df <- readRDS("other_data/fargo_324.Rdata")
+
 team_members <- function(team_name) {
   bind_rows(
     full_data %>% filter(season == "Spring 2019", home_team == team_name) %>% select(player = home),
@@ -338,6 +340,7 @@ plot_multiple_player_ratings <- function(player_list, df) {
     labs(
       x = "Match Date", y = "Rating"
     ) +
+    coord_cartesian(ylim = c(0, 2000)) +
     theme(
       legend.title = element_blank(),
       plot.title = element_text(hjust = 0.5),
@@ -350,7 +353,8 @@ plot_multiple_player_ratings(player_list = team_members("Tandy Tokers"), fargo_d
 plot_multiple_player_ratings(player_list = team_members("Route 101 Rawhides"), fargo_df)
 plot_multiple_player_ratings(player_list = team_members("Cafe Strikes Again"), fargo_df)
 plot_multiple_player_ratings(player_list = team_members("Lucky Horseshoe Caballeros"), fargo_df)
-plot_multiple_player_ratings(player_list = c("Jesse La Fear", "Nick Callado", "Stefano Lopez"), fargo_df)
+plot_multiple_player_ratings(player_list = team_members("Harry's Humdingers"), fargo_df)
+plot_multiple_player_ratings(player_list = c("Jesse La Fear", "Nick Callado"), fargo_df)
 ```
 
 ```{r}
