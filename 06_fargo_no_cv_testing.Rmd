@@ -172,25 +172,29 @@ fargo_df %>%
 date_loop <- 
   full_data %>% 
   select(match_date) %>% 
-  filter(match_date > "2019-01-01") %>% 
   distinct() %>% 
   pull()
 
 param_list <- list(
-  as_of_match_date = rep(date_loop, 9), gamma_prior = rep(seq(2, 4, by = 0.25), each = 7), half_life_days = 1500, 
+  as_of_match_date = date_loop, gamma_prior = 2.75, half_life_days = 1500, 
   games_to_robustness = 10
 )
+
 fargo_df <- pmap_dfr(param_list, run_fargo_through_date)
 
 fargo_df %>% 
-  group_by(match_date, gamma_prior) %>% 
+  group_by(match_date) %>% 
   summarize(mean = mean(rating))
 
 fargo_df %>%
   filter(match_date == fargo_df %>% select(match_date) %>% pull() %>% max()) %>% 
   arrange(desc(rating))
 
-saveRDS(fargo_df, "other_data/fargo_322.Rdata")
+saveRDS(fargo_df, "other_data/fargo_324.Rdata")
+```
+
+```{r}
+
 ```
 
 ```{r}
@@ -314,12 +318,6 @@ saveRDS(df_test_3, "other_data/fargo_3_seasons_initial.Rdata")
 ```
 
 ```{r}
-fargo_df_latest <- 
-  fargo_df %>% 
-  filter(
-    gamma_prior == 2.5
-  )
-
 team_members <- function(team_name) {
   bind_rows(
     full_data %>% filter(season == "Spring 2019", home_team == team_name) %>% select(player = home),
@@ -348,11 +346,11 @@ plot_multiple_player_ratings <- function(player_list, df) {
     )
 }
 
-plot_multiple_player_ratings(player_list = team_members("Tandy Tokers"), fargo_df_latest)
-plot_multiple_player_ratings(player_list = team_members("Route 101 Rawhides"), fargo_df_latest)
-plot_multiple_player_ratings(player_list = team_members("Cafe Strikes Again"), fargo_df_latest)
-plot_multiple_player_ratings(player_list = team_members("Lucky Horseshoe Caballeros"), fargo_df_latest)
-plot_multiple_player_ratings(player_list = c("Jesse La Fear", "Nick Callado", "Stefano Lopez"), fargo_df_latest)
+plot_multiple_player_ratings(player_list = team_members("Tandy Tokers"), fargo_df)
+plot_multiple_player_ratings(player_list = team_members("Route 101 Rawhides"), fargo_df)
+plot_multiple_player_ratings(player_list = team_members("Cafe Strikes Again"), fargo_df)
+plot_multiple_player_ratings(player_list = team_members("Lucky Horseshoe Caballeros"), fargo_df)
+plot_multiple_player_ratings(player_list = c("Jesse La Fear", "Nick Callado", "Stefano Lopez"), fargo_df)
 ```
 
 ```{r}

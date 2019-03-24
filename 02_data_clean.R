@@ -2,11 +2,13 @@ library(tidyverse)
 library(rvest)
 library(lubridate)
 
-spring18 <- readRDS("/Users/v0p007p/Documents/sfpa_ratings/match_data/all_matches_2018spring.Rdata")
-spring18playoffs <- readRDS("/Users/v0p007p/Documents/sfpa_ratings/match_data/all_matches_2018springplayoffs.Rdata")
-fall18 <- readRDS("/Users/v0p007p/Documents/sfpa_ratings/match_data/all_matches_2018fall.Rdata")
-fall18playoffs <- readRDS("/Users/v0p007p/Documents/sfpa_ratings/match_data/all_matches_2018fallplayoffs.Rdata")
-spring19 <- readRDS("/Users/v0p007p/Documents/sfpa_ratings/match_data/all_matches_2019spring.Rdata")
+setwd("~/Documents/sfpa_ratings")
+
+spring18 <- readRDS("match_data/all_matches_2018spring.Rdata")
+spring18playoffs <- readRDS("match_data/all_matches_2018springplayoffs.Rdata")
+fall18 <- readRDS("match_data/all_matches_2018fall.Rdata")
+fall18playoffs <- readRDS("match_data/all_matches_2018fallplayoffs.Rdata")
+spring19 <- readRDS("match_data/all_matches_2019spring.Rdata")
 
 # With this, need functions from 01_data_scrape.Rmd
 #spring19 <- 
