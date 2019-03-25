@@ -1,0 +1,98 @@
+---
+title: "SFPA Fargo Ratings v.2"
+author: "Skip Perry"
+date: "March 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+
+source("02_data_clean.R")
+```
+
+```{r}
+count_games <- function(player_of_interest, results_df) {
+  results_df %>% 
+    filter(away == player_of_interest | home == player_of_interest) %>% 
+    count() %>% 
+    transmute(player = player_of_interest, games_in_system = n) %>% 
+    pull()
+}
+
+games_in_system <- 
+  bind_rows(
+    results_no_forfeits %>% select(player = home),
+    results_no_forfeits %>% select(player = away)
+  ) %>% 
+  distinct() %>% 
+  arrange(player) %>% 
+  mutate(games_in_system = 0)
+
+for (i in 1:nrow(games_in_system)) {
+  games_in_system$games_in_system[i] <- 
+    count_games(games_in_system$player[i], results_no_forfeits)
+}
+```
+
+```{r}
+team_names_by_player <- 
+  bind_rows(
+    results_19_no_forfeits %>% select(player = home, team = home_team),
+    results_19_no_forfeits %>% select(player = away, team = away_team)
+  ) %>% 
+    distinct() %>% 
+    arrange(player, team)
+
+fargo_df <- 
+  readRDS("other_data/fargo_324.Rdata") %>% 
+  transmute(player, rating, match_date)
+
+fargo_df_latest <-
+  fargo_df %>% 
+  filter(match_date == fargo_df %>% select(match_date) %>% pull() %>% max()) %>% 
+  arrange(desc(rating)) %>% 
+  mutate(ranking = row_number()) %>% 
+  left_join(team_names_by_player, by = "player") %>% 
+  left_join(games_in_system, by = "player") %>% 
+  transmute(
+    ranking, 
+    player, 
+    current_team = replace_na(team, "--"), 
+    rating = round(rating),
+    games_in_system
+  )
+```
+
+TLDR:
+
+Considering two players $i$ and $j$ with ratings $\pi_i$ and $\pi_j$, the probability of $i$ winning a game can be calculated using the following formula:
+
+$$\text{P[Player } i \text{ wins]} = p_{ij} = \frac{\pi_i}{\pi_i + \pi_j}$$
+
+For those who care:
+
+These ratings were based on the Bradley-Terry model, which since the 1950s has been one of the standard methods of rating individuals or teams that are repeatedly paired against one another. While there is no analytical solution for the maximum likelihood estimate (MLE) of this problem, iterative methods can be used:
+
+$$\pi_i^{new} = \frac{\text{# of total wins by player } i}{\sum_{\text{All games played by } i} \frac{\text{# of games between } i, j}{\pi_i^{current} + \pi_j^{current}}}$$
+
+Or, using more traditional mathematical notation:
+
+$$\pi_i^{(t)} = \frac{w_i}{\sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$
+
+This expectation-maximization (EM) algorithm loops through each player, updating his or her rating using the latest estimates of all the other player ratings. Eventually, each update starts to have a vanishingly small effect on ratings and we can stop the process. A little experimentation with Google Calculator will show that this formula gives players more credit for beating higher-ranked opponents.
+
+While convergence in guaranteed under certain conditions, one of those conditions deals with having a sufficient number of connections in the data, i.e. games played between players ([see Assumption 3 here](http://personal.psu.edu/drh20/papers/bt.pdf)). Additionally, the MLE for a player converges toward positive or negative infinity if he or she is unbeaten or winless. To avoid these issues, here we take a Bayesian approach and find the maximum a priori (MAP) estimate of $\pi$:
+
+$$\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$
+
+This update formula is the result of setting a $\Gamma(a, b)$ prior on $p(\pi)$, which is conjugate to the complete data likelihood function. (Note that for $a = 1$ and $b = 0$, the MAP and ML estimates are equivalent; see [here](http://www.stats.ox.ac.uk/~doucet/caron_doucet_bayesianbradleyterry.pdf) for more information.) This requires hyperparameter tuning for various values of $a$ where $b = a / 500$, which shrinks player ratings toward 500.
+
+```{r}
+fargo_df_latest %>% 
+  arrange(desc(rating)) %>% 
+  knitr::kable()
+```
+
