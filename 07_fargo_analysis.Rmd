@@ -84,7 +84,7 @@ $$\pi_i^{(t)} = \frac{w_i}{\sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{
 
 This expectation-maximization (EM) algorithm loops through each player, updating his or her rating using the latest estimates of all the other player ratings. Eventually, each update starts to have a vanishingly small effect on ratings and we can stop the process. A little experimentation with Google Calculator will show that this formula gives players more credit for beating higher-ranked opponents.
 
-While convergence in guaranteed under certain conditions, one of those conditions deals with having a sufficient number of connections in the data, i.e. games played between players ([see Assumption 3 here](http://personal.psu.edu/drh20/papers/bt.pdf)). Additionally, the MLE for a player converges toward positive or negative infinity if he or she is unbeaten or winless. To avoid these issues, here we take a Bayesian approach and find the maximum a priori (MAP) estimate of $\pi$:
+While convergence in guaranteed under certain conditions, one of those conditions deals with having a sufficient number of connections in the data, i.e. games played between players ([see Assumption 3 here](http://personal.psu.edu/drh20/papers/bt.pdf)). Additionally, the MLE converges toward positive or negative infinity for unbeaten and winless players. To avoid these issues, we take a Bayesian approach and find the maximum a priori (MAP) estimate of $\pi$:
 
 $$\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$
 
