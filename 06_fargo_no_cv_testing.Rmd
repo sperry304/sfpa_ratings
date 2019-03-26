@@ -162,21 +162,17 @@ run_fargo_through_date <- function(
 ```
 
 ```{r}
-fargo_df %>% 
-  mutate(date2 = match_date - 7)
-
-0.5 ^ (365 / 1500)
-```
-
-```{r}
 date_loop <- 
   full_data %>% 
   select(match_date) %>% 
   distinct() %>% 
+  slice(-c(1:6)) %>% 
   pull()
 
 param_list <- list(
-  as_of_match_date = date_loop, gamma_prior = 2.75, half_life_days = 1500, 
+  as_of_match_date = rep(date_loop, 5), 
+  gamma_prior = rep(seq(2.5, 3.5, by = 0.25), each = length(date_loop)), 
+  half_life_days = 1500, 
   games_to_robustness = 10
 )
 
@@ -261,7 +257,7 @@ win_prob_summary
 
 ```{r}
 win_prob_summary %>% 
-  filter(gamma_prior > 2.5, gamma_prior < 3.5) %>% 
+  filter(gamma_prior < 3.25) %>% 
   mutate(gam = as.factor(gamma_prior)) %>% 
   ggplot(aes(x = prob, y = win_pct, group = gam, color = gam)) +
   geom_abline(slope = 1, intercept = 0, color = "white", size = 2) +
@@ -360,6 +356,39 @@ plot_multiple_player_ratings(player_list = c("Jesse La Fear", "Nick Callado"), f
 ```{r}
 player_record("Jesse La Fear", full_data)
 ```
+
+
+```{r}
+# Look at robustness level 
+
+fargo_df <- 
+  readRDS("other_data/fargo_324.Rdata") %>% 
+  transmute(player, rating, match_date)
+
+fargo_df %>% 
+  arrange(player, match_date) %>% 
+  group_by(player) %>% 
+  mutate(
+    game = row_number(),
+    diff = rating - lag(rating)
+  ) %>% 
+  ungroup() %>% 
+  group_by(game) %>% 
+  summarize(
+    mean = mean(diff),
+    median = median(diff)
+  ) %>% 
+  filter(!is.na(mean)) %>% 
+  gather(metric, value, mean:median) %>% 
+  ggplot(aes(x = game, y = value, color = metric, group = metric)) +
+  geom_hline(yintercept = 0, color = "white", size = 2) +
+  geom_point() +
+  geom_line()
+  
+```
+
+
+
 
 ```{r}
 df_test_2 %>% 
