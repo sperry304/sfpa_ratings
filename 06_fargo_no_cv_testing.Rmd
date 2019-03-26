@@ -365,6 +365,17 @@ fargo_df <-
   readRDS("other_data/fargo_324.Rdata") %>% 
   transmute(player, rating, match_date)
 
+#sizes <- 
+#  fargo_df %>% 
+#  arrange(player, match_date) %>% 
+#  group_by(player) %>% 
+#  mutate(
+#    game = row_number(),
+#    diff = rating - lag(rating)
+#  ) %>% 
+#  group_by(game) %>% 
+#  count()
+
 fargo_df %>% 
   arrange(player, match_date) %>% 
   group_by(player) %>% 
@@ -378,6 +389,7 @@ fargo_df %>%
     mean = mean(diff),
     median = median(diff)
   ) %>% 
+#  left_join(sizes, by = "game") %>% 
   filter(!is.na(mean)) %>% 
   gather(metric, value, mean:median) %>% 
   ggplot(aes(x = game, y = value, color = metric, group = metric)) +
