@@ -66,6 +66,8 @@ fargo_df_latest <-
   )
 ```
 
+### The Math Behind the Model 
+
 These ratings are based on the Bradley-Terry model, which since the 1950s has been one of the standard methods of rating individuals or teams that are repeatedly paired against one another. Considering two players $i$ and $j$ with ratings $\pi_i$ and $\pi_j$, this framework assumes player $i$ has the following probability of defeating player $j$:
 
 $$\text{P[Player } i \text{ defeats player } j] = p_{i > j} = \frac{\pi_i}{\pi_i + \pi_j}$$
@@ -100,13 +102,29 @@ Other considerations included:
 
 * Robustness: In order to prevent new players, whose ratings are based on a small amount of data, from too greatly affecting the ratings of established players, games against newly-joined league members are down-weighted until those players have competed in a certain number of games. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. The number 10 was chosen based on an exploratory analysis of when players' ratings begin to converge to a relative steady state.
 
-Finally, a few words on why this model is preferable to the often-used ELO ratings:
+### Questions and Answers 
 
-* ELO is highly momentum-based.
+What do the ratings mean? 
 
-* The ELO update formula essentially works as if players ante poker chips into a pot, with differential win and loss numbers based on each player's rating. Thus, every time you lose, your  
+* The only meaningful number in the ratings is 500, which has been set as the rough global league average. Otherwise, the ratings are only useful to calculate individual match probabilities: the probability of player A beating player B in a single game is equal to $A / (A + B)$. 
 
-Without further ado, the ratings as of March 19, 2019:
+How and why does my rating go up or down?
+
+* Your rating will go up when you perform better than the current ratings predict, and it will go down if you perform worse than the current ratings predict. Your rating will also change based on changes in your opponents' ratings. Let's assume you have a 6-3 record against some previous opponent. If that opponent has a few great nights and his or her rating increases, you will earn more points for having done well against that person. (The converse is true if your previous opponent's rating decreases.)
+
+How much do ratings change over time?
+
+* Some players perform at a consistent level and show only minor changes over time. Other people have seen large shifts in their ratings, both positive and negative. Substantial changes in players' ratings are almost always due to changes in their own performance, rather than changes in the performance of their previous opponents. 
+
+Do new league players have starter ratings?
+
+* Not exactly. Players start out with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some arbitrary period of time, we allow the results to follow the data even if that data is noisy at first.
+
+How many games are needed to indicate that a rating is trustworthy?
+
+* This is not a simple question. We are in the process of generating confidence intervals (or, more accurately, Bayesian credible intervals) for ratings to give an idea of how sure we may be. Initial exploration suggests 10 games is the time period by which many players tend see their ratings plateau. 
+
+### Ratings as of March 19, 2019
 
 ```{r, echo=FALSE}
 fargo_df_latest %>% 

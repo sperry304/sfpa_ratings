@@ -196,6 +196,8 @@ $(document).ready(function () {
 </div>
 
 
+<div id="the-math-behind-the-model" class="section level3">
+<h3>The Math Behind the Model</h3>
 <p>These ratings are based on the Bradley-Terry model, which since the 1950s has been one of the standard methods of rating individuals or teams that are repeatedly paired against one another. Considering two players <span class="math inline">\(i\)</span> and <span class="math inline">\(j\)</span> with ratings <span class="math inline">\(\pi_i\)</span> and <span class="math inline">\(\pi_j\)</span>, this framework assumes player <span class="math inline">\(i\)</span> has the following probability of defeating player <span class="math inline">\(j\)</span>:</p>
 <p><span class="math display">\[\text{P[Player } i \text{ defeats player } j] = p_{i &gt; j} = \frac{\pi_i}{\pi_i + \pi_j}\]</span></p>
 <p>While there is no analytical solution for the maximum likelihood estimate (MLE) of the collection of player ratings <span class="math inline">\(\pi_{i \in [1,n]}\)</span> for players 1 through <span class="math inline">\(n\)</span>, iterative methods can be used to find a result:</p>
@@ -215,12 +217,32 @@ $(document).ready(function () {
 <li><p>Time decay: In pool, a player’s skill level can sometimes change over time. One extreme would be to assume that these changes are the result of random noise and place equal weight on every game in a player’s match history; another would be to use a subset of a player’s most recent games, on the assumption that those games most accurately reflect their skill. The middle ground solution used here is a sliding scale where older matches contribute less to a player’s rating than newer ones. Matches are given a weighting factor between 0 and 1 based on a half-life of 1500 days from the date of a player’s latest game. (As an example, for the latest March 2019 ratings, matches played in January 2018 contribute about 80% of the value of a match played in the current month.) Since parameter tuning on the number of days to half-life showed little impact on model results, this number was chosen arbitrarily. The end result is a rating system that is responsive to change but results in fewer wild temporary swings, especially for players with more established ratings.</p></li>
 <li><p>Robustness: In order to prevent new players, whose ratings are based on a small amount of data, from too greatly affecting the ratings of established players, games against newly-joined league members are down-weighted until those players have competed in a certain number of games. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. The number 10 was chosen based on an exploratory analysis of when players’ ratings begin to converge to a relative steady state.</p></li>
 </ul>
-<p>Finally, a few words on why this model is preferable to the often-used ELO ratings:</p>
+</div>
+<div id="questions-and-answers" class="section level3">
+<h3>Questions and Answers</h3>
+<p>What do the ratings mean?</p>
 <ul>
-<li><p>ELO is highly momentum-based.</p></li>
-<li><p>The ELO update formula essentially works as if players ante poker chips into a pot, with differential win and loss numbers based on each player’s rating. Thus, every time you lose, your</p></li>
+<li>The only meaningful number in the ratings is 500, which has been set as the rough global league average. Otherwise, the ratings are only useful to calculate individual match probabilities: the probability of player A beating player B in a single game is equal to <span class="math inline">\(A / (A + B)\)</span>.</li>
 </ul>
-<p>Without further ado, the ratings as of March 19, 2019:</p>
+<p>How and why does my rating go up or down?</p>
+<ul>
+<li>Your rating will go up when you perform better than the current ratings predict, and it will go down if you perform worse than the current ratings predict. Your rating will also change based on changes in your opponents’ ratings. Let’s assume you have a 6-3 record against some previous opponent. If that opponent has a few great nights and his or her rating increases, you will earn more points for having done well against that person. (The converse is true if your previous opponent’s rating decreases.)</li>
+</ul>
+<p>How much do ratings change over time?</p>
+<ul>
+<li>Some players perform at a consistent level and show only minor changes over time. Other people have seen large shifts in their ratings, both positive and negative. Substantial changes in players’ ratings are almost always due to changes in their own performance, rather than changes in the performance of their previous opponents.</li>
+</ul>
+<p>Do new league players have starter ratings?</p>
+<ul>
+<li>Not exactly. Players start out with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some arbitrary period of time, we allow the results to follow the data even if that data is noisy at first.</li>
+</ul>
+<p>How many games are needed to indicate that a rating is trustworthy?</p>
+<ul>
+<li>This is not a simple question. We are in the process of generating confidence intervals (or, more accurately, Bayesian credible intervals) for ratings to give an idea of how sure we may be. Initial exploration suggests 10 games is the time period by which many players tend see their ratings plateau.</li>
+</ul>
+</div>
+<div id="ratings-as-of-march-19-2019" class="section level3">
+<h3>Ratings as of March 19, 2019</h3>
 <table>
 <thead>
 <tr class="header">
@@ -2530,6 +2552,7 @@ $(document).ready(function () {
 </tr>
 </tbody>
 </table>
+</div>
 
 
 
