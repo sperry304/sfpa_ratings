@@ -12,7 +12,33 @@ library(rvest)
 library(lubridate)
 library(pROC)
 
-source("02_data_clean.R")
+latest_fargo_date <- 
+  list.files("other_data", pattern = "fargo") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+fargo_path <-
+  str_c("other_data/fargo_", latest_fargo_date, ".Rdata")
+
+fargo_df <- 
+  fargo_path %>% 
+  read_rds()
+
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits_path <-
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata")
+
+results_no_forfeits <- 
+  results_no_forfeits_path %>% 
+  read_rds()
+
+results_19_no_forfeits <- 
+  results_no_forfeits %>% 
+  filter(season == "Spring 2019")
 
 full_data <- 
   results_no_forfeits %>% 
@@ -201,10 +227,10 @@ saveRDS(fargo_df, "other_data/fargo_327.Rdata")
 # OR JUST RUN ONE DAY AND APPEND TO OLD VERSION
 
 old_data <-
-  readRDS(fargo_df, "other_data/fargo_327.Rdata")
+  fargo_df
 
 param_list <- list(
-  as_of_match_date = "2019-03-26", 
+  as_of_match_date = latest_results_date, 
   gamma_prior = 2.75, 
   half_life_days = 1500, 
   games_to_robustness = 15
@@ -222,7 +248,7 @@ new_data %>%
 fargo_df <-
   bind_rows(old_data, new_data)
 
-saveRDS(fargo_df, "other_data/fargo_327.Rdata")
+saveRDS(fargo_df, str_c("other_data/fargo_", latest_results_date, ".Rdata"))
 ```
 
 ```{r}

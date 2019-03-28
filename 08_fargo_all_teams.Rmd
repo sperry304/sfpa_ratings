@@ -12,7 +12,7 @@ library(lubridate)
 
 latest_fargo_date <- 
   list.files("other_data", pattern = "fargo") %>% 
-  str_extract("\\d+") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
   max()
 
 fargo_path <-

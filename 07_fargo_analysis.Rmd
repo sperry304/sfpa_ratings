@@ -10,7 +10,33 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
 
-source("02_data_clean.R")
+latest_fargo_date <- 
+  list.files("other_data", pattern = "fargo") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+fargo_path <-
+  str_c("other_data/fargo_", latest_fargo_date, ".Rdata")
+
+fargo_df <- 
+  fargo_path %>% 
+  read_rds()
+
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits_path <-
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata")
+
+results_no_forfeits <- 
+  results_no_forfeits_path %>% 
+  read_rds()
+
+results_19_no_forfeits <- 
+  results_no_forfeits %>% 
+  filter(season == "Spring 2019")
 ```
 
 ```{r, echo=FALSE}
@@ -46,10 +72,6 @@ team_names_by_player <-
     distinct() %>% 
     arrange(player, team)
 
-fargo_df <- 
-  readRDS("other_data/fargo_327.Rdata") %>% 
-  transmute(player, rating, match_date)
-
 fargo_df_latest <-
   fargo_df %>% 
   filter(match_date == fargo_df %>% select(match_date) %>% pull() %>% max()) %>% 
@@ -66,7 +88,7 @@ fargo_df_latest <-
   )
 ```
 
-### The Math Behind the Ratigs 
+### The Math Behind the Ratings 
 
 These ratings are based on the Bradley-Terry model, which since the 1950s has been one of the standard methods of assessing the skill of competitors who are repeatedly paired against one another. Considering two players $i$ and $j$ with ratings $\pi_i$ and $\pi_j$, this framework assumes player $i$ has the following probability of defeating player $j$:
 

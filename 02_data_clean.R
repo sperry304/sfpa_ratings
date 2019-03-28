@@ -112,3 +112,12 @@ results_no_forfeits %>%
   count() %>% 
   group_by(season) %>% 
   mutate(pct = round(n / sum(n), 2))
+
+latest_match_date <- 
+  results_no_forfeits %>% 
+  pull(match_date) %>% 
+  max()
+
+rnf_save_path <- str_c("match_data/results_no_forfeits_", latest_match_date, ".Rdata")
+
+saveRDS(results_no_forfeits, rnf_save_path)
