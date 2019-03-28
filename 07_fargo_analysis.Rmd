@@ -47,7 +47,7 @@ team_names_by_player <-
     arrange(player, team)
 
 fargo_df <- 
-  readRDS("other_data/fargo_324.Rdata") %>% 
+  readRDS("other_data/fargo_327.Rdata") %>% 
   transmute(player, rating, match_date)
 
 fargo_df_latest <-
@@ -86,7 +86,7 @@ This adaptation of the expectation-maximization (EM) algorithm loops through eac
 
 Maximum likelihood estimation is the single most widely used method of parameter estimation, but it is far from perfect. While convergence is guaranteed under certain conditions, one of those conditions deals with having a sufficient number of connections in the data, such as you might find in a series of round-robin games played between all teams in a league ([see Assumption 3 here](http://personal.psu.edu/drh20/papers/bt.pdf)). Additionally, the MLE can converge toward the boundary of a parameter space when dealing with extreme data, which in this case would mean a rating of 0 for a winless player and a rating of infinity for an undefeated one. This presents a clear problem when plugging ratings into the formula $\frac{\pi_i}{\pi_i + \pi_j}$. The SFPA league data set faces both of these issues - sparse data with many members playing only a handful of games against a limited subset of opponents, and some examples of players with no wins at all.
 
-Bayesian methods allow us to avoid these problems.  Instead of finding an MLE after taking undesirable steps like omitting winless players or including only results from players with a minimum number of games, we calculate the maximum a priori (MAP) estimate of **$\pi$** by setting a $\Gamma(a, b)$ prior on $\pi$, where $\Gamma$ is a gamma probability distribution with parameters $a$ and $b$. This prior is conjugate to the complete data likelihood function $P(X \vert \pi)$ and results in the following update formula:
+Bayesian methods allow us to avoid these problems.  Instead of finding an MLE after taking undesirable steps like omitting winless players or including only results from players with a minimum number of games, we calculate the maximum a priori (MAP) estimate of **$\pi$** by setting a $\Gamma(a, b)$ prior on $\pi$, where $\Gamma$ is a gamma probability distribution with parameters $a$ and $b$. This prior is conjugate to the complete data likelihood function and results in the following update formula:
 
 $$\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$
 
@@ -94,15 +94,15 @@ Like the MLE, MAP estimation provides a point estimate, though in this case it i
 
 Under this setup, as in many Bayesian applications, the choice of prior has a major impact on the model. When $a = 1$, we simply have the MLE; as the value of $a$ increases, the impact of actual game results decreases as the numerator and denominator in the update formula become dominated by the constant $a-1$ and $b$ terms. Hyperparameter tuning for $a$ resulted in an optimal choice of 2.75 - a weakly informative prior. 
 
-The scale of these ratings is arbitrary; any set of ratings can be multiplied by some positive number and result in the same probability $p_{i>j}$ for all $i$ and $j$. As a result, in the MLE context, we would need to peg a player rating $\pi_i$ to a particular value, or set up an additional constraint such as $1 / n * \sum_{i=1}^{n} \pi_i = 1000$, in order to arrive at a unique solution. In the MAP formulation, we can make the model identifiable by setting $b = (a - 1) / 500$ and ensure a mean player rating of roughly 500 in the process.
+The scale of these ratings is arbitrary; any set of ratings can be multiplied by some positive constant and result in the same probability $p_{i>j}$ for all $i$ and $j$. As a result, in the MLE context, we would need to peg a player rating $\pi_i$ to a particular value, or set up an additional constraint such as $1 / n * \sum_{i=1}^{n} \pi_i = 1000$, in order to arrive at a unique solution. In the MAP formulation, we can make the model identifiable by setting $b = (a - 1) / 500$ and ensure a mean player rating of roughly 500 in the process.
 
 Other considerations included:
 
-* Home-table advantage: In the past three seasons, about 52% of games were won by the home team, a small but significant edge to the home player. There also exists a simple way to incorporate the home-table advantage into the ratings, setting $p_{i>j} = \frac{\theta \pi_i}{\theta \pi_i + \pi_j}$ where $\theta > 1$ is the home-table advantage (or less than 1 if it's a disavantage). Unfortunately, this is a noisy input: due to scheduling conflicts and bar remodeling, teams often play "home" games at other bars; most week 1 games are home games for both teams; and playoff games represent an uneven playing field since higher-seeded teams play at home while lower-seeded teams play on the road, among other factors. After quite a bit of experimentation in this area failed to improve model performance, I omitted the home-table advantage from the rating system.
+* Home-table advantage: In the past three seasons, about 52% of games were won by the home team, a small but significant edge to the home player. There also exists a simple way to incorporate this factor into the ratings, letting $p_{i>j} = \frac{\theta \pi_i}{\theta \pi_i + \pi_j}$ where $\theta > 1$ is the home-table advantage (or $\theta < 1$ if it's a disadvantage). Unfortunately, this is a noisy input: due to scheduling conflicts and bar remodeling, teams often play "home" games at other bars; most week 1 games are home games for both teams; and playoff games represent an uneven playing field since higher-seeded teams play at home while lower-seeded teams play on the road, among other factors. After quite a bit of experimentation in this area failed to improve model performance, I omitted the home-table advantage from the rating system.
 
 * Time decay: In pool, a player's skill level can sometimes change over time. One extreme would be to assume that these changes are the result of random noise and place equal weight on every game in a player's match history; another would be to use a subset of a player's most recent games, on the assumption that those games most accurately reflect their skill. The middle ground solution used here is a sliding scale where older matches contribute less to a player's rating than newer ones. Matches are given a weighting factor between 0 and 1 based on a half-life of 1500 days from the date of a player's latest game. (As an example, for the latest March 2019 ratings, matches played in January 2018 contribute about 80% of the value of a match played in the current month.) Since parameter tuning on the number of days to half-life showed little impact on model results, this number was chosen arbitrarily. The end result is a rating system that is responsive to change but results in fewer wild temporary swings, especially for players with more established ratings. 
 
-* Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, games against newly-joined league members are down-weighted until those players have competed in a certain number of games. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. The number 10 was chosen based on an exploratory analysis of when players' ratings begin to converge to a relative steady state.
+* Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, games against newly-joined league members are down-weighted until those players have competed in a certain number of games. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. The number 15 was chosen based on an exploratory analysis of when players' ratings begin to converge to a relative steady state.
 
 ### Questions and Answers 
 
@@ -124,7 +124,7 @@ Do new league players have starter ratings?
 
 How many games are needed to indicate that a rating is trustworthy?
 
-* This is not a simple question. We are in the process of generating confidence intervals (or, more accurately, Bayesian credible intervals) for ratings to give an idea of how sure we may be. Initial exploration suggests 10 games is the time period by which many players tend see their ratings plateau. 
+* This is not a simple question. We are in the process of generating confidence intervals (or, more accurately, Bayesian credible intervals) for ratings to give an idea of how sure we may be. Initial exploration suggests 15 games is the time period when the mean and median week-to-week rating changes hit 0 and the standard deviation approaches a relative plateau.
 
 ### Ratings as of March 19, 2019
 
@@ -132,5 +132,54 @@ How many games are needed to indicate that a rating is trustworthy?
 fargo_df_latest %>% 
   arrange(desc(rating)) %>% 
   knitr::kable()
+```
+
+```{r, echo=FALSE}
+fargo_for_team_plots <- 
+  fargo_df_latest %>% 
+  filter(current_team != "--") %>% 
+  group_by(current_team) %>% 
+  arrange(current_team, desc(rating)) %>% 
+  mutate(
+    team_rank = row_number(),
+    top4 = team_rank < 5
+  ) %>% 
+  ungroup() %>% 
+  mutate(qtile = as.factor(ntile(rating, 6)))
+
+fargo_for_team_plots %>% 
+  group_by(current_team) %>% 
+  mutate(team_rating = exp(mean(log(rating)))) %>% 
+  ggplot(aes(x = reorder(current_team, team_rating))) +
+  geom_point(aes(y = team_rating), color = "gray50", size = 1.7, alpha = 0.5) +
+  geom_vline(xintercept = 18.5, color = "green", alpha = 0.2, size = 1) +
+  geom_point(aes(y = rating, color = qtile), alpha = 0.5) +
+  coord_flip() +
+  theme(
+    axis.title = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    title = "Ratings by Team and Player (Full Team)",
+    color = "Sextile"
+  )
+
+fargo_for_team_plots %>% 
+  filter(top4 == TRUE) %>% 
+  group_by(current_team) %>% 
+  mutate(team_rating = exp(mean(log(rating)))) %>% 
+  ggplot(aes(x = reorder(current_team, team_rating))) +
+  geom_point(aes(y = team_rating), color = "gray50", size = 1.7, alpha = 0.5) +
+  geom_vline(xintercept = 18.5, color = "green", alpha = 0.2, size = 1) +
+  geom_point(aes(y = rating, color = qtile), alpha = 0.5) +
+  coord_flip() +
+  theme(
+    axis.title = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    title = "Ratings by Team and Player (Top 4 Only)",
+    color = "Sextile"
+  )
 ```
 

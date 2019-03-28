@@ -162,18 +162,26 @@ run_fargo_through_date <- function(
 ```
 
 ```{r}
+# RUN ALL DATES 
 date_loop <- 
   full_data %>% 
   select(match_date) %>% 
   distinct() %>% 
-  slice(-c(1:6)) %>% 
+  #slice(-c(1:6)) %>% 
   pull()
 
+#param_list <- list(
+#  as_of_match_date = rep(date_loop, 5), 
+#  gamma_prior = rep(seq(2.5, 3.5, by = 0.25), each = length(date_loop)), 
+#  half_life_days = 1500, 
+#  games_to_robustness = 10
+#)
+
 param_list <- list(
-  as_of_match_date = rep(date_loop, 5), 
-  gamma_prior = rep(seq(2.5, 3.5, by = 0.25), each = length(date_loop)), 
+  as_of_match_date = date_loop, 
+  gamma_prior = 2.75, 
   half_life_days = 1500, 
-  games_to_robustness = 10
+  games_to_robustness = 15
 )
 
 fargo_df <- pmap_dfr(param_list, run_fargo_through_date)
@@ -186,7 +194,35 @@ fargo_df %>%
   filter(match_date == fargo_df %>% select(match_date) %>% pull() %>% max()) %>% 
   arrange(desc(rating))
 
-saveRDS(fargo_df, "other_data/fargo_324.Rdata")
+saveRDS(fargo_df, "other_data/fargo_327.Rdata")
+
+
+
+# OR JUST RUN ONE DAY AND APPEND TO OLD VERSION
+
+old_data <-
+  readRDS(fargo_df, "other_data/fargo_327.Rdata")
+
+param_list <- list(
+  as_of_match_date = "2019-03-26", 
+  gamma_prior = 2.75, 
+  half_life_days = 1500, 
+  games_to_robustness = 15
+)
+
+new_data <- pmap_dfr(param_list, run_fargo_through_date)
+
+old_data %>% 
+  group_by(match_date) %>% 
+  summarize(mean = mean(rating))
+
+new_data %>% 
+  summarize(mean = mean(rating))
+
+fargo_df <-
+  bind_rows(old_data, new_data)
+
+saveRDS(fargo_df, "other_data/fargo_327.Rdata")
 ```
 
 ```{r}
@@ -387,11 +423,12 @@ fargo_df %>%
   group_by(game) %>% 
   summarize(
     mean = mean(diff),
-    median = median(diff)
+    median = median(diff),
+    sdev = sd(diff)
   ) %>% 
 #  left_join(sizes, by = "game") %>% 
   filter(!is.na(mean)) %>% 
-  gather(metric, value, mean:median) %>% 
+  gather(metric, value, mean:sdev) %>% 
   ggplot(aes(x = game, y = value, color = metric, group = metric)) +
   geom_hline(yintercept = 0, color = "white", size = 2) +
   geom_point() +
