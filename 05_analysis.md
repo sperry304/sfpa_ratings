@@ -53,12 +53,6 @@ win_loss_record <- function(player_of_interest) {
 #win_loss_record(player_of_interest = "Mike Maxwell")
 #player_matches_and_ratings(player_of_interest = "Mike Maxwell")
 
-# Helper function to add team names to a data frame containing a column for player
-append_team_names <- function(df) {
-  df %>% 
-    full_join(players_by_team_19, by = "player")
-}
-
 # Helper functions to get a list of all the players in a team (ever, or just now)
 get_team_players <- function(team_name) {
   home_players <- 
@@ -96,6 +90,12 @@ get_current_team_players <- function(team_name) {
   unique(c(home_players, away_players))
 }
 
+# Helper function to add team names to a data frame containing a column for player
+append_team_names <- function(df) {
+  df %>% 
+    full_join(players_by_team_19, by = "player")
+}
+
 # Data frame of players and team names in Spring 2019 - helper for next helper function
 players_by_team_19 <- 
   bind_rows(
@@ -123,25 +123,26 @@ elo_ratings %>%
   append_team_names()
 ```
 
-    ## # A tibble: 327 x 3
+    ## # A tibble: 329 x 3
     ##    player          rating team                      
     ##    <chr>            <dbl> <chr>                     
-    ##  1 Skip Perry        1803 Tandy Tokers              
-    ##  2 Hector Ortega     1789 <NA>                      
-    ##  3 Ryan Piaget       1770 Clean Slate               
-    ##  4 Mike Maxwell      1760 Route 101 Rawhides        
-    ##  5 Wyatt Moss        1724 Naked Lunch Nice Rack     
-    ##  6 Evan Burgess      1710 Lucky Horseshoe Caballeros
-    ##  7 Tom Seymour       1698 Route 101 Rawhides        
-    ##  8 Andy Luong        1697 <NA>                      
-    ##  9 Rhys Hughes       1696 Golden Slate Warriors     
-    ## 10 Thayer McDougle   1690 Lucky Horseshoe Caballeros
-    ## # … with 317 more rows
+    ##  1 Skip Perry        1813 Tandy Tokers              
+    ##  2 Ryan Piaget       1798 Clean Slate               
+    ##  3 Hector Ortega     1789 <NA>                      
+    ##  4 Mike Maxwell      1752 Route 101 Rawhides        
+    ##  5 Tom Seymour       1716 Route 101 Rawhides        
+    ##  6 Evan Burgess      1715 Lucky Horseshoe Caballeros
+    ##  7 Thayer McDougle   1712 Lucky Horseshoe Caballeros
+    ##  8 Dave Ward         1710 Dovre & Out               
+    ##  9 Wyatt Moss        1708 Naked Lunch Nice Rack     
+    ## 10 Bob Simon         1702 Route 101 Rawhides        
+    ## # … with 319 more rows
 
 ``` r
 # Plot player ratings over time
 plot_player_ratings_by_group <- function(player_list, list_name) {
   map_dfr(player_list, player_matches_and_ratings) %>% 
+    #filter(match_date > "2018-12-11") %>% 
     group_by(match_date, player) %>% 
     slice(n()) %>% 
     ggplot(aes(x = match_date, y = new_rating, group = player, color = player)) +
@@ -244,21 +245,21 @@ ratings_changes <-
 ratings_changes
 ```
 
-    ## # A tibble: 211 x 6
-    ## # Groups:   player [211]
-    ##    player         initial final  diff new_old    team                    
-    ##    <chr>            <dbl> <dbl> <dbl> <chr>      <chr>                   
-    ##  1 Jon Williams     1500  1614. 114.  New player Cafe Ballbusters        
-    ##  2 Tae Yim          1500  1609. 109.  New player Cafe 2 for 1's          
-    ##  3 Erik Proctor     1377. 1473.  95.4 Old player Cafe Cafaholics         
-    ##  4 Troy Brunet      1361. 1453.  91.8 Old player Hole in the Wall Bangers
-    ##  5 Darrell Haslip   1570. 1657.  87.0 Old player Smoke & Rumors          
-    ##  6 Justin Taylor    1508. 1594.  85.6 Old player Mixfits                 
-    ##  7 Rene Denis       1564. 1649.  84.7 Old player Smoke & Rumors          
-    ##  8 Jason Rogers     1511. 1591.  79.9 Old player Clean Slate             
-    ##  9 Bob Rice         1500  1573.  72.8 New player Cafe Cafaholics         
-    ## 10 David Norris     1452. 1521.  68.9 Old player House of Ginger         
-    ## # … with 201 more rows
+    ## # A tibble: 213 x 6
+    ## # Groups:   player [213]
+    ##    player           initial final  diff new_old    team                    
+    ##    <chr>              <dbl> <dbl> <dbl> <chr>      <chr>                   
+    ##  1 Jon Williams       1500  1654. 154.  New player Cafe Ballbusters        
+    ##  2 Nick Lansdown      1558. 1696. 138.  Old player Lucky Horseshoe Caballe…
+    ##  3 Tae Yim            1500  1618. 118.  New player Cafe 2 for 1's          
+    ##  4 John McNulty       1371. 1487. 115.  Old player Lone Star Longhorns     
+    ##  5 Mathieu Gugliel…   1406. 1511. 105.  Old player Tandy Tokers            
+    ##  6 Mark Butler        1469. 1570. 101.  Old player Golden Slate Warriors   
+    ##  7 Ryan Piaget        1701. 1798.  97.0 Old player Clean Slate             
+    ##  8 Troy Brunet        1361. 1455.  93.7 Old player Hole in the Wall Bangers
+    ##  9 Julien Roeser      1457. 1548.  90.4 Old player Lucky Horseshoe Glue Fa…
+    ## 10 Justin Taylor      1509. 1599.  90.4 Old player Mixfits                 
+    ## # … with 203 more rows
 
 ``` r
 # Data frame of all team names for all seasons
