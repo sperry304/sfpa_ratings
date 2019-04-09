@@ -8,6 +8,293 @@ output: github_document
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(lubridate)
+
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits_path <-
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata")
+
+results_no_forfeits <- 
+  results_no_forfeits_path %>% 
+  read_rds()
+
+#results_19_no_forfeits <- 
+#  results_no_forfeits %>% 
+#  filter(season == "Spring 2019")
+```
+
+```{r}
+#player_list <- 
+#  bind_rows(
+#    results_no_forfeits %>% transmute(player = home), 
+#    results_no_forfeits %>% transmute(player = away)
+#  ) %>% 
+#  distinct() %>% 
+#  arrange(player)
+
+#date_list <- 
+#  results_no_forfeits %>% 
+#  select(match_date) %>% 
+#  distinct() %>% 
+#  pull()
+```
+
+```{r}
+get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
+  game_count <- 
+    results_df %>% 
+    filter(away == player_of_interest | home == player_of_interest) %>% 
+    count() %>% 
+    pull()
+  
+  if (game_count == 0) {
+    return(ratings_df$rating[ratings_df$player == player_of_interest])
+  }
+  
+  b <- (a - 1) / 500
+
+  results_df %>% 
+    filter(away == player_of_interest | home == player_of_interest) %>% 
+    transmute(
+      season,
+      player = player_of_interest,
+      opponent = if_else(home == player_of_interest, away, home),
+      game_result = case_when(
+        home == player_of_interest & game_winner == "home" ~ "W",
+        away == player_of_interest & game_winner == "away" ~ "W",
+        TRUE ~ "L"
+      )
+    ) %>% 
+    inner_join(ratings_df %>% transmute(player, player_rating = rating), by = "player") %>% 
+    inner_join(ratings_df %>% transmute(opponent = player, opponent_rating = rating), by = "opponent") %>% 
+    mutate(
+      A = 1 / (player_rating + opponent_rating),
+      W = if_else(game_result == "W", 1, 0),
+      decay = case_when(
+        season == "Spring 2018" ~ 0.6,
+        season == "Fall 2018" ~ 0.8,
+        season == "Spring 2019" ~ 1.0
+      )
+    ) %>% 
+    summarize(rating = ((a - 1) + sum(W * decay)) / (b + sum(A * decay))) %>% 
+    pull(rating)
+}
+```
+
+```{r}
+results_to_ratings <- function(results_df, a, mae_stop = 100) {
+  player_list <- 
+    bind_rows(
+      results_df %>% transmute(player = home), 
+      results_df %>% transmute(player = away)
+    ) %>% 
+    distinct() %>% 
+    arrange(player)
+  
+  fargo_ratings <- 
+    player_list %>% 
+    mutate(rating = 500)
+  
+  abs_diff <- 100000
+  while (abs_diff > mae_stop) {
+    old_ratings <- fargo_ratings %>% pull(rating)
+    for (i in 1:nrow(fargo_ratings)) {
+      player_name <- fargo_ratings$player[i]
+      fargo_ratings$rating[i] <- 
+        get_updated_rating(player_name, results_df = results_df, ratings_df = fargo_ratings, a = a)
+    }
+    new_ratings <- fargo_ratings %>% pull(rating)
+    #print(str_c("Mean absolute difference: ", sum(abs(old_ratings - new_ratings))))
+    abs_diff <- sum(abs(old_ratings - new_ratings))
+  }
+  
+  fargo_ratings
+}
+```
+
+```{r}
+ratings_test <- 
+  results_to_ratings(results_no_forfeits, a = 3, mae_stop = 100)
+```
+
+```{r}
+ratings_test %>% 
+  arrange(desc(rating))
+```
+
+```{r}
+fargo_df <-
+  ratings_test  %>% 
+  mutate(
+    rating = log(rating) * 150,
+    rating = rating - mean(rating) + 500
+  )
+```
+
+```{r}
+fargo_df %>% 
+  arrange(desc(rating))
+```
+
+```{r}
+saveRDS(fargo_df, str_c("other_data/fargo_", latest_results_date, ".Rdata"))
+
+```
+
+```{r}
+fargo_metrics <- function(results_df, a, date_idx) {
+  player_list <- 
+    bind_rows(
+      results_df %>% transmute(player = home), 
+      results_df %>% transmute(player = away)
+    ) %>% 
+    distinct() %>% 
+    arrange(player)
+  
+  date_list <- 
+    results_df %>% 
+    select(match_date) %>% 
+    distinct() %>% 
+    pull()
+
+  print(str_c("a = ", a, ", date = ", date_list[date_idx]))
+  
+  fargo_ratings <- 
+    player_list %>% 
+    mutate(rating = 500)
+  
+  training_data <- 
+    results_df %>% 
+    filter(match_date < date_list[date_idx])
+  
+  test_data <- 
+    results_df %>% 
+    filter(match_date == date_list[date_idx])
+  
+  abs_diff <- 100000
+  while (abs_diff > 100) {
+    old_ratings <- fargo_ratings %>% pull(rating)
+    for (i in 1:nrow(fargo_ratings)) {
+      player_name <- fargo_ratings$player[i]
+      fargo_ratings$rating[i] <- 
+        get_updated_rating(player_name, results_df = training_data, ratings_df = fargo_ratings, a = a)
+    }
+    new_ratings <- fargo_ratings %>% pull(rating)
+    #print(str_c("Mean absolute difference: ", sum(abs(old_ratings - new_ratings))))
+    abs_diff <- sum(abs(old_ratings - new_ratings))
+  }
+  
+  matches_with_probabilities <- 
+    test_data %>% 
+    inner_join(fargo_ratings %>% transmute(home = player, home_rating = rating), by = "home") %>% 
+    inner_join(fargo_ratings %>% transmute(away = player, away_rating = rating), by = "away") %>% 
+    transmute(
+      match_date,
+      home,
+      away, 
+      game_winner,
+      home_win_prob = home_rating / (home_rating + away_rating),
+      home_win = if_else(game_winner == "home", 1, 0),
+      home_win_predicted = if_else(home_win_prob >= 0.5, 1, 0),
+      home_win_prob,
+      prob = round(home_win_prob * 20) / 20
+    )
+  
+  matches_with_probabilities %>% 
+    mutate(
+      correct_prediction = if_else(home_win == home_win_predicted, 1, 0),
+      log_loss = home_win * log(home_win_prob) + (1 - home_win) * log(1 - home_win_prob),
+      higher_ranked_prob = if_else(home_win_prob >= 0.5, home_win_prob, 1 - home_win_prob),
+      higher_ranked_winner = case_when(
+        home_win_prob >= 0.5 & home_win == 1 ~ 1,
+        home_win_prob < 0.5 & home_win == 0 ~ 1,
+        TRUE ~ 0
+      )
+    ) %>% 
+    summarize(
+      accuracy = mean(correct_prediction),
+      log_loss = -mean(log_loss),
+      calibration = sum(higher_ranked_prob) / sum(higher_ranked_winner),
+      discrimination = 
+        sum(higher_ranked_prob * higher_ranked_winner) / sum(higher_ranked_winner) - 
+        sum(higher_ranked_prob * (1 - higher_ranked_winner)) / sum(1 - higher_ranked_winner)
+    ) %>% 
+    gather(key = metric, value = value, accuracy:discrimination) %>% 
+    mutate(
+      a = a,
+      date_idx = date_list[date_idx]
+    )
+}
+```
+
+```{r}
+test_df2 <- tibble()
+
+for (i in 6:54) {
+  for (a in seq(2.9, 3.3, by = 0.1)) {
+    test_df2 <- bind_rows(
+      test_df2,
+      fargo_metrics(results_no_forfeits, a = a, date_idx = i)
+    )
+  }
+}
+
+test_df2
+```
+
+```{r}
+test_df2 %>% 
+  group_by(metric, a) %>% 
+  summarize(value = mean(value)) %>% 
+  filter(metric != "discrimination") %>% 
+  ggplot(aes(x = a, y = value, group = metric, color = metric)) +
+  geom_line() +
+  geom_point()
+```
+
+```{r}
+normalized_ratings <-
+  fargo_ratings %>% 
+  mutate(
+    rating = log(rating) * 100,
+    rating = rating - mean(rating) + 500
+  )
+
+normalized_ratings %>% 
+  arrange(desc(rating2))
+```
+
+```{r}
+fargo_ratings %>% 
+  arrange(desc(rating)) %>% 
+  mutate(rating2 = log(rating) * 100)
+```
+
+```{r}
+4415 / (4415 + 3474)
+```
+
+```{r}
+skip <- log(4415) * 100 - 100
+thayer <- log(3474) * 100 - 100
+```
+
+```{r}
+1 / (1 + exp((thayer - skip) / 100))
+```
+
+```{r}
+fargo_ratings %>% 
+  arrange(desc(rating))
+```
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
 library(rvest)
 library(lubridate)
 library(pROC)

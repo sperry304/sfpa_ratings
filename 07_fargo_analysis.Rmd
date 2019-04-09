@@ -72,9 +72,8 @@ team_names_by_player <-
     distinct() %>% 
     arrange(player, team)
 
-fargo_df_latest <-
+ratings_for_printing <- 
   fargo_df %>% 
-  filter(match_date == fargo_df %>% select(match_date) %>% pull() %>% max()) %>% 
   arrange(desc(rating)) %>% 
   mutate(rank = row_number()) %>% 
   left_join(team_names_by_player, by = "player") %>% 
@@ -126,11 +125,13 @@ Other considerations included:
 
 * Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, games against newly-joined league members are down-weighted until those players have competed in a certain number of games. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. The number 15 was chosen based on an exploratory analysis of when players' ratings begin to converge to a relative steady state.
 
+* Scaling: Due to the wide variation in playing ability across the league, values for $\pi$ are highly skewed. Using a logarithmic transform...
+
 ### Questions and Answers 
 
 What do the ratings mean? 
 
-* The only meaningful number in the ratings is 500, which has been set as the rough global league average. Otherwise, the ratings are only useful to calculate individual match probabilities: the probability of player A beating player B in a single game is equal to $A / (A + B)$. 
+* The first meaningful number here is 500, which has been set as the global league average. Otherwise, ratings are primarily useful in comparison to each other. The second meaningful number is a rating difference of 100, which denotes a...  to calculate individual match probabilities: the probability of player A beating player B in a single game is equal to $1 / (1 + e^{(R_B - R_A) / 150})$. 
 
 How and why does my rating go up or down?
 
@@ -148,17 +149,17 @@ How many games are needed to indicate that a rating is trustworthy?
 
 * This is not a simple question. We are in the process of generating confidence intervals (or, more accurately, Bayesian credible intervals) for ratings to give an idea of how sure we may be. Initial exploration suggests 15 games is the time period when the mean and median week-to-week rating changes hit 0 and the standard deviation approaches a relative plateau.
 
-### Ratings as of March 19, 2019
+### Ratings as of April 2, 2019
 
 ```{r, echo=FALSE}
-fargo_df_latest %>% 
+ratings_for_printing %>% 
   arrange(desc(rating)) %>% 
   knitr::kable()
 ```
 
 ```{r, echo=FALSE}
 fargo_for_team_plots <- 
-  fargo_df_latest %>% 
+  ratings_for_printing %>% 
   filter(current_team != "--") %>% 
   group_by(current_team) %>% 
   arrange(current_team, desc(rating)) %>% 
