@@ -1,7 +1,7 @@
 ---
 title: "SFPA Player Ratings, v.1"
 author: "Skip Perry"
-date: "March 2019"
+date: "April 2019"
 output: html_document
 ---
 
@@ -107,25 +107,35 @@ This adaptation of the expectation-maximization (EM) algorithm loops through eac
 
 Maximum likelihood estimation is the single most widely used method of parameter estimation, but it is far from perfect. While convergence is guaranteed under certain conditions, one of those conditions deals with having a sufficient number of connections in the data, such as you might find in a series of round-robin games played between all teams in a league ([see Assumption 3 here](http://personal.psu.edu/drh20/papers/bt.pdf)). Additionally, the MLE can converge toward the boundary of a parameter space when dealing with extreme data, which in this case would mean a rating of 0 for a winless player and a rating of infinity for an undefeated one. This presents a clear problem when plugging ratings into the formula $\frac{\pi_i}{\pi_i + \pi_j}$. The SFPA league data set faces both of these issues - sparse data with many members playing only a handful of games against a limited subset of opponents, and some examples of players with no wins at all.
 
-Bayesian methods allow us to avoid these problems.  Instead of finding an MLE after taking undesirable steps like omitting winless players or including only results from players with a minimum number of games, we calculate the maximum a priori (MAP) estimate of **$\pi$** by setting a $\Gamma(a, b)$ prior on $\pi$, where $\Gamma$ is a gamma probability distribution with parameters $a$ and $b$. This prior is conjugate to the complete data likelihood function and results in the following update formula:
+Bayesian methods allow us to avoid these problems.  Instead of finding an MLE after taking undesirable steps like omitting winless players or including only results from players with a minimum number of games, we calculate the maximum a priori (MAP) estimate of **$\pi$** by setting a $G(a, b)$ prior on $\pi$, where $G$ is a gamma distribution with parameters $a$ and $b$. This prior is conjugate to the complete data likelihood function and results in the following update formula:
 
 $$\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$
 
 Like the MLE, MAP estimation provides a point estimate, though in this case it is the mode of a posterior distribution rather than the maximization of a likelihood function. (Note that for $a = 1$ and $b = 0$, the MAP and maximum likelihood estimates are equivalent; see [here](http://www.stats.ox.ac.uk/~doucet/caron_doucet_bayesianbradleyterry.pdf) for more information.) 
 
-Under this setup, as in many Bayesian applications, the choice of prior has a major impact on the model. When $a = 1$, we simply have the MLE; as the value of $a$ increases, the impact of actual game results decreases as the numerator and denominator in the update formula become dominated by the constant $a-1$ and $b$ terms. Hyperparameter tuning for $a$ resulted in an optimal choice of 2.75 - a weakly informative prior. 
+Under this setup, as in many Bayesian applications, the choice of prior has a major impact on the model. When $a = 1$, we simply have the MLE; as the value of $a$ increases, the impact of actual game results decreases as the numerator and denominator in the update formula become dominated by the constant $a-1$ and $b$ terms. Hyperparameter tuning for $a$ resulted in an optimal choice of 3 - a weakly informative prior. 
 
-The scale of these ratings is arbitrary; any set of ratings can be multiplied by some positive constant and result in the same probability $p_{i>j}$ for all $i$ and $j$. As a result, in the MLE context, we would need to peg a player rating $\pi_i$ to a particular value, or set up an additional constraint such as $1 / n * \sum_{i=1}^{n} \pi_i = 1000$, in order to arrive at a unique solution. In the MAP formulation, we can make the model identifiable by setting $b = (a - 1) / 500$ and ensure a mean player rating of roughly 500 in the process.
+The scale of these ratings is arbitrary; any set of ratings can be multiplied by some positive constant and result in the same probability $p_{i>j}$ for all $i$ and $j$. As a result, in the MLE context, we would need to peg a player rating $\pi_i$ to a particular value, or set up an additional constraint such as $1 / n * \sum_{i=1}^{n} \pi_i = 1000$, in order to arrive at a unique solution. In the MAP formulation, we can make the model identifiable by setting $b = (a - 1) / 500$ and ensure a rough average player rating of about 500 in the process.
+
+That said, the raw ratings $\pi$ using this system have interpretability problems. For instance, a 100-point gap between players rated 200 and 300 ($p = 40\%$) means something different between players rated 800 and 900 ($p = 47\%$). A solution is to transform the raw rating $pi_i$ into a new rating $R_i$, where $\mu$ is the mean raw rating across the league:
+
+$$R_i = 150 \text{ log}(\pi_i) + 500 - \mu$$
+
+Then we get a new formula for $p_{i > j}$, the probability that player $i$ defeats player $j$:
+
+$$p_{i > j} = \frac{1}{1 + \text{exp}\Big{(}\frac{R_j - R_i}{150}\Big{)}}$$
+
+(Plugging in the formulas for $R_i$ and $R_j$ in the above will demonstrate the equality of this formulation with the original $p_{i > j} = \pi_i (\pi_i + \pi_j)^{-1}$.)
+
+This math adds one more step to the process but leads to ratings that are easier to interpret. First, the $500 - \mu$ factor means the system is explicitly centered at 500; a rating of 500 represents the average skill level in the league. Second, the scaling factor in the exponential denominator results in rating comparisons having a consistent meaning: no matter how high or low a player is ranked, an advantage of 100 rating points means they have 2-to-1 odds to win a game, regardless of whether the matchup in question is 200 vs. 300 or 600 vs. 700. These differences are multiplicative, meaning that a 200-point advantage predicts 4-to-1 odds, a 300-point advantage 8-to-1, and so on. This has the follow-on effect of reducing rightward skew in the data and providing a natural limit to players' ratings.
 
 Other considerations included:
 
-* Home-table advantage: In the past three seasons, about 52% of games were won by the home team, a small but significant edge to the home player. There also exists a simple way to incorporate this factor into the ratings, letting $p_{i>j} = \frac{\theta \pi_i}{\theta \pi_i + \pi_j}$ where $\theta > 1$ is the home-table advantage (or $\theta < 1$ if it's a disadvantage). Unfortunately, this is a noisy input: due to scheduling conflicts and bar remodeling, teams often play "home" games at other bars; most week 1 games are home games for both teams; and playoff games represent an uneven playing field since higher-seeded teams play at home while lower-seeded teams play on the road, among other factors. After quite a bit of experimentation in this area failed to improve model performance, I omitted the home-table advantage from the rating system.
+* Home-table advantage: In the past three seasons, about 52% of games have been won by the home team, a small but significant edge to the home player. There also exists a simple way to incorporate this factor into the ratings, letting $p_{i>j} = \frac{\theta \pi_i}{\theta \pi_i + \pi_j}$ where $\theta > 1$ is the home-table advantage (or $\theta < 1$ if it's a disadvantage). Unfortunately, this is a noisy input: due to scheduling conflicts and bar remodeling, teams often play "home" games at other bars; most week 1 games are home games for both teams; and playoff games represent an uneven playing field since higher-seeded teams play at home while lower-seeded teams play on the road, among other factors. After quite a bit of experimentation in this area failed to improve model performance, I omitted the home-table advantage from the rating system.
 
-* Time decay: In pool, a player's skill level can sometimes change over time. One extreme would be to assume that these changes are the result of random noise and place equal weight on every game in a player's match history; another would be to use a subset of a player's most recent games, on the assumption that those games most accurately reflect their skill. The middle ground solution used here is a sliding scale where older matches contribute less to a player's rating than newer ones. Matches are given a weighting factor between 0 and 1 based on a half-life of 1500 days from the date of a player's latest game. (As an example, for the latest March 2019 ratings, matches played in January 2018 contribute about 80% of the value of a match played in the current month.) Since parameter tuning on the number of days to half-life showed little impact on model results, this number was chosen arbitrarily. The end result is a rating system that is responsive to change but results in fewer wild temporary swings, especially for players with more established ratings. 
+* Time decay: In pool, a player's skill level can sometimes change over time. One extreme would be to assume that these changes are the result of random noise and place equal weight on every game in a player's match history; another would be to use a subset of a player's most recent games, on the assumption that those games most accurately reflect their skill. The middle ground solution used here is to provide less weight to older matches. The current season is Spring 2019; these most recent matches are weighted at 1. Older matches in Fall 2018 and Spring 2018 have weights of 0.8 and 0.6, respectively. The exact values for these parameters had little impact on model results so these numbers were chosen arbitrarily. The end result is a rating system that is responsive to change but reduces the number of wild temporary swings, especially for players with more established ratings. 
 
 * Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, games against newly-joined league members are down-weighted until those players have competed in a certain number of games. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. The number 15 was chosen based on an exploratory analysis of when players' ratings begin to converge to a relative steady state.
-
-* Scaling: Due to the wide variation in playing ability across the league, values for $\pi$ are highly skewed. Using a logarithmic transform...
 
 ### Questions and Answers 
 
@@ -143,7 +153,7 @@ How much do ratings change over time?
 
 Do new league players have starter ratings?
 
-* Not exactly. Players start out with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some arbitrary period of time, we allow the results to follow the data even if that data is noisy at first.
+* Not exactly. Players start out with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating, we let the results follow the data even if that data is noisy at first.
 
 How many games are needed to indicate that a rating is trustworthy?
 

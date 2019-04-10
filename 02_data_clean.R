@@ -62,6 +62,8 @@ remove_forfeits <- function(results_df) {
       away = if_else(away == "Chris L", "Chris Logan", away),
       home = if_else(home == "Jerz", "Jerz Zuluaga", home),
       away = if_else(away == "Jerz", "Jerz Zuluaga", away),
+      home = if_else(home == "Mike Romano", "Michael Romano", home),
+      away = if_else(away == "Mike Romano", "Michael Romano", away),
       home_team = if_else(home_team == "The Black Willows", "Black Willows", home_team),
       away_team = if_else(away_team == "The Black Willows", "Black Willows", away_team),
       home_team = if_else(home_team == "Lucky Horseshoe", "Lucky Horseshoe Unnamed", home_team),
