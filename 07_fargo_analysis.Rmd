@@ -135,7 +135,7 @@ Other considerations included:
 
 * Time decay: In pool, a player's skill level can sometimes change over time. One extreme would be to assume that these changes are the result of random noise and place equal weight on every game in a player's match history; another would be to use a subset of a player's most recent games, on the assumption that those games most accurately reflect their skill. The middle ground solution used here is to provide less weight to older matches. The current season is Spring 2019; these most recent matches are weighted at 1. Older matches in Fall 2018 and Spring 2018 have weights of 0.8 and 0.6, respectively. The exact values for these parameters had little impact on model results so these numbers were chosen arbitrarily. The end result is a rating system that is responsive to change but reduces the number of wild temporary swings, especially for players with more established ratings. 
 
-* Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, games against newly-joined league members are down-weighted until those players have competed in a certain number of games. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. The number 15 was chosen based on an exploratory analysis of when players' ratings begin to converge to a relative steady state.
+* Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, it is also possible to introduce weighting factors that reduce the impact of games involving newcomers. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. Exploratory analysis of players' ratings over time showed standard deviations plateauing at 15 games - meaning that within only four nights of playing, a new player's rating has reached a relative steady state. As a result, for now the ratings do not include a robustness penalty against new players.
 
 ### Questions and Answers 
 
@@ -145,15 +145,15 @@ What do the ratings mean?
 
 How and why does my rating go up or down?
 
-* Your rating will go up when you perform better than the current ratings predict, and it will go down if you perform worse than the current ratings predict. Your rating will also change based on changes in your opponents' ratings. Let's assume you have a 6-3 record against some previous opponent. If that opponent has a few great nights and his or her rating increases, you will earn more points for having done well against that person. (The converse is true if your previous opponent's rating decreases.)
+* Your rating will go up when you perform better than the current ratings predict, and it will go down if you perform worse than the current ratings predict. Your rating will also change based on changes in your opponents' performance. Let's assume you have a 6-3 record against some previous opponent. If that opponent has a few great nights and his or her rating increases, you will earn a few points for having done well against that person. (The opposite is true if your previous opponent's rating decreases.)
 
 How much do ratings change over time?
 
-* Some players perform at a consistent level and show only minor changes over time. Other people have seen large shifts in their ratings, both positive and negative. Substantial changes in players' ratings are almost always due to changes in their own performance, rather than changes in the performance of their previous opponents. 
+* Some players perform at a consistent level over time. Other people have seen large shifts in their ratings, both positive and negative. Substantial changes in players' ratings are almost always due to changes in their own performance, rather than changes in the performance of their previous opponents. 
 
 Do new league players have starter ratings?
 
-* Not exactly. Players start out with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating, we let the results follow the data even if that data is noisy at first.
+* Players begin with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some period of time, we let the results follow the data even if that data is noisy at first. Within three games, more weight will be placed on actual match results than on the initial rating.
 
 How many games are needed to indicate that a rating is trustworthy?
 
