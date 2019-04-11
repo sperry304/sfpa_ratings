@@ -107,7 +107,7 @@ This adaptation of the expectation-maximization (EM) algorithm loops through eac
 
 Maximum likelihood estimation is the single most widely used method of parameter estimation, but it is far from perfect. While convergence is guaranteed under certain conditions, one of those conditions deals with having a sufficient number of connections in the data, such as you might find in a series of round-robin games played between all teams in a league ([see Assumption 3 here](http://personal.psu.edu/drh20/papers/bt.pdf)). Additionally, the MLE can converge toward the boundary of a parameter space when dealing with extreme data, which in this case would mean a rating of 0 for a winless player and a rating of infinity for an undefeated one. This presents a clear problem when plugging ratings into the formula $\frac{\pi_i}{\pi_i + \pi_j}$. The SFPA league data set faces both of these issues - sparse data with many members playing only a handful of games against a limited subset of opponents, and some examples of players with no wins at all.
 
-Bayesian methods allow us to avoid these problems.  Instead of finding an MLE after taking undesirable steps like omitting winless players or including only results from players with a minimum number of games, we calculate the maximum a priori (MAP) estimate of **$\pi$** by setting a $G(a, b)$ prior on $\pi$, where $G$ is a gamma distribution with parameters $a$ and $b$. This prior is conjugate to the complete data likelihood function and results in the following update formula:
+Bayesian methods allow us to avoid these problems. Instead of finding an MLE after taking undesirable steps like omitting winless players or including only results from players with a minimum number of games, we calculate the maximum a priori (MAP) estimate of **$\pi$** by setting a $G(a, b)$ prior on $\pi$, where $G$ is a gamma distribution with parameters $a$ and $b$. This prior is conjugate to the complete data likelihood function and results in the following update formula:
 
 $$\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$
 
@@ -135,31 +135,35 @@ Other considerations included:
 
 * Time decay: In pool, a player's skill level can sometimes change over time. One extreme would be to assume that these changes are the result of random noise and place equal weight on every game in a player's match history; another would be to use a subset of a player's most recent games, on the assumption that those games most accurately reflect their skill. The middle ground solution used here is to provide less weight to older matches. The current season is Spring 2019; these most recent matches are weighted at 1. Older matches in Fall 2018 and Spring 2018 have weights of 0.8 and 0.6, respectively. The exact values for these parameters had little impact on model results so these numbers were chosen arbitrarily. The end result is a rating system that is responsive to change but reduces the number of wild temporary swings, especially for players with more established ratings. 
 
-* Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, it is also possible to introduce weighting factors that reduce the impact of games involving newcomers. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. Exploratory analysis of players' ratings over time showed standard deviations plateauing at 15 games - meaning that within only four nights of playing, a new player's rating has reached a relative steady state. As a result, for now the ratings do not include a robustness penalty against new players.
+* Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, it is also possible to introduce weighting factors that reduce the impact of games involving newcomers. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. Exploratory analysis of players' ratings over time showed standard deviations plateauing at 15 games - meaning that within only four match nights, a new player's rating has reached a relative steady state. As a result, for now the ratings do not include a robustness penalty against new players.
 
 ### Questions and Answers 
 
 What do the ratings mean? 
 
-* The first meaningful number here is 500, which has been set as the global league average. Otherwise, ratings are primarily useful in comparison to each other. The second meaningful number is a rating difference of 100, which denotes a...  to calculate individual match probabilities: the probability of player A beating player B in a single game is equal to $1 / (1 + e^{(R_B - R_A) / 150})$. 
+* The first meaningful number here is 500, which has been set as the global league average. The second meaningful number is 100, the rating difference which denotes a player having a predicted 2-to-1 advantage in a single game. 
 
 How and why does my rating go up or down?
 
-* Your rating will go up when you perform better than the current ratings predict, and it will go down if you perform worse than the current ratings predict. Your rating will also change based on changes in your opponents' performance. Let's assume you have a 6-3 record against some previous opponent. If that opponent has a few great nights and his or her rating increases, you will earn a few points for having done well against that person. (The opposite is true if your previous opponent's rating decreases.)
+* Ratings can change one of two ways: Your performance, and the performance of your opponents:
+
+    * The most important factor is your own performance. A player's rating will go up after performing better than the current ratings predict, and it will go down after performing worse than the current ratings predict. Match results that track existing predictions will result in little to no change. 
+  
+    * A secondary, smaller factor is the performance of the people a player has competed against. Let's assume you have a 7-3 record against some previous opponent. If that opponent has a few great nights and his or her rating increases, you are likely to earn a couple additional points for having done well against that person. (The opposite is true if your previous opponent's rating decreases.)
 
 How much do ratings change over time?
 
-* Some players perform at a consistent level over time. Other people have seen large shifts in their ratings, both positive and negative. Substantial changes in players' ratings are almost always due to changes in their own performance, rather than changes in the performance of their previous opponents. 
+* Some players perform at a consistent level over time. Other people have seen large shifts in their ratings, both positive and negative. Substantial changes in players' ratings are almost always due to changes in their own performance, rather than changes in the performance of their past opponents. 
 
 Do new league players have starter ratings?
 
-* Players begin with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some period of time, we let the results follow the data even if that data is noisy at first. Within three games, more weight will be placed on actual match results than on the initial rating.
+* Players begin with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some set period of time, we let the results follow the data even if that data is noisy at first. Within three games, more weight starts to be placed on actual match results than on the initial rating.
 
 How many games are needed to indicate that a rating is trustworthy?
 
 * This is not a simple question. We are in the process of generating confidence intervals (or, more accurately, Bayesian credible intervals) for ratings to give an idea of how sure we may be. Initial exploration suggests 15 games is the time period when the mean and median week-to-week rating changes hit 0 and the standard deviation approaches a relative plateau.
 
-### Ratings as of April 2, 2019
+### Ratings as of `r latest_fargo_date`:
 
 ```{r, echo=FALSE}
 ratings_for_printing %>% 
