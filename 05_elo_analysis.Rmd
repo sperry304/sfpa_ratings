@@ -160,7 +160,9 @@ top_players <-
 elo_ratings %>% 
   mutate(rating = round(rating)) %>% 
   arrange(desc(rating)) %>% 
-  append_team_names()
+  append_team_names() %>% 
+  head(25) %>% 
+  knitr::kable()
 
 # Plot player ratings over time
 plot_player_ratings_by_group <- function(player_list, list_name) {
@@ -238,24 +240,27 @@ ratings_changes <-
     arrange(desc(diff)) %>% 
     mutate(new_old = if_else(initial == 1500, "New player", "Old player")) %>% 
     append_team_names() %>% 
-    select(player, initial, final, diff, new_old, team)
+    select(player, initial, final, diff, new_old, team) %>%
+    ungroup()
 
-#ratings_changes %>% 
-  #filter(new_old == "New player") %>% 
-#  ggplot(aes(x = reorder(player, diff), y = diff, fill = new_old)) +
-#  geom_col() +
-#  theme(
-#    axis.text.x = element_blank(),
-#    axis.ticks.x = element_blank(),
-#    axis.title = element_blank(),
-#    legend.position = "bottom",
-#    plot.title = element_text(hjust = 0.5)
-#  ) +
-#  labs(
-#    title = "ELO Rating Changes by Player, Spring 2019"
-#  )
+# Players with the biggest improvement
+ratings_changes %>% 
+  transmute(
+    player, initial = round(initial), final = round(final), 
+    diff = round(diff), team, new_old
+  ) %>% 
+  head(25) %>% 
+  knitr::kable()
 
-ratings_changes
+# Players with the biggest declines
+ratings_changes %>% 
+  transmute(
+    player, initial = round(initial), final = round(final), 
+    diff = round(diff), team, new_old
+  ) %>% 
+  arrange(diff) %>% 
+  head(25) %>% 
+  knitr::kable()
 ```
 
 ```{r}

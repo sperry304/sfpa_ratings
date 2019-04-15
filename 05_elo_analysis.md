@@ -120,23 +120,38 @@ top_players <-
 elo_ratings %>% 
   mutate(rating = round(rating)) %>% 
   arrange(desc(rating)) %>% 
-  append_team_names()
+  append_team_names() %>% 
+  head(25) %>% 
+  knitr::kable()
 ```
 
-    ## # A tibble: 329 x 3
-    ##    player          rating team                      
-    ##    <chr>            <dbl> <chr>                     
-    ##  1 Skip Perry        1830 Tandy Tokers              
-    ##  2 Ryan Piaget       1798 Clean Slate               
-    ##  3 Hector Ortega     1789 <NA>                      
-    ##  4 Mike Maxwell      1753 Route 101 Rawhides        
-    ##  5 Tom Seymour       1742 Route 101 Rawhides        
-    ##  6 Evan Burgess      1726 Lucky Horseshoe Caballeros
-    ##  7 Wyatt Moss        1726 Naked Lunch Nice Rack     
-    ##  8 Thayer McDougle   1724 Lucky Horseshoe Caballeros
-    ##  9 Diogo Martini     1712 Golden Slate Warriors     
-    ## 10 Dave Ward         1710 Dovre & Out               
-    ## # … with 319 more rows
+| player           | rating | team                       |
+| :--------------- | -----: | :------------------------- |
+| Skip Perry       |   1830 | Tandy Tokers               |
+| Ryan Piaget      |   1798 | Clean Slate                |
+| Hector Ortega    |   1789 | NA                         |
+| Mike Maxwell     |   1753 | Route 101 Rawhides         |
+| Tom Seymour      |   1742 | Route 101 Rawhides         |
+| Evan Burgess     |   1726 | Lucky Horseshoe Caballeros |
+| Wyatt Moss       |   1726 | Naked Lunch Nice Rack      |
+| Thayer McDougle  |   1724 | Lucky Horseshoe Caballeros |
+| Diogo Martini    |   1712 | Golden Slate Warriors      |
+| Dave Ward        |   1710 | Dovre & Out                |
+| Bob Simon        |   1705 | Route 101 Rawhides         |
+| Andy Luong       |   1697 | NA                         |
+| Nick Callado     |   1687 | NA                         |
+| Joshua Maldonado |   1684 | Route 101 Rawhides         |
+| Stefano Lopez    |   1684 | NA                         |
+| Chris DuCoing    |   1682 | Smoke & Rumors             |
+| Patty West       |   1681 | Golden Slate Warriors      |
+| Hugo Valseca     |   1680 | NA                         |
+| Rhys Hughes      |   1680 | Golden Slate Warriors      |
+| Danny Mullan     |   1674 | Route 101 Rawhides         |
+| Ben Green        |   1669 | Golden Slate Warriors      |
+| Rene Denis       |   1669 | Smoke & Rumors             |
+| James Neale      |   1668 | Lucky Horseshoe Caballeros |
+| Crystal Kelem    |   1662 | Cafe Strikes Again         |
+| Jesse La Fear    |   1656 | NA                         |
 
 ``` r
 # Plot player ratings over time
@@ -167,7 +182,7 @@ plot_player_ratings_by_group(
 )
 ```
 
-![](05_elo_analysis_files/figure-markdown_github/unnamed-chunk-2-1.png)
+![](05_elo_analysis_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
 plot_player_ratings_by_group(
@@ -176,7 +191,7 @@ plot_player_ratings_by_group(
 )
 ```
 
-![](05_elo_analysis_files/figure-markdown_github/unnamed-chunk-2-2.png)
+![](05_elo_analysis_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
 
 ``` r
 plot_player_ratings_by_group(
@@ -185,7 +200,7 @@ plot_player_ratings_by_group(
 )
 ```
 
-![](05_elo_analysis_files/figure-markdown_github/unnamed-chunk-2-3.png)
+![](05_elo_analysis_files/figure-gfm/unnamed-chunk-2-3.png)<!-- -->
 
 ``` r
 # Player improvement in the 2019 season 
@@ -225,41 +240,86 @@ ratings_changes <-
     arrange(desc(diff)) %>% 
     mutate(new_old = if_else(initial == 1500, "New player", "Old player")) %>% 
     append_team_names() %>% 
-    select(player, initial, final, diff, new_old, team)
+    select(player, initial, final, diff, new_old, team) %>%
+    ungroup()
 
-#ratings_changes %>% 
-  #filter(new_old == "New player") %>% 
-#  ggplot(aes(x = reorder(player, diff), y = diff, fill = new_old)) +
-#  geom_col() +
-#  theme(
-#    axis.text.x = element_blank(),
-#    axis.ticks.x = element_blank(),
-#    axis.title = element_blank(),
-#    legend.position = "bottom",
-#    plot.title = element_text(hjust = 0.5)
-#  ) +
-#  labs(
-#    title = "ELO Rating Changes by Player, Spring 2019"
-#  )
-
-ratings_changes
+# Players with the biggest improvement
+ratings_changes %>% 
+  transmute(
+    player, initial = round(initial), final = round(final), 
+    diff = round(diff), team, new_old
+  ) %>% 
+  head(25) %>% 
+  knitr::kable()
 ```
 
-    ## # A tibble: 214 x 6
-    ## # Groups:   player [214]
-    ##    player           initial final  diff new_old    team                    
-    ##    <chr>              <dbl> <dbl> <dbl> <chr>      <chr>                   
-    ##  1 Jon Williams       1500  1651. 151.  New player Cafe Ballbusters        
-    ##  2 Tae Yim            1500  1621. 121.  New player Cafe 2 for 1's          
-    ##  3 Mathieu Gugliel…   1406. 1518. 112.  Old player Tandy Tokers            
-    ##  4 John McNulty       1371. 1481. 110.  Old player Lone Star Longhorns     
-    ##  5 Rene Denis         1564. 1669. 105.  Old player Smoke & Rumors          
-    ##  6 Mark Butler        1469. 1570. 101.  Old player Golden Slate Warriors   
-    ##  7 Ryan Piaget        1701. 1798.  97.1 Old player Clean Slate             
-    ##  8 Troy Brunet        1361. 1455.  93.7 Old player Hole in the Wall Bangers
-    ##  9 Julien Roeser      1458. 1548.  90.0 Old player Lucky Horseshoe Glue Fa…
-    ## 10 Chris DuCoing      1597. 1682.  85.3 Old player Smoke & Rumors          
-    ## # … with 204 more rows
+| player            | initial | final | diff | team                         | new\_old   |
+| :---------------- | ------: | ----: | ---: | :--------------------------- | :--------- |
+| Jon Williams      |    1500 |  1651 |  151 | Cafe Ballbusters             | New player |
+| Tae Yim           |    1500 |  1621 |  121 | Cafe 2 for 1’s               | New player |
+| Mathieu Guglielmi |    1406 |  1518 |  112 | Tandy Tokers                 | Old player |
+| John McNulty      |    1371 |  1481 |  110 | Lone Star Longhorns          | Old player |
+| Rene Denis        |    1564 |  1669 |  105 | Smoke & Rumors               | Old player |
+| Mark Butler       |    1469 |  1570 |  101 | Golden Slate Warriors        | Old player |
+| Ryan Piaget       |    1701 |  1798 |   97 | Clean Slate                  | Old player |
+| Troy Brunet       |    1361 |  1455 |   94 | Hole in the Wall Bangers     | Old player |
+| Julien Roeser     |    1458 |  1548 |   90 | Lucky Horseshoe Glue Factory | Old player |
+| Chris DuCoing     |    1597 |  1682 |   85 | Smoke & Rumors               | Old player |
+| Skip Perry        |    1745 |  1830 |   85 | Tandy Tokers                 | Old player |
+| Nick Lansdown     |    1558 |  1643 |   85 | Lucky Horseshoe Caballeros   | Old player |
+| Alex Peralta      |    1500 |  1583 |   83 | Rumors Never Die             | New player |
+| Tom Seymour       |    1659 |  1742 |   83 | Route 101 Rawhides           | Old player |
+| Darrell Haslip    |    1570 |  1651 |   81 | Smoke & Rumors               | Old player |
+| Ari Fehrenkamp    |    1367 |  1447 |   80 | Wicked Bitches of the West   | Old player |
+| Joel Talevi       |    1573 |  1651 |   78 | Clean Slate                  | Old player |
+| Anthony Hydron    |    1441 |  1517 |   76 | Lucky Horseshoe Glue Factory | Old player |
+| Ninad Desei       |    1368 |  1444 |   75 | Pilsner Penguins             | Old player |
+| Jason Rogers      |    1512 |  1585 |   73 | Clean Slate                  | Old player |
+| Wyatt Moss        |    1656 |  1726 |   70 | Naked Lunch Nice Rack        | Old player |
+| Keith Deming      |    1423 |  1493 |   70 | Naked Lunch Nice Rack        | Old player |
+| Thayer McDougle   |    1659 |  1724 |   65 | Lucky Horseshoe Caballeros   | Old player |
+| Gerlie Mendoza    |    1501 |  1565 |   64 | Pilsner Penguins             | Old player |
+| Joshua Maldonado  |    1620 |  1684 |   64 | Route 101 Rawhides           | Old player |
+
+``` r
+# Players with the biggest declines
+ratings_changes %>% 
+  transmute(
+    player, initial = round(initial), final = round(final), 
+    diff = round(diff), team, new_old
+  ) %>% 
+  arrange(diff) %>% 
+  head(25) %>% 
+  knitr::kable()
+```
+
+| player            | initial | final |  diff | team                         | new\_old   |
+| :---------------- | ------: | ----: | ----: | :--------------------------- | :--------- |
+| Levon Sanossian   |    1500 |  1327 | \-173 | Lone Star Rebels             | New player |
+| Kurt Weitzmann    |    1500 |  1330 | \-170 | Black Willows                | New player |
+| Brady Ralston     |    1500 |  1358 | \-142 | Lone Star Longhorns          | New player |
+| Keelin Ingoldsby  |    1500 |  1373 | \-127 | Harry’s Humdingers           | New player |
+| Dorien Lezinski   |    1500 |  1383 | \-117 | House of Ginger              | New player |
+| Jonathen Diego    |    1500 |  1387 | \-113 | House of Ginger              | New player |
+| Fran Herman       |    1600 |  1494 | \-106 | Pilsner Penguins             | Old player |
+| Tetyana Swan      |    1500 |  1396 | \-104 | Lone Star Longhorns          | New player |
+| Austin Day        |    1500 |  1396 | \-104 | Cafe 2 for 1’s               | New player |
+| Sheree Taft       |    1574 |  1476 |  \-98 | Cafe Cafaholics              | Old player |
+| Gerald Borjas     |    1461 |  1377 |  \-84 | Hole in the Wall Howlers     | Old player |
+| Robbie Connelly   |    1396 |  1316 |  \-81 | Lone Star Rebels             | Old player |
+| John Larkin       |    1500 |  1419 |  \-81 | Harry’s Humdingers           | New player |
+| Tim Doyle         |    1452 |  1371 |  \-81 | Bare Naked 6 Holes           | Old player |
+| Peter Lee         |    1509 |  1429 |  \-80 | Ginger Strokes               | Old player |
+| Carlos Rodrigues  |    1500 |  1427 |  \-73 | Lucky Horseshoe Glue Factory | New player |
+| Emily Adams       |    1571 |  1498 |  \-72 | Pilsner Innmates             | Old player |
+| Aja Cayetano      |    1278 |  1208 |  \-70 | Harry’s Humdingers           | Old player |
+| Caleb Christian   |    1500 |  1431 |  \-69 | Hole in the Wall Bangers     | New player |
+| Sharon Yencharis  |    1500 |  1432 |  \-68 | Lone Star Rebels             | New player |
+| Eric Kalisa       |    1519 |  1451 |  \-68 | Tandy Tokers                 | Old player |
+| Antonio Herrera   |    1468 |  1402 |  \-66 | Cafe Cafaholics              | Old player |
+| Steven Chamberlin |    1408 |  1343 |  \-65 | Cinchsationals               | Old player |
+| Ian Montbrun      |    1585 |  1522 |  \-63 | Cinch You’re Down There      | Old player |
+| Nick Giangreco    |    1647 |  1585 |  \-62 | Lone Star Rebels             | Old player |
 
 ``` r
 # Data frame of all team names for all seasons
@@ -366,7 +426,7 @@ elo_team_ratings %>%
   )
 ```
 
-![](05_elo_analysis_files/figure-markdown_github/unnamed-chunk-5-1.png)
+![](05_elo_analysis_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
 
 ``` r
 plot_teams <- function(teams_of_interest) {
@@ -402,7 +462,7 @@ team_list <- c(
 plot_teams(team_list)
 ```
 
-![](05_elo_analysis_files/figure-markdown_github/unnamed-chunk-6-1.png)
+![](05_elo_analysis_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 # Show plot with ratings by team and player to see best teams 
@@ -437,7 +497,7 @@ elo_player_team_ratings %>%
   )
 ```
 
-![](05_elo_analysis_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](05_elo_analysis_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
 
 ``` r
 elo_player_team_ratings %>% 
@@ -458,4 +518,4 @@ elo_player_team_ratings %>%
   )
 ```
 
-![](05_elo_analysis_files/figure-markdown_github/unnamed-chunk-7-2.png)
+![](05_elo_analysis_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
