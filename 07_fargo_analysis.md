@@ -13,12 +13,18 @@ framework assumes player \(i\) has the following probability of
 defeating player
 \(j\):
 
-\[\text{P[Player } i \text{ defeats player } j] = p_{i > j} = \frac{\pi_i}{\pi_i + \pi_j}\]
+<!-- $$\text{P[Player } i \text{ defeats player } j] = p_{i > j} = \frac{\pi_i}{\pi_i + \pi_j}$$ -->
+
+<center>
+
+![](http://www.sciweavers.org/upload/Tex2Img_1555340902/eqn.png)
+
+</center>
 
 A common place to start when trying to estimate parameters like these is
 maximum likelihood estimation. The general setup is that each game’s
 outcome has some probability of occurring, modeled as
-\(\frac{\pi_i}{\pi_i + \pi_j}\). If we assume that the data points are
+\(\pi_i(\pi_i + \pi_j)^{-1}\). If we assume that the data points are
 independent and identically distributed, the likelihood of all observed
 games is simply the probability of all the games multiplied together.
 The maximum likelihood estimate, or MLE, is the collection of player
@@ -33,12 +39,24 @@ game, \(n_{ij}\) the number of games played between players \(i\) and
 can use the following update
 formula:
 
-\[\pi_i^{(t)} = \frac{w_i}{\sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}\]
+<!-- $$\pi_i^{(t)} = \frac{w_i}{\sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$ -->
+
+<center>
+
+![](http://www.sciweavers.org/upload/Tex2Img_1555340884/eqn.png)
+
+</center>
 
 Or, in a format that may be easier to
 understand:
 
-\[\pi_i^{new} = \frac{\text{# of total wins by player } i}{\sum_{\text{All games played by } i} \frac{\text{# of games between } i, j}{\pi_i^{current} + \pi_j^{current}}}\]
+<!-- $$\pi_i^{new} = \frac{\text{# of total wins by player } i}{\sum_{\text{All games played by } i} \frac{\text{# of games between } i, j}{\pi_i^{current} + \pi_j^{current}}}$$ -->
+
+<center>
+
+![](http://www.sciweavers.org/upload/Tex2Img_1555340863/eqn.png)
+
+</center>
 
 This adaptation of the expectation-maximization (EM) algorithm loops
 through each player, updating their rating using the latest estimates of
