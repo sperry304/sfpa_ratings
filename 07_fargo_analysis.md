@@ -23,7 +23,7 @@ defeating player
 
 A common place to start when trying to estimate parameters like these is
 maximum likelihood estimation. The general setup is that each game’s
-outcome has some probability of occurring, modeled as π
+outcome has some probability of occurring, modeled as *π<sub>i</sub>*
 \(\pi_i(\pi_i + \pi_j)^{-1}\). If we assume that the data points are
 independent and identically distributed, the likelihood of all observed
 games is simply the probability of all the games multiplied together.
@@ -63,8 +63,8 @@ through each player, updating their rating using the latest estimates of
 all their opponents’ ratings. (A little experimentation with Google
 Calculator or Excel will demonstrate how this formula gives players more
 credit for beating higher-ranked opponents.) Eventually, each update
-will have such a small effect on the vector of player ratings \(\pi\)
-that we can stop the process.
+will have such a small effect on the vector of player ratings that we
+can stop the process.
 
 Maximum likelihood estimation is the single most widely used method of
 parameter estimation, but it is far from perfect. While convergence is
@@ -73,14 +73,12 @@ having a sufficient number of connections in the data, such as you might
 find in a series of round-robin games played between all teams in a
 league ([see Assumption 3
 here](http://personal.psu.edu/drh20/papers/bt.pdf)). Additionally, the
-MLE can converge toward the boundary of a parameter space when dealing
+MLE can converge toward the boundary of a parameter space when faced
 with extreme data, which in this case would mean a rating of 0 for a
-winless player and a rating of infinity for an undefeated one. This
-presents a clear problem when plugging ratings into the formula
-\(\frac{\pi_i}{\pi_i + \pi_j}\). The SFPA league data set faces both of
-these issues - sparse data with many members playing only a handful of
-games against a limited subset of opponents, and some examples of
-players with no wins at all.
+winless player and a rating of infinity for an undefeated one. The SFPA
+league data set faces both of these issues - sparse data with many
+members playing only a handful of games against a limited subset of
+opponents, and some examples of players with no wins at all.
 
 Bayesian methods allow us to avoid these problems. Instead of finding an
 MLE after taking undesirable steps like omitting winless players or
