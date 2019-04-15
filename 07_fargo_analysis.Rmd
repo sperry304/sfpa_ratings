@@ -2,7 +2,7 @@
 title: "SFPA Player Ratings, v.1"
 author: "Skip Perry"
 date: "April 2019"
-output: html_document
+output: github_document
 ---
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
