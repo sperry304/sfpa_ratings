@@ -94,12 +94,10 @@ These ratings are based on the Bradley-Terry model, which since the 1950s has be
 <!-- $$\text{P[Player } i \text{ defeats player } j] = p_{i > j} = \frac{\pi_i}{\pi_i + \pi_j}$$ -->
 
 <center> 
-
 ![](http://www.sciweavers.org/upload/Tex2Img_1555340902/eqn.png)
-
 </center>
 
-A common place to start when trying to estimate parameters like these is maximum likelihood estimation. The general setup is that each game's outcome has some probability of occurring, modeled as $\pi_i(\pi_i + \pi_j)^{-1}$. If we assume that the data points are independent and identically distributed, the likelihood of all observed games is simply the probability of all the games multiplied together. The maximum likelihood estimate, or MLE, is the collection of player ratings $\pi_1, ..., \pi_n$ for all $n$ players in the league that maximizes this likelihood function.
+A common place to start when trying to estimate parameters like these is maximum likelihood estimation. The general setup is that each game's outcome has some probability of occurring, modeled as &pi; $\pi_i(\pi_i + \pi_j)^{-1}$. If we assume that the data points are independent and identically distributed, the likelihood of all observed games is simply the probability of all the games multiplied together. The maximum likelihood estimate, or MLE, is the collection of player ratings $\pi_1, ..., \pi_n$ for all $n$ players in the league that maximizes this likelihood function.
 
 While there is no general analytical solution for the MLE in this case, iterative methods can be used to find a result. Letting $\pi_i$ be player $i$'s rating, $w_i$ the number of times player $i$ won a game, $n_{ij}$ the number of games played between players $i$ and $j$, and $(t)$ labeling the result at the $t^{th}$ iteration, we can use the following update formula:
 

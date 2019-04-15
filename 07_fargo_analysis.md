@@ -23,7 +23,7 @@ defeating player
 
 A common place to start when trying to estimate parameters like these is
 maximum likelihood estimation. The general setup is that each game’s
-outcome has some probability of occurring, modeled as
+outcome has some probability of occurring, modeled as π
 \(\pi_i(\pi_i + \pi_j)^{-1}\). If we assume that the data points are
 independent and identically distributed, the likelihood of all observed
 games is simply the probability of all the games multiplied together.
