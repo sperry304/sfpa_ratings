@@ -382,6 +382,7 @@ team_matches_and_ratings <-
 
 team_matches_and_ratings_sliced <- 
   team_matches_and_ratings %>% 
+  filter(!is.na(team)) %>% 
   group_by(match_date, team) %>% 
   slice(n()) %>% 
   ungroup() %>% 
@@ -389,7 +390,7 @@ team_matches_and_ratings_sliced <-
 
 win_pct_2019 <- 
   team_matches_and_ratings %>% 
-  filter(!is.na(result), match_date > "2019-01-01") %>% 
+  filter(!is.na(result), !is.na(team), match_date > "2019-01-01") %>% 
   group_by(team, result) %>% 
   count() %>% 
   ungroup() %>% 
