@@ -24,6 +24,28 @@ results_no_forfeits <-
   results_no_forfeits_path %>% 
   read_rds()
 
+#results_19_no_forfeits <- 
+#  results_no_forfeits %>% 
+#  filter(season == "Spring 2019")
+```
+
+```{r}
+#player_list <- 
+#  bind_rows(
+#    results_no_forfeits %>% transmute(player = home), 
+#    results_no_forfeits %>% transmute(player = away)
+#  ) %>% 
+#  distinct() %>% 
+#  arrange(player)
+
+#date_list <- 
+#  results_no_forfeits %>% 
+#  select(match_date) %>% 
+#  distinct() %>% 
+#  pull()
+```
+
+```{r}
 get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
   game_count <- 
     results_df %>% 
@@ -63,7 +85,9 @@ get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
     summarize(rating = ((a - 1) + sum(W * decay)) / (b + sum(A * decay))) %>% 
     pull(rating)
 }
+```
 
+```{r}
 results_to_ratings <- function(results_df, a, mae_stop = 100) {
   player_list <- 
     bind_rows(
