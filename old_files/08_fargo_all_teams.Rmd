@@ -1,0 +1,84 @@
+---
+title: "SFPA Player Ratings, v.1"
+author: "Skip Perry"
+date: "March 2019"
+output: github_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+
+latest_fargo_date <- 
+  list.files("other_data", pattern = "fargo") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+fargo_path <-
+  str_c("other_data/fargo_", latest_fargo_date, ".Rdata")
+
+fargo_df <- 
+  fargo_path %>% 
+  read_rds()
+
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits_path <-
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata")
+
+results_no_forfeits <- 
+  results_no_forfeits_path %>% 
+  read_rds()
+
+results_19_no_forfeits <- 
+  results_no_forfeits %>% 
+  filter(season == "Spring 2019")
+
+players_by_team_19 <- 
+  bind_rows(
+    results_19_no_forfeits %>% transmute(player = home, team = home_team),
+    results_19_no_forfeits %>% transmute(player = away, team = away_team)
+  ) %>% 
+    distinct() %>% 
+    arrange(team, player)
+
+fargo_df <-
+  fargo_df %>% 
+  inner_join(players_by_team_19, by = "player")
+
+team_list <-
+  fargo_df %>% 
+  distinct(team) %>% 
+  arrange(team) %>% 
+  pull()
+```
+
+```{r}
+plot_team_results <- function(team_name) {
+  p <- 
+    fargo_df %>% 
+    filter(team == team_name) %>% 
+    ggplot(aes(x = match_date, y = rating, group = player, color = player)) +
+    geom_hline(yintercept = 500, color = "white", size = 2) +
+    geom_line() +
+    geom_point(size = 0.8) +
+    coord_cartesian(ylim = c(0, 2000)) +
+    labs(
+      x = "Match Date", y = "Rating",
+      title = str_c(team_name, " Player Ratings")
+    ) +
+    theme(
+      legend.title = element_blank(),
+      plot.title = element_text(hjust = 0.5),
+      legend.position = "bottom",
+      legend.text = element_text(size = 10)
+    )
+  print(p)
+}
+
+walk(team_list, plot_team_results)
+```
