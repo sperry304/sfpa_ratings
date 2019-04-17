@@ -149,6 +149,9 @@ elo_team_ratings <-
 for (i in 1:nrow(results_no_forfeits)) {
   team1 <- results_no_forfeits$home_team[i]
   team2 <- results_no_forfeits$away_team[i]
+  if (is.na(team1)) { 
+    next 
+  } 
   team1_rating <- get_team_rating(team1, elo_team_ratings)
   team2_rating <- get_team_rating(team2, elo_team_ratings)
   results_no_forfeits$t1_start_rating[i] <- team1_rating

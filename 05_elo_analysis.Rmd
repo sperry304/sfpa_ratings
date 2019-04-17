@@ -142,8 +142,9 @@ players_by_team_19 <-
     results_19_no_forfeits %>% transmute(player = home, team = home_team),
     results_19_no_forfeits %>% transmute(player = away, team = away_team)
   ) %>% 
-    distinct() %>% 
-    arrange(team, player)
+  distinct() %>% 
+  arrange(team, player) %>% 
+  filter(!is.na(team))
 
 # List of the top 10 players active in Spring 2019
 top_players <-
@@ -271,7 +272,8 @@ team_names <-
     results_no_forfeits %>% transmute(team = away_team)
   ) %>% 
   distinct() %>% 
-  arrange(team)
+  arrange(team) %>% 
+  filter(!is.na(team))
 
 # Data frame of team names in the current Spring 2019 season
 team_names_2019 <- 
@@ -280,7 +282,8 @@ team_names_2019 <-
     results_19_no_forfeits %>% transmute(team = away_team)
   ) %>% 
   distinct() %>% 
-  arrange(team)
+  arrange(team) %>% 
+  filter(!is.na(team))
 
 team_matches_and_ratings <- function(team_of_interest) {
   df <- 

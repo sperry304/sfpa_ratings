@@ -37,9 +37,7 @@ results_no_forfeits <-
 results_19_no_forfeits <- 
   results_no_forfeits %>% 
   filter(season == "Spring 2019")
-```
 
-```{r, echo=FALSE}
 count_games <- function(player_of_interest, results_df) {
   results_df %>% 
     filter(away == player_of_interest | home == player_of_interest) %>% 
@@ -61,16 +59,15 @@ for (i in 1:nrow(games_in_system)) {
   games_in_system$games_in_system[i] <- 
     count_games(games_in_system$player[i], results_no_forfeits)
 }
-```
 
-```{r, echo=FALSE}
 team_names_by_player <- 
   bind_rows(
     results_19_no_forfeits %>% select(player = home, team = home_team),
     results_19_no_forfeits %>% select(player = away, team = away_team)
   ) %>% 
-    distinct() %>% 
-    arrange(player, team)
+  distinct() %>% 
+  arrange(player, team) %>% 
+  filter(!is.na(team))
 
 ratings_for_printing <- 
   fargo_df %>% 

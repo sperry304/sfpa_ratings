@@ -102,8 +102,9 @@ players_by_team_19 <-
     results_19_no_forfeits %>% transmute(player = home, team = home_team),
     results_19_no_forfeits %>% transmute(player = away, team = away_team)
   ) %>% 
-    distinct() %>% 
-    arrange(team, player)
+  distinct() %>% 
+  arrange(team, player) %>% 
+  filter(!is.na(team))
 
 # List of the top 10 players active in Spring 2019
 top_players <-
@@ -130,28 +131,28 @@ elo_ratings %>%
 | Skip Perry       |   1830 | Tandy Tokers               |
 | Ryan Piaget      |   1798 | Clean Slate                |
 | Hector Ortega    |   1789 | NA                         |
-| Mike Maxwell     |   1753 | Route 101 Rawhides         |
+| Evan Burgess     |   1770 | Lucky Horseshoe Caballeros |
+| Mike Maxwell     |   1768 | Route 101 Rawhides         |
 | Tom Seymour      |   1742 | Route 101 Rawhides         |
-| Evan Burgess     |   1726 | Lucky Horseshoe Caballeros |
+| Thayer McDougle  |   1730 | Lucky Horseshoe Caballeros |
 | Wyatt Moss       |   1726 | Naked Lunch Nice Rack      |
-| Thayer McDougle  |   1724 | Lucky Horseshoe Caballeros |
 | Diogo Martini    |   1712 | Golden Slate Warriors      |
 | Dave Ward        |   1710 | Dovre & Out                |
 | Bob Simon        |   1705 | Route 101 Rawhides         |
 | Andy Luong       |   1697 | NA                         |
 | Nick Callado     |   1687 | NA                         |
-| Joshua Maldonado |   1684 | Route 101 Rawhides         |
 | Stefano Lopez    |   1684 | NA                         |
 | Chris DuCoing    |   1682 | Smoke & Rumors             |
 | Patty West       |   1681 | Golden Slate Warriors      |
 | Hugo Valseca     |   1680 | NA                         |
 | Rhys Hughes      |   1680 | Golden Slate Warriors      |
 | Danny Mullan     |   1674 | Route 101 Rawhides         |
+| Joshua Maldonado |   1672 | Route 101 Rawhides         |
 | Ben Green        |   1669 | Golden Slate Warriors      |
 | Rene Denis       |   1669 | Smoke & Rumors             |
-| James Neale      |   1668 | Lucky Horseshoe Caballeros |
-| Crystal Kelem    |   1662 | Cafe Strikes Again         |
+| James Neale      |   1656 | Lucky Horseshoe Caballeros |
 | Jesse La Fear    |   1656 | NA                         |
+| Eugene Fan       |   1653 | Rumors Never Die           |
 
 ``` r
 # Plot player ratings over time
@@ -255,9 +256,9 @@ ratings_changes %>%
 
 | player            | initial | final | diff | team                         | new\_old   |
 | :---------------- | ------: | ----: | ---: | :--------------------------- | :--------- |
-| Jon Williams      |    1500 |  1651 |  151 | Cafe Ballbusters             | New player |
+| Jon Williams      |    1500 |  1635 |  135 | Cafe Ballbusters             | New player |
 | Tae Yim           |    1500 |  1621 |  121 | Cafe 2 for 1’s               | New player |
-| Mathieu Guglielmi |    1406 |  1518 |  112 | Tandy Tokers                 | Old player |
+| Mathieu Guglielmi |    1406 |  1519 |  112 | Tandy Tokers                 | Old player |
 | John McNulty      |    1371 |  1481 |  110 | Lone Star Longhorns          | Old player |
 | Rene Denis        |    1564 |  1669 |  105 | Smoke & Rumors               | Old player |
 | Mark Butler       |    1469 |  1570 |  101 | Golden Slate Warriors        | Old player |
@@ -272,14 +273,14 @@ ratings_changes %>%
 | Darrell Haslip    |    1570 |  1651 |   81 | Smoke & Rumors               | Old player |
 | Ari Fehrenkamp    |    1367 |  1447 |   80 | Wicked Bitches of the West   | Old player |
 | Joel Talevi       |    1573 |  1651 |   78 | Clean Slate                  | Old player |
-| Anthony Hydron    |    1441 |  1517 |   76 | Lucky Horseshoe Glue Factory | Old player |
+| Anthony Hydron    |    1441 |  1517 |   75 | Lucky Horseshoe Glue Factory | Old player |
 | Ninad Desei       |    1368 |  1444 |   75 | Pilsner Penguins             | Old player |
 | Jason Rogers      |    1512 |  1585 |   73 | Clean Slate                  | Old player |
+| Thayer McDougle   |    1659 |  1730 |   71 | Lucky Horseshoe Caballeros   | Old player |
 | Wyatt Moss        |    1656 |  1726 |   70 | Naked Lunch Nice Rack        | Old player |
 | Keith Deming      |    1423 |  1493 |   70 | Naked Lunch Nice Rack        | Old player |
-| Thayer McDougle   |    1659 |  1724 |   65 | Lucky Horseshoe Caballeros   | Old player |
 | Gerlie Mendoza    |    1501 |  1565 |   64 | Pilsner Penguins             | Old player |
-| Joshua Maldonado  |    1620 |  1684 |   64 | Route 101 Rawhides           | Old player |
+| Patty West        |    1619 |  1681 |   62 | Golden Slate Warriors        | Old player |
 
 ``` r
 # Players with the biggest declines
@@ -297,7 +298,7 @@ ratings_changes %>%
 | :---------------- | ------: | ----: | ----: | :--------------------------- | :--------- |
 | Levon Sanossian   |    1500 |  1327 | \-173 | Lone Star Rebels             | New player |
 | Kurt Weitzmann    |    1500 |  1330 | \-170 | Black Willows                | New player |
-| Brady Ralston     |    1500 |  1358 | \-142 | Lone Star Longhorns          | New player |
+| Brady Ralston     |    1500 |  1357 | \-143 | Lone Star Longhorns          | New player |
 | Keelin Ingoldsby  |    1500 |  1373 | \-127 | Harry’s Humdingers           | New player |
 | Dorien Lezinski   |    1500 |  1383 | \-117 | House of Ginger              | New player |
 | Jonathen Diego    |    1500 |  1387 | \-113 | House of Ginger              | New player |
@@ -311,8 +312,8 @@ ratings_changes %>%
 | Tim Doyle         |    1452 |  1371 |  \-81 | Bare Naked 6 Holes           | Old player |
 | Peter Lee         |    1509 |  1429 |  \-80 | Ginger Strokes               | Old player |
 | Carlos Rodrigues  |    1500 |  1427 |  \-73 | Lucky Horseshoe Glue Factory | New player |
-| Emily Adams       |    1571 |  1498 |  \-72 | Pilsner Innmates             | Old player |
-| Aja Cayetano      |    1278 |  1208 |  \-70 | Harry’s Humdingers           | Old player |
+| Emily Adams       |    1570 |  1498 |  \-72 | Pilsner Innmates             | Old player |
+| Aja Cayetano      |    1279 |  1208 |  \-70 | Harry’s Humdingers           | Old player |
 | Caleb Christian   |    1500 |  1431 |  \-69 | Hole in the Wall Bangers     | New player |
 | Sharon Yencharis  |    1500 |  1432 |  \-68 | Lone Star Rebels             | New player |
 | Eric Kalisa       |    1519 |  1451 |  \-68 | Tandy Tokers                 | Old player |
@@ -329,7 +330,8 @@ team_names <-
     results_no_forfeits %>% transmute(team = away_team)
   ) %>% 
   distinct() %>% 
-  arrange(team)
+  arrange(team) %>% 
+  filter(!is.na(team))
 
 # Data frame of team names in the current Spring 2019 season
 team_names_2019 <- 
@@ -338,7 +340,8 @@ team_names_2019 <-
     results_19_no_forfeits %>% transmute(team = away_team)
   ) %>% 
   distinct() %>% 
-  arrange(team)
+  arrange(team) %>% 
+  filter(!is.na(team))
 
 team_matches_and_ratings <- function(team_of_interest) {
   df <- 
