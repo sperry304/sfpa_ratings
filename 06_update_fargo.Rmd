@@ -98,6 +98,7 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
 fargo_df <- 
   results_to_ratings(results_no_forfeits, a = 3, mae_stop = 100) %>% 
   mutate(
+    raw_rating = rating,
     rating = log(rating) * 144,
     rating = rating - mean(rating) + 500
   )

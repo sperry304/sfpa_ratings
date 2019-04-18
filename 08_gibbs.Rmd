@@ -1,0 +1,214 @@
+---
+title: "SFPA Player Ratings, v.1 - Gibbs Sampling"
+author: "Skip Perry"
+date: "April 2019"
+output: github_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+
+latest_fargo_date <- 
+  list.files("other_data", pattern = "fargo") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+fargo_path <-
+  str_c("other_data/fargo_", latest_fargo_date, ".Rdata")
+
+fargo_df <- 
+  fargo_path %>% 
+  read_rds()
+
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits_path <-
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata")
+
+results_no_forfeits <- 
+  results_no_forfeits_path %>% 
+  read_rds() %>% 
+  select(-c(forfeit:t2_end_rating))
+```
+
+```{r}
+results_no_forfeits
+```
+
+```{r}
+player_list <- 
+  fargo_df %>% 
+  pull(player)
+```
+
+```{r}
+player_win_loss_vs_opponents <- function(player_of_interest) {
+  df <- 
+    results_no_forfeits %>% 
+    filter(away == player_of_interest | home == player_of_interest) %>% 
+    mutate(
+      player = player_of_interest,
+      opponent = case_when(
+        away == player_of_interest ~ home,
+        TRUE ~ away
+      ),
+      result = case_when(
+        away == player_of_interest & game_winner == "away" ~ "W",
+        home == player_of_interest & game_winner == "home" ~ "W",
+        TRUE ~ "L"
+      )
+    ) %>% 
+    select(season, match_date, player, opponent, result) %>% 
+    mutate(
+      wt = case_when(
+        season == "Spring 2018" ~ 0.6,
+        season == "Fall 2018" ~ 0.8,
+        season == "Spring 2019" ~ 1
+      ),
+      win_wt = if_else(result == "W", wt, 0),
+      loss_wt = if_else(result == "L", wt, 0),
+      game_wt = wt
+    ) %>% 
+    group_by(player, opponent) %>% 
+    summarize(
+      wins = sum(win_wt),
+      losses = sum(loss_wt),
+      games_vs = sum(game_wt)
+    ) %>% 
+    ungroup()
+    #arrange(desc(result)) %>% 
+    #ungroup() %>% 
+    #spread(result, n)
+  
+  if (!("wins" %in% colnames(df))) { df <- df %>% mutate(wins = 0) }
+  if (!("losses" %in% colnames(df))) { df <- df %>% mutate(losses = 0) }
+  
+  df %>% 
+    transmute(player, opponent, wins, losses, games_vs)
+}  
+```
+
+```{r}
+player_win_loss_vs_opponents(player_of_interest = "Mike Maxwell")
+```
+
+```{r}
+full_win_loss_summary <- 
+  map_dfr(player_list, player_win_loss_vs_opponents)
+```
+
+```{r}
+full_win_loss_summary
+```
+
+```{r}
+a <- 3
+b <- (a - 1) / 500
+
+sample_rating <- function(player_of_interest) {
+  full_win_loss_summary %>% 
+    filter(player == player_of_interest) %>% 
+    left_join(gibbs_df %>% transmute(player, player_rating = raw_rating), by = "player") %>% 
+    left_join(gibbs_df %>% transmute(opponent = player, opponent_rating = raw_rating), by = "opponent") %>% 
+    mutate(
+      Z = rgamma(nrow(.), shape = games_vs, rate = player_rating + opponent_rating)
+    ) %>% 
+    summarize(
+      shape_param = (a - 1) + sum(wins),
+      rate_param = b + sum(Z)
+    ) %>% 
+    mutate(
+      new_rating = rgamma(1, shape = shape_param, rate = rate_param)
+    ) %>% 
+    transmute(player = player_of_interest, raw_rating = new_rating)
+}
+```
+
+```{r}
+set.seed(13)
+
+gibbs_df <-
+  fargo_df %>% 
+  transmute(player, raw_rating)
+  
+gibbs_samples <- 
+  gibbs_df %>% 
+  mutate(niter = 0)
+
+for (i in 1:100) {
+  if (i %% 10 == 0) { print(str_c("Starting iteration ", i)) }
+  gibbs_temp <-
+    map_dfr(player_list, sample_rating) %>% 
+    mutate(niter = i)
+  
+  gibbs_samples <-
+    bind_rows(
+      gibbs_samples,
+      gibbs_temp
+    )
+  
+  gibbs_df <-
+    gibbs_temp %>% 
+    select(player, raw_rating)
+}
+```
+
+```{r}
+game_totals <- 
+  full_win_loss_summary %>% 
+  group_by(player) %>% 
+  summarize(wins = sum(wins), losses = sum(losses)) %>% 
+  transmute(player, games = wins + losses)
+```
+
+```{r}
+gibbs_summary <- 
+  gibbs_samples  %>% 
+  group_by(niter) %>% 
+  mutate(
+    rating = log(raw_rating) * 144,
+    rating = rating - mean(rating) + 500
+  ) %>% 
+  ungroup() %>% 
+  group_by(player) %>% 
+  summarize(
+    med = median(rating),
+    mean = mean(rating),
+    lo = quantile(rating, 0.05),
+    hi = quantile(rating, 0.95),
+    sdev = sd(rating)
+  ) %>% 
+  left_join(fargo_df, by = "player") %>% 
+  left_join(game_totals, by = "player") %>% 
+  transmute(player, lo, rating, hi, sdev, eff_games = games) %>% 
+  arrange(desc(eff_games))
+```
+
+```{r}
+gibbs_summary %>% 
+  ggplot(aes(x = eff_games, y = sdev)) +
+  geom_hline(yintercept = 0, color = "white", size = 2) +
+  geom_smooth(method = "loess") +
+  geom_point(alpha = 0.5) +
+  labs(
+    x = "Effective Number of Games",
+    y = "Posterior Standard Deviation"
+  )
+```
+
+```{r}
+gibbs_summary %>% 
+  arrange(desc(rating)) %>% 
+  mutate_at(vars(lo:sdev), round) %>% 
+  knitr::kable()
+```
+
+```{r}
+
+```
+
