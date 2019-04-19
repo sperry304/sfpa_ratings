@@ -259,6 +259,7 @@ win_prob_summary <-
   )
 
 win_prob_summary %>% 
+  filter(nsize > 50) %>% 
   ggplot(aes(x = prob, y = win_pct)) +
   geom_line() +
   geom_abline(slope = 1, intercept = 0, color = "white", size = 2) +
