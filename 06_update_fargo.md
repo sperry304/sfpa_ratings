@@ -18,20 +18,20 @@ fargo_df %>%
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 330 x 3
+    ## # A tibble: 331 x 3
     ##    player          rating raw_rating
     ##    <chr>            <dbl>      <dbl>
-    ##  1 Hector Ortega     731.      2022.
-    ##  2 Skip Perry        716.      1832.
-    ##  3 Mike Maxwell      710.      1757.
-    ##  4 Ryan Piaget       702.      1662.
-    ##  5 Evan Burgess      688.      1503.
-    ##  6 Tom Seymour       675.      1371.
-    ##  7 Bob Simon         673.      1359.
-    ##  8 Thayer McDougle   673.      1352.
-    ##  9 Stefano Lopez     671.      1338.
-    ## 10 Diogo Martini     668.      1308.
-    ## # … with 320 more rows
+    ##  1 Hector Ortega     731.      2034.
+    ##  2 Skip Perry        714.      1804.
+    ##  3 Mike Maxwell      712.      1771.
+    ##  4 Ryan Piaget       704.      1683.
+    ##  5 Evan Burgess      684.      1465.
+    ##  6 Bob Simon         681.      1432.
+    ##  7 Thayer McDougle   679.      1412.
+    ##  8 Tom Seymour       675.      1378.
+    ##  9 Stefano Lopez     672.      1345.
+    ## 10 Diogo Martini     670.      1328.
+    ## # … with 321 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("other_data/fargo_", latest_results_date, ".Rdata"))
