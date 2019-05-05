@@ -1,0 +1,264 @@
+---
+title: "SFPA Player Ratings, v.1 - Gibbs Sampling"
+author: "Skip Perry"
+date: "April 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+
+latest_fargo_date <- 
+  list.files("other_data", pattern = "fargo") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+fargo_path <-
+  str_c("other_data/fargo_", latest_fargo_date, ".Rdata")
+
+fargo_df <- 
+  fargo_path %>% 
+  read_rds()
+
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits_path <-
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata")
+
+results_no_forfeits <- 
+  results_no_forfeits_path %>% 
+  read_rds() %>% 
+  select(-c(forfeit:t2_end_rating))
+
+results_19_no_forfeits <- 
+  results_no_forfeits %>% 
+  filter(season == "Spring 2019")
+
+team_names_by_player <- 
+  bind_rows(
+    results_19_no_forfeits %>% select(player = home, team = home_team),
+    results_19_no_forfeits %>% select(player = away, team = away_team)
+  ) %>% 
+  distinct() %>% 
+  arrange(player, team) %>% 
+  filter(!is.na(team))
+
+gibbs_samples <-
+  "other_data/gibbs-2019-04-14.Rdata" %>% 
+  read_rds()
+```
+
+### Understanding Uncertainty in the Ratings
+
+The rating system as described on the previous page is based on a maximum a priori (MAP) estimate. This estimate is a single point - the "best" single point we can guess, but far from telling the complete story. This goal of this analysis is to quantify the uncertainty in our "best" guess. 
+
+If we knew the true probability distribution that defines each player's skill level, we could sample from that distribution and analyze the standard deviation, quantiles, and other measurements of variability. (Of course, we don't have access to that information, which is why we are estimating ratings in the first place.)
+
+Instead, we can sample from the posterior distribution $p(\pi, z \vert D)$, where $\pi$ is the vector of player ratings, $z$ represents latent variables used in the modeling process, and $D$ is the data. The following data augmentation algorithm is taken from [Caron and Doucet (p. 7)](http://www.stats.ox.ac.uk/~doucet/caron_doucet_bayesianbradleyterry.pdf), where $K$ is the number of players in the league, $n_{ij}$ is the number of (time-weighted) games played between players $i$ and $j$, $w_i$ is the number of (time-weighted) wins by player $i$, and $t$ is the iteration number:
+
+$$\text{For } 1 \leq i < j < K \text{ such that } n_{ij} > 0, \text{sample from: } Z_{ij}^{(t)} \vert D, \pi^{(t-1)} \sim G(n_{ij}, \pi_i^{(t-1)} + \pi_j^{(t-1)})$$
+
+$$\text{For } i = 1, ..., K, \text{sample from: } \pi_i^{(t)} \vert D, Z^{(t)} \sim G(a - 1 + w_i, b + \sum_{i<j \vert n_{ij} > 0} Z_{ij}^{(t)} + \sum_{i>j \vert n_{ij} > 0} Z_{ji}^{(t)})$$
+
+Note the similarity to the EM algorithm update formula:
+
+$$\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$
+
+Essentially, what this does is add randomness to our model in proportion to the amount of uncertainty we have in our ratings. In both steps of the algorithm, we draw from an easily computed random distribution that is wider when there is less information and narrower when there is more information. After drawing each random $Z_{ij}^{(t)}$, which corresponds with the $n_{ij}/(\pi_i + \pi_j)$ term in the EM formula that gives players more credit for playing against tougher opponents, the uncertainty propagates into the (also random) draw for $\pi_{i}^{(t)}$ and results in a new, random predicted rating for the player of interest. As we run through this process a large number of times, we can track how each player's rating changes.
+
+This is a computationally intense procedure but is worth undergoing because it demonstrates that behind the artificially confident point estimate is a substantial amount of uncertainty. Most players compete against a particular person only once, and each of those matchups is modeled by a random draw from a very wide distribution. (Indeed, due to downweighting previous seasons' data, these games are often worth even less than 1.)
+
+The typical league player has played somewhere in the range of 50 games, which turns out to be associated with a typical posterior standard deviation of about 40 rating points. Even players with 100 or more games have a posterior standard deviation of around 30 points. This leads to about a 100-point range in the Bayesian equivalent of a 90% confidence interval for the typical league player, represented by the "lo" and "hi" columns in the table below.
+
+Remember that a 100-point advantage is modeled as having a 2-to-1 likelihood of winning a game - no small edge. What this data suggests is we shouldn't focus too much on a particular number, or assume that a player rated 600 is officially "better" than a player rated 550. Instead, it means that the data we have suggests that the 600 player has performed a bit more strongly in the limited number of games in our data set than the 550 player.
+
+What we can do with some confidence is to group players into rough levels.
+
+```{r}
+player_list <- 
+  fargo_df %>% 
+  pull(player)
+
+team_names_by_player <- 
+  bind_rows(
+    results_19_no_forfeits %>% select(player = home, team = home_team),
+    results_19_no_forfeits %>% select(player = away, team = away_team)
+  ) %>% 
+  distinct() %>% 
+  arrange(player, team) %>% 
+  filter(!is.na(team))
+```
+
+```{r}
+player_win_loss_vs_opponents <- function(player_of_interest) {
+  df <- 
+    results_no_forfeits %>% 
+    filter(away == player_of_interest | home == player_of_interest) %>% 
+    mutate(
+      player = player_of_interest,
+      opponent = case_when(
+        away == player_of_interest ~ home,
+        TRUE ~ away
+      ),
+      result = case_when(
+        away == player_of_interest & game_winner == "away" ~ "W",
+        home == player_of_interest & game_winner == "home" ~ "W",
+        TRUE ~ "L"
+      )
+    ) %>% 
+    select(season, match_date, player, opponent, result) %>% 
+    mutate(
+      wt = case_when(
+        season == "Spring 2018" ~ 0.6,
+        season == "Fall 2018" ~ 0.8,
+        season == "Spring 2019" ~ 1
+      ),
+      win_wt = if_else(result == "W", wt, 0),
+      loss_wt = if_else(result == "L", wt, 0),
+      game_wt = wt
+    ) %>% 
+    group_by(player, opponent) %>% 
+    summarize(
+      wins = sum(win_wt),
+      losses = sum(loss_wt),
+      games_vs = sum(game_wt)
+    ) %>% 
+    ungroup()
+    #arrange(desc(result)) %>% 
+    #ungroup() %>% 
+    #spread(result, n)
+  
+  if (!("wins" %in% colnames(df))) { df <- df %>% mutate(wins = 0) }
+  if (!("losses" %in% colnames(df))) { df <- df %>% mutate(losses = 0) }
+  
+  df %>% 
+    transmute(player, opponent, wins, losses, games_vs)
+}  
+```
+
+```{r}
+player_win_loss_vs_opponents(player_of_interest = "Mike Maxwell")
+```
+
+```{r}
+full_win_loss_summary <- 
+  map_dfr(player_list, player_win_loss_vs_opponents)
+```
+
+```{r}
+full_win_loss_summary
+```
+
+```{r}
+a <- 3
+b <- (a - 1) / 500
+
+sample_rating <- function(player_of_interest) {
+  full_win_loss_summary %>% 
+    filter(player == player_of_interest) %>% 
+    left_join(gibbs_df %>% transmute(player, player_rating = raw_rating), by = "player") %>% 
+    left_join(gibbs_df %>% transmute(opponent = player, opponent_rating = raw_rating), by = "opponent") %>% 
+    mutate(
+      Z = rgamma(nrow(.), shape = games_vs, rate = player_rating + opponent_rating)
+    ) %>% 
+    summarize(
+      shape_param = (a - 1) + sum(wins),
+      rate_param = b + sum(Z)
+    ) %>% 
+    mutate(
+      new_rating = rgamma(1, shape = shape_param, rate = rate_param)
+    ) %>% 
+    transmute(player = player_of_interest, raw_rating = new_rating)
+}
+```
+
+```{r, eval=FALSE}
+set.seed(13)
+
+gibbs_df <-
+  fargo_df %>% 
+  transmute(player, raw_rating)
+  
+gibbs_samples <- 
+  gibbs_df %>% 
+  mutate(niter = 0)
+
+for (i in 1:100) {
+  if (i %% 10 == 0) { print(str_c("Starting iteration ", i)) }
+  gibbs_temp <-
+    map_dfr(player_list, sample_rating) %>% 
+    mutate(niter = i)
+  
+  gibbs_samples <-
+    bind_rows(
+      gibbs_samples,
+      gibbs_temp
+    )
+  
+  gibbs_df <-
+    gibbs_temp %>% 
+    select(player, raw_rating)
+}
+```
+
+```{r}
+game_totals <- 
+  full_win_loss_summary %>% 
+  group_by(player) %>% 
+  summarize(wins = sum(wins), losses = sum(losses)) %>% 
+  transmute(player, games = wins + losses)
+```
+
+```{r}
+gibbs_summary <- 
+  gibbs_samples  %>% 
+  group_by(niter) %>% 
+  mutate(
+    rating = log(raw_rating) * 144,
+    rating = rating - mean(rating) + 500
+  ) %>% 
+  ungroup() %>% 
+  group_by(player) %>% 
+  summarize(
+    med = median(rating),
+    mean = mean(rating),
+    lo = quantile(rating, 0.05),
+    hi = quantile(rating, 0.95),
+    sdev = sd(rating)
+  ) %>% 
+  left_join(fargo_df, by = "player") %>% 
+  left_join(game_totals, by = "player") %>% 
+  transmute(player, lo, rating, hi, sdev, eff_games = games) %>% 
+  arrange(desc(eff_games))
+```
+
+```{r}
+gibbs_summary %>% 
+  ggplot(aes(x = eff_games, y = sdev)) +
+  geom_hline(yintercept = 0, color = "white", size = 2) +
+  geom_smooth(method = "loess") +
+  geom_point(alpha = 0.5) +
+  labs(
+    x = "Effective Number of Games",
+    y = "Posterior Standard Deviation"
+  )
+```
+
+```{r}
+gibbs_summary %>% 
+  left_join(team_names_by_player, by = "player") %>% 
+  transmute(player, current_team = replace_na(team, "--"), lo, rating, hi, sdev, eff_games) %>% 
+  arrange(desc(rating)) %>% 
+  mutate_at(vars(lo:sdev), round) %>% 
+  knitr::kable()
+```
+
+```{r}
+
+```
+

@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="1671.4">
+  <style type="text/css">
+    p.p4 {margin: 0.0px 0.0px 10.0px 0.0px; line-height: 20.0px; font: 14.0px 'Helvetica Neue'; color: #262626; -webkit-text-stroke: #262626}
+    li.li4 {margin: 0.0px 0.0px 10.0px 0.0px; line-height: 20.0px; font: 14.0px 'Helvetica Neue'; color: #262626; -webkit-text-stroke: #262626}
+    li.li5 {margin: 0.0px 0.0px 0.0px 0.0px; line-height: 20.0px; font: 14.0px 'Helvetica Neue'; color: #262626; -webkit-text-stroke: #262626}
+    span.s1 {font-kerning: none}
+    span.s2 {-webkit-text-stroke: 0px #000000}
+    span.s3 {font: 14.0px 'Helvetica Neue'; font-kerning: none; color: #2965a8; -webkit-text-stroke: 0px #2965a8}
+    ul.ul1 {list-style-type: disc}
+    ul.ul2 {list-style-type: circle}
+  </style>
+</head>
+<body>
+<h1 style="margin: 0.0px 0.0px 10.0px 0.0px; line-height: 41.0px; font: 38.0px 'Helvetica Neue'; color: #262626; -webkit-text-stroke: #262626"><span class="s1">SFPA Player Ratings, v.1</span></h1>
+<h4 style="margin: 0.0px 0.0px 10.0px 0.0px; line-height: 19.0px; font: 18.0px 'Helvetica Neue'; color: #262626; -webkit-text-stroke: #262626"><span class="s1">Skip Perry</span></h4>
+<h4 style="margin: 0.0px 0.0px 10.0px 0.0px; line-height: 19.0px; font: 18.0px 'Helvetica Neue'; color: #262626; -webkit-text-stroke: #262626"><span class="s1">April 2019</span></h4>
+<h3 style="margin: 0.0px 0.0px 10.0px 0.0px; line-height: 26.0px; font: 24.0px 'Helvetica Neue'; color: #262626; -webkit-text-stroke: #262626"><span class="s1">The Math Behind the Ratings</span></h3>
+<p class="p4"><span class="s1">These ratings are based on the Bradley-Terry model, which since the 1950s has been one of the standard methods of assessing the skill of competitors who are repeatedly paired against one another. Considering two players \(i\) and \(j\) with ratings \(\pi_i\) and \(\pi_j\), this framework assumes player \(i\) has the following probability of defeating player \(j\):</span></p>
+<p class="p4"><span class="s1">\[\text{P[Player } i \text{ defeats player } j] = p_{i &gt; j} = \frac{\pi_i}{\pi_i + \pi_j}\]</span></p>
+<p class="p4"><span class="s1">A common place to start when trying to estimate parameters like these is maximum likelihood estimation. Under the above model, each game’s outcome has a specific probability of occurring: a win by player \(i\) happens with probability \(\pi_i/(\pi_i + \pi_j)\), while a win by player \(j\) happens with 1 minus that probability. If we assume that game results are independent and identically distributed, we get a <i>likelihood</i> of the complete data set by multiplying together the occurrence probabilities of all contested games. The maximum likelihood estimate, or MLE, is the collection of player ratings \(\pi_1, ..., \pi_n\) for all \(n\) players in the league that maximizes the value of this likelihood function.</span></p>
+<p class="p4"><span class="s1">While there is no general analytical solution for the MLE in this case, iterative methods can be used to find a result. Letting \(\pi_i\) be player \(i\)’s rating, \(w_i\) the number of times player \(i\) won a game, \(n_{ij}\) the number of games played between players \(i\) and \(j\), and \((t)\) labeling the result at the \(t^{th}\) iteration, we can use the following update formula:</span></p>
+<p class="p4"><span class="s1">\[\pi_i^{(t)} = \frac{w_i}{\sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}\]</span></p>
+<p class="p4"><span class="s1">Or, in a format that may be easier to understand:</span></p>
+<p class="p4"><span class="s1">\[\pi_i^{new} = \frac{\text{# of total wins by player } i}{\sum_{\text{All games played by } i} \frac{\text{# of games between } i, j}{\pi_i^{current} + \pi_j^{current}}}\]</span></p>
+<p class="p4"><span class="s1">This adaptation of the expectation-maximization (EM) algorithm loops through each player, updating their rating using the latest estimates of all their opponents’ ratings. Eventually, each update will have such a small effect on the vector of player ratings that we can stop the process.</span></p>
+<p class="p4"><span class="s1">Maximum likelihood estimation is the single most widely used method of parameter estimation, but it is far from perfect. While convergence is guaranteed under certain conditions, one of those conditions deals with having a sufficient number of connections in the data, such as you might find in a series of round-robin games played between all teams in a league (Hunter 2004). Additionally, the MLE can converge toward the boundary of a parameter space when faced with extreme data, which in this case would mean a rating of 0 for a winless player and a rating of infinity for an undefeated one. The SFPA league data set faces both of these issues - sparse data with many members playing only a handful of games against a limited subset of opponents, and some examples of players with no wins at all.</span></p>
+<p class="p4"><span class="s1">Bayesian methods allow us to avoid these problems. Instead of finding an MLE after taking undesirable steps like omitting winless players or mandating a minimum number of games, we calculate the maximum a priori (MAP) estimate of <b>\(\pi\)</b> by setting a \(G(a, b)\) prior on \(\pi\), where \(G\) is a gamma distribution with shape and rate parameters \(a\) and \(b\). This prior is conjugate to the complete data likelihood function and results in the following update formula:</span></p>
+<p class="p4"><span class="s1">\[\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}\]</span></p>
+<p class="p4"><span class="s1">Like the MLE, MAP estimation provides a point estimate, though in this case it is the mode of a posterior distribution rather than the value at which a likelihood function is maximized. (Note that for \(a = 1\) and \(b = 0\), the MAP and maximum likelihood estimates are equivalent; see Caron and Doucet (2012) for more information.)</span></p>
+<p class="p4"><span class="s1">Under this setup, as in many Bayesian applications, the choice of prior has a major impact on the model. When \(a = 1\), we simply have the MLE; as the value of \(a\) increases, the impact of actual game results decreases as the numerator and denominator in the update formula become dominated by the constant \(a-1\) and \(b\) terms. Hyperparameter tuning for \(a\) resulted in an optimal choice of 3 - a weakly informative prior.</span></p>
+<p class="p4"><span class="s1">The scale of these ratings is arbitrary; any set of ratings can be multiplied by some positive constant and result in the same probability \(p_{i&gt;j}\) for all \(i\) and \(j\). As a result, in the MLE context, we would need to peg a player rating \(\pi_i\) to a particular value, or set up an additional constraint such as \(1 / n * \sum_{i=1}^{n} \pi_i = 1000\), in order to arrive at a unique solution. In the MAP formulation, we can make the model identifiable by setting \(b = (a - 1) / 500\) and ensure a rough average player rating of about 500 in the process.</span></p>
+<p class="p4"><span class="s1">That said, the raw ratings \(\pi\) using this system have interpretability problems. For instance, a 100-point gap between players rated 200 and 300 (a 60% win probability for the higher-ranked player) means something different than the same 100-point gap between players rated 800 and 900 (a 53% win probability for the higher-ranked player). A solution is to transform the raw rating \(\pi_i\) into a new rating \(R_i\), where \(\mu\) is the mean logged rating across the league:</span></p>
+<p class="p4"><span class="s1">\[R_i = 144 \text{ log}(\pi_i) + 500 - \mu\]</span></p>
+<p class="p4"><span class="s1">Then we get a new formula for \(p_{i &gt; j}\), the probability that player \(i\) defeats player \(j\):</span></p>
+<p class="p4"><span class="s1">\[p_{i &gt; j} = \frac{1}{1 + \text{exp}\Big{(}\frac{R_j - R_i}{144}\Big{)}}\]</span></p>
+<p class="p4"><span class="s1">(Plugging in the formulas for \(R_i\) and \(R_j\) in the above will demonstrate the equality of this formulation with the original \(p_{i &gt; j} = \pi_i/(\pi_i + \pi_j)\).)</span></p>
+<p class="p4"><span class="s1">This math adds one more step to the process but leads to ratings that are easier to interpret. First, the \(500 - \mu\) factor means the system is explicitly centered at 500; a rating of 500 represents the average skill level in the league. Second, the scaling factor in the exponential denominator results in rating comparisons having a consistent meaning: no matter how high or low a player is ranked, an advantage of 100 rating points means they have 2-to-1 odds to win a game, regardless of whether the matchup in question is 200 vs. 300 or 600 vs. 700. These differences are multiplicative, meaning that a 200-point advantage predicts 4-to-1 odds, a 300-point advantage 8-to-1, and so on. This has the follow-on effect of reducing rightward skew in the data and providing a natural limit to players’ ratings.</span></p>
+<p class="p4"><span class="s1">Other considerations included:</span></p>
+<ul class="ul1">
+  <li class="li4"><span class="s2"></span><span class="s1">Home-table advantage: In the past three seasons, about 52% of games have been won by the home team, a small but significant edge to the home player. There also exists a simple way to incorporate this factor into the ratings, letting \(p_{i&gt;j} = \frac{\theta \pi_i}{\theta \pi_i + \pi_j}\) where \(\theta &gt; 1\) is the home-table advantage (or \(\theta &lt; 1\) if it’s a disadvantage). Unfortunately, this is a noisy input: due to scheduling conflicts and bar remodeling, teams often play “home” games at other bars; most week 1 games are home games for both teams; and playoff games represent an uneven playing field since higher-seeded teams play at home while lower-seeded teams play on the road, among other factors. After quite a bit of experimentation in this area failed to improve model performance, I omitted the home-table advantage from the rating system.<br>
+</span></li>
+  <li class="li4"><span class="s2"></span><span class="s1">Time decay: In pool, a player’s skill level can sometimes change over time. One extreme would be to assume that these changes are the result of random noise and place equal weight on every game in a player’s match history; another would be to use a subset of a player’s most recent games, on the assumption that those games most accurately reflect their skill. The middle ground solution used here is to place less weight on older matches. The current season is Spring 2019; these most recent matches are weighted at 1. Older matches in Fall 2018 and Spring 2018 have weights of 0.8 and 0.6, respectively. The exact values for these parameters had little impact on model results so these numbers were chosen arbitrarily. The end result is a rating system that is responsive to change but reduces the number of wild temporary swings, especially for players with more established ratings.<br>
+</span></li>
+  <li class="li4"><span class="s2"></span><span class="s1">Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, it is also possible to introduce weighting factors that reduce the impact of games involving newcomers. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. Exploratory analysis of players’ ratings over time showed standard deviations plateauing at 15 games - meaning that within only four match nights, a new player’s rating has reached a relative steady state. As a result, for now the ratings do not include a robustness penalty against new players.<br>
+</span></li>
+</ul>
+<h3 style="margin: 0.0px 0.0px 10.0px 0.0px; line-height: 26.0px; font: 24.0px 'Helvetica Neue'; color: #262626; -webkit-text-stroke: #262626"><span class="s1">Questions and Answers</span></h3>
+<p class="p4"><span class="s1">What do the ratings mean?</span></p>
+<ul class="ul1">
+  <li class="li5"><span class="s2"></span><span class="s1">The first meaningful number here is 500, which has been set as the global league average. The second meaningful number is 100, the rating difference which denotes a player having a predicted 2-to-1 advantage in a single game.</span></li>
+</ul>
+<p class="p4"><span class="s1">How and why does my rating go up or down?</span></p>
+<ul class="ul1">
+  <li class="li4"><span class="s2"></span><span class="s1">Ratings can change one of two ways: Your performance, and the performance of your opponents:</span></li>
+  <ul class="ul2">
+    <li class="li4"><span class="s2"></span><span class="s1">The most important factor is your own performance. A player’s rating will go up after performing better than the current ratings predict, and it will go down after performing worse than the current ratings predict. Match results that track existing predictions will result in little to no change.<br>
+</span></li>
+    <li class="li4"><span class="s2"></span><span class="s1">A secondary, smaller factor is the performance of the people a player has competed against. Let’s assume you have a 7-3 record against some previous opponent. If that opponent has a few great nights and his or her rating increases, you are likely to earn a couple additional points for having done well against that person. (The opposite is true if your previous opponent’s rating decreases.)<br>
+</span></li>
+  </ul>
+</ul>
+<p class="p4"><span class="s1">How much do ratings change over time?</span></p>
+<ul class="ul1">
+  <li class="li5"><span class="s2"></span><span class="s1">Some players perform at a consistent level over time. Other people have seen large shifts in their ratings, both positive and negative. Substantial changes in players’ ratings are almost always due to changes in their own performance, rather than changes in the performance of their past opponents.</span></li>
+</ul>
+<p class="p4"><span class="s1">Do new league players have starter ratings?</span></p>
+<ul class="ul1">
+  <li class="li5"><span class="s2"></span><span class="s1">Players begin with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some set period of time, we let the results follow the data even if that data is noisy at first. Within three games, more weight starts to be placed on actual match results than on the initial rating.</span></li>
+</ul>
+<p class="p4"><span class="s1">How many games are needed to indicate that a rating is trustworthy?</span></p>
+<ul class="ul1">
+  <li class="li5"><span class="s2"></span><span class="s1">This is not a simple question. We are in the process of generating confidence intervals (or, more accurately, Bayesian credible intervals) for ratings to give an idea of how sure we may be. Initial exploration suggests 15 games is the time period when the mean and median week-to-week rating changes hit 0 and the standard deviation approaches a relative plateau.</span></li>
+</ul>
+<h3 style="margin: 0.0px 0.0px 10.0px 0.0px; line-height: 26.0px; font: 24.0px 'Helvetica Neue'; color: #262626; -webkit-text-stroke: #262626"><span class="s1">References</span></h3>
+<p class="p4"><span class="s1">Caron, François, and Arnoud Doucet. 2012. “Efficient Bayesian Inference for Generalized Bradley-Terry Models.” <i>Journal of Computational and Graphical Statistics</i> 21 (1): 174–96. <a href="http://www.stats.ox.ac.uk/%7Edoucet/caron_doucet_bayesianbradleyterry.pdf"><span class="s3">http://www.stats.ox.ac.uk/%7Edoucet/caron_doucet_bayesianbradleyterry.pdf</span></a>.</span></p>
+<p class="p4"><span class="s1">Hunter, David. 2004. “ML Algorithms for Generalized Bradley-Terry Models.” <i>The Annals of Statistics</i> 32 (1): 384–406. <a href="http://personal.psu.edu/drh20/papers/bt.pdf"><span class="s3">http://personal.psu.edu/drh20/papers/bt.pdf</span></a>.</span></p>
+</body>
+</html>
