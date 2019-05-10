@@ -33,12 +33,53 @@ references:
   type: article-journal
   issued:
     year: 2012
+- id: glickman
+  title: Rating the Chess Rating System
+  author:
+  - family: Glickman
+    given: Mark
+  - family: Jones
+    given: Albyn
+  container-title: Chance
+  volume: 12
+  URL: 'http://www.glicko.net/research/chance.pdf'
+  issue: 2
+  page: 21-28
+  type: article-journal
+  issued:
+    year: 1999
 ---
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 ```
+
+### Questions and Answers 
+
+What do the ratings mean? 
+
+* The first meaningful number here is 500, which has been set as the global league average. The second meaningful number is 100, the rating difference which denotes a player having a predicted 2-to-1 advantage in a single game. 
+
+How and why does my rating go up or down?
+
+* Ratings can change one of two ways: Your performance, and the performance of your opponents:
+
+    * The most important factor is your own performance. A player's rating will go up after performing better than the current ratings predict, and it will go down after performing worse than the current ratings predict. Match results that track existing predictions will result in little to no change. 
+  
+    * A secondary factor is the performance of the people a player has competed against. Let's assume you have a 7-3 record against some previous opponent. If that opponent has a few great nights and his or her rating increases, you are likely to earn a couple additional points for having done well against that person. (The opposite is true if your previous opponent's rating decreases.)
+
+How much do ratings change over time?
+
+* Some players perform at a consistent level over time. Other people have seen large shifts in their ratings, both positive and negative. Substantial changes in players' ratings are almost always due to changes in their own performance, rather than changes in the performance of their past opponents. 
+
+Do new league players have starter ratings?
+
+* Players begin with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some set period of time, we let the results follow the data even if that data is noisy at first. Within three games, more weight starts to be placed on actual match results than on the initial rating.
+
+How many games are needed to indicate that a rating is trustworthy?
+
+* This is not a simple question. We are in the process of generating confidence intervals (or, more accurately, Bayesian credible intervals) for ratings to give an idea of how sure we may be. Initial exploration suggests 15 games is the time period when the mean and median week-to-week rating changes hit 0, but this likely masks substantial uncertainty in our estimates. 
 
 ### The Math Behind the Ratings 
 
@@ -90,31 +131,35 @@ Other considerations included:
 
 * Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, it is also possible to introduce weighting factors that reduce the impact of games involving newcomers. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. Exploratory analysis of players' ratings over time showed standard deviations plateauing at 15 games - meaning that within only four match nights, a new player's rating has reached a relative steady state. As a result, for now the ratings do not include a robustness penalty against new players.
 
-### Questions and Answers 
+### Comparison with Elo ratings 
 
-What do the ratings mean? 
+The Elo system, used in chess and many other zero-sum competitive settings, has many similarities with the Bradley-Terry framework [@glickman]. Each player has a rating which is used to estimate a game win probability, which feeds back into the model in the form of a new rating conditional on the eventual result. Unlike the complex iterative method used to find a Bradley-Terry estimate, the Elo rating update formula is simple:
 
-* The first meaningful number here is 500, which has been set as the global league average. The second meaningful number is 100, the rating difference which denotes a player having a predicted 2-to-1 advantage in a single game. 
+$$R_{new} = R_{old} + K(1_{win} - P_{win})$$
 
-How and why does my rating go up or down?
+We can think of this as akin to a player putting poker chips into the pot before each game, and receiving a reward proportional to their likelihood of winning. The greater a player's chance of winning, the smaller the increase in their rating will be if they win and the larger the decrease will be if they lose. The $K$ term is a velocity parameter that determines how quickly ratings update. A higher value of $K$ results in faster updates, but also more noise in the model. This is a sequential process in which rating updates are applied after each game or match, and only the ratings of the two players involved are changed. Like all models, this has its pluses and minuses.
 
-* Ratings can change one of two ways: Your performance, and the performance of your opponents:
+Pros:
 
-    * The most important factor is your own performance. A player's rating will go up after performing better than the current ratings predict, and it will go down after performing worse than the current ratings predict. Match results that track existing predictions will result in little to no change. 
-  
-    * A secondary, smaller factor is the performance of the people a player has competed against. Let's assume you have a 7-3 record against some previous opponent. If that opponent has a few great nights and his or her rating increases, you are likely to earn a couple additional points for having done well against that person. (The opposite is true if your previous opponent's rating decreases.)
+* Less computationally intensive
 
-How much do ratings change over time?
+* Easy to visualize and understand changes over time
 
-* Some players perform at a consistent level over time. Other people have seen large shifts in their ratings, both positive and negative. Substantial changes in players' ratings are almost always due to changes in their own performance, rather than changes in the performance of their past opponents. 
+* More recent matches are given greater weight
 
-Do new league players have starter ratings?
+Cons:
 
-* Players begin with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some set period of time, we let the results follow the data even if that data is noisy at first. Within three games, more weight starts to be placed on actual match results than on the initial rating.
+* Can be noisy
 
-How many games are needed to indicate that a rating is trustworthy?
+* Can give strong players too much credit for beating weaker opponents, especially in the second half of the season when teams of similar overall skill level play against each other
 
-* This is not a simple question. We are in the process of generating confidence intervals (or, more accurately, Bayesian credible intervals) for ratings to give an idea of how sure we may be. Initial exploration suggests 15 games is the time period when the mean and median week-to-week rating changes hit 0 and the standard deviation approaches a relative plateau.
+* Different values of $K$ have a drastic impact on the model
+
+* Each game only affects two players; Bradley-Terry populates changes throughout the entire player population
+
+Experiments with Elo ratings in various $K$ formulations showed slightly weaker predictive results, probably because this data set has the triple challenges of sparsity (most players don't play each other and when they do play each other it's only once), weak connections in the data (strong and weak teams only play each other for the first five weeks of the season), and a high-variance input (one game of 8-ball, where even beginners can run out with a good layout). Low or strongly decreasing values of $K$ along with number of games played resulted in rating changes moving too slowly; higher values of $K$ created too much noise. 
+
+More importantly, it is clear from a conceptual standpoint that each game can provide useful information about more than the two players involved. If player A beats player B this week and player B beat player C last week, then this week we learned something about player C. The Elo system ignores this information while Bradley-Terry uses it to update our best guess of player C's skill level.
 
 ### References 
 
