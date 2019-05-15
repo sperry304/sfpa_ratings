@@ -83,11 +83,11 @@ How many games are needed to indicate that a rating is trustworthy?
 
 ### The Math Behind the Ratings 
 
-These ratings are based on the Bradley-Terry model, which since the 1950s has been one of the standard methods of assessing the skill of competitors who are repeatedly paired against one another. Considering two players $i$ and $j$ with ratings $\pi_i$ and $\pi_j$, this framework assumes player $i$ has the following probability of defeating player $j$:
+These ratings are based on the Bradley-Terry model, which since the 1950s has been one of the standard methods of assessing the skill of competitors who are repeatedly paired against one another. Considering two players $i$ and $j$ with ratings $\pi_i$ and $\pi_j$, the model estimates that player $i$ has the following probability of defeating player $j$:
 
 $$\text{P[Player } i \text{ defeats player } j] = p_{i > j} = \frac{\pi_i}{\pi_i + \pi_j}$$
 
-A common place to start when trying to estimate parameters like these is maximum likelihood estimation. Under the above model, each game's outcome has a specific probability of occurring: a win by player $i$ happens with probability $\pi_i/(\pi_i + \pi_j)$, while a win by player $j$ happens with 1 minus that probability. If we assume that game results are independent and identically distributed, we get a _likelihood_ of the complete data set by multiplying together the occurrence probabilities of all contested games. The maximum likelihood estimate, or MLE, is the collection of player ratings $\pi_1, ..., \pi_n$ for all $n$ players in the league that maximizes the value of this likelihood function.
+A common place to start when trying to compute parameters like these is maximum likelihood estimation. Under the above framework, each game's outcome has a specific probability of occurring: a win by player $i$ happens with probability $\pi_i/(\pi_i + \pi_j)$, while a win by player $j$ happens with 1 minus that probability. If we assume that game results are independent and identically distributed, we get a _likelihood_ of the complete data set by multiplying together the occurrence probabilities of all contested games. The maximum likelihood estimate, or MLE, is the collection of player ratings $\pi_1, ..., \pi_n$ for all $n$ players in the league that maximizes the value of this likelihood function.
 
 While there is no general analytical solution for the MLE in this case, iterative methods can be used to find a result. Letting $\pi_i$ be player $i$'s rating, $w_i$ the number of times player $i$ won a game, $n_{ij}$ the number of games played between players $i$ and $j$, and $(t)$ labeling the result at the $t^{th}$ iteration, we can use the following update formula:
 
@@ -133,11 +133,11 @@ Other considerations included:
 
 ### Comparison with Elo ratings 
 
-The Elo system, used in chess and many other zero-sum competitive settings, has many similarities with the Bradley-Terry framework [@glickman]. Each player has a rating which is used to estimate a game win probability, which feeds back into the model in the form of a new rating conditional on the eventual result. Unlike the complex iterative method used to find a Bradley-Terry estimate, the Elo rating update formula is simple:
+The Elo system, used in chess and many other zero-sum competitive settings, has many similarities with the Bradley-Terry setup [@glickman]. Each player has a rating which is used to estimate a game win probability, which feeds back into the model in the form of a new rating conditional on the eventual result. Unlike the complex iterative method used to find a Bradley-Terry estimate, the Elo rating update formula is simple:
 
 $$R_{new} = R_{old} + K(1_{win} - P_{win})$$
 
-We can think of this as akin to a player putting poker chips into the pot before each game, and receiving a reward proportional to their likelihood of winning. The greater a player's chance of winning, the smaller the increase in their rating will be if they win and the larger the decrease will be if they lose. The $K$ term is a velocity parameter that determines how quickly ratings update. A higher value of $K$ results in faster updates, but also more noise in the model. This is a sequential process in which rating updates are applied after each game or match, and only the ratings of the two players involved are changed. Like all models, this has its pluses and minuses.
+We can think of this as akin to a player putting poker chips into the pot before each game, and receiving a reward proportional to their likelihood of winning. The greater a player's chance of winning, the smaller the increase in their rating will be if they win and the larger the decrease will be if they lose. The $K$ term is a velocity parameter that determines how quickly ratings change along with new information. A higher value of $K$ results in faster updates, but also more noise in the model. This is a sequential process in which rating updates are applied after each game or match, and only the ratings of the two players involved are affected. Like all models, this has its pluses and minuses.
 
 Pros:
 

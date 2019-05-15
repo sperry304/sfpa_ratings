@@ -1,7 +1,7 @@
 ---
-title: "SFPA Ratings"
+title: "SFPA Elo Ratings"
 author: "Skip Perry"
-date: "March 2019"
+date: "May 2019"
 output: github_document
 ---
   
@@ -363,7 +363,7 @@ elo_team_ratings %>%
   ) +
   labs(
     y = "Rating",
-    title = "SFPA Team ELO Ratings",
+    title = "SFPA Team Elo Ratings",
     fill = "Record"
   ) + 
   theme(
@@ -388,7 +388,7 @@ plot_teams <- function(teams_of_interest) {
       show.legend = FALSE
     ) +
     labs(
-      x = "Match Date", y = "ELO Rating",
+      x = "Match Date", y = "Elo Rating",
       title = "SFPA Team Rating Trends, 2018-2019"
     ) +
     theme(

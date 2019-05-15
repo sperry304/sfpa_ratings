@@ -1,7 +1,7 @@
 SFPA Team ELO Ratings
 ================
 Skip Perry
-3/15/2019
+May 2019
 
 ``` r
 # Set K based on optimization worksheet
@@ -93,15 +93,15 @@ elo_ratings %>%
     ##    player          rating team                      
     ##    <chr>            <dbl> <chr>                     
     ##  1 Hector Ortega     1789 <NA>                      
-    ##  2 Ryan Piaget       1784 Clean Slate               
-    ##  3 Mike Maxwell      1777 Route 101 Rawhides        
-    ##  4 Mike Maxwell      1777 <NA>                      
-    ##  5 Thayer McDougle   1763 Lucky Horseshoe Caballeros
-    ##  6 Thayer McDougle   1763 <NA>                      
-    ##  7 Skip Perry        1761 Tandy Tokers              
-    ##  8 Evan Burgess      1752 Lucky Horseshoe Caballeros
-    ##  9 Evan Burgess      1752 <NA>                      
-    ## 10 Bob Simon         1734 Route 101 Rawhides        
+    ##  2 Mike Maxwell      1787 Route 101 Rawhides        
+    ##  3 Mike Maxwell      1787 <NA>                      
+    ##  4 Skip Perry        1781 Tandy Tokers              
+    ##  5 Ryan Piaget       1780 Clean Slate               
+    ##  6 Thayer McDougle   1763 Lucky Horseshoe Caballeros
+    ##  7 Thayer McDougle   1763 <NA>                      
+    ##  8 Evan Burgess      1762 Lucky Horseshoe Caballeros
+    ##  9 Evan Burgess      1762 <NA>                      
+    ## 10 Danny Mullan      1734 Route 101 Rawhides        
     ## # … with 337 more rows
 
 ``` r
@@ -189,16 +189,16 @@ elo_team_ratings %>%
     ## # A tibble: 35 x 2
     ##    team                       rating
     ##    <chr>                       <dbl>
-    ##  1 Lucky Horseshoe Caballeros   1666
-    ##  2 Route 101 Rawhides           1658
-    ##  3 Golden Slate Warriors        1654
-    ##  4 Smoke & Rumors               1618
-    ##  5 Clean Slate                  1614
-    ##  6 Tandy Tokers                 1558
-    ##  7 Dovre & Out                  1552
-    ##  8 Cafe Ballbusters             1539
-    ##  9 Rumors Never Die             1538
-    ## 10 Cinch You're Down There      1537
+    ##  1 Lucky Horseshoe Caballeros   1675
+    ##  2 Route 101 Rawhides           1663
+    ##  3 Golden Slate Warriors        1651
+    ##  4 Smoke & Rumors               1619
+    ##  5 Clean Slate                  1613
+    ##  6 Tandy Tokers                 1559
+    ##  7 Rumors Never Die             1543
+    ##  8 Dovre & Out                  1539
+    ##  9 Cinch You're Down There      1536
+    ## 10 Cafe Ballbusters             1535
     ## # … with 25 more rows
 
 ``` r

@@ -9,6 +9,7 @@ spring18playoffs <- readRDS("match_data/all_matches_2018springplayoffs.Rdata")
 fall18 <- readRDS("match_data/all_matches_2018fall.Rdata")
 fall18playoffs <- readRDS("match_data/all_matches_2018fallplayoffs.Rdata")
 spring19 <- readRDS("match_data/all_matches_2019spring.Rdata")
+spring19playoffs <- readRDS("match_data/all_matches_2019springplayoffs.Rdata")
 
 # With this, need functions from 01_data_scrape.Rmd
 #spring19 <- 
@@ -22,7 +23,8 @@ results <-
     spring18playoffs,
     fall18,
     fall18playoffs,
-    spring19
+    spring19,
+    spring19playoffs
   )
 
 results_17_18 <-
@@ -34,7 +36,10 @@ results_17_18 <-
   )
 
 results_19 <-
-  spring19
+  bind_rows(
+    spring19,
+    spring19playoffs
+  )
 
 # Pull out forfeits and omitted playoff games from data frames, clean names
 remove_forfeits <- function(results_df) {

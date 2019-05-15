@@ -1,7 +1,7 @@
 ---
 title: "SFPA Fargo Ratings v.3"
 author: "Skip Perry"
-date: "April 2019"
+date: "May 2019"
 output: github_document
 ---
 
@@ -9,7 +9,9 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
+```
 
+```{r}
 latest_results_date <- 
   list.files("match_data", pattern = "results_no_forfeits") %>% 
   str_extract("\\d+-\\d+-\\d+") %>% 
@@ -92,9 +94,7 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
   
   fargo_ratings
 }
-```
 
-```{r}
 fargo_df <- 
   results_to_ratings(results_no_forfeits, a = 3, mae_stop = 100) %>% 
   mutate(
@@ -102,9 +102,7 @@ fargo_df <-
     rating = log(rating) * 144,
     rating = rating - mean(rating) + 500
   )
-```
 
-```{r}
 fargo_df %>% 
   arrange(desc(rating))
 ```

@@ -191,7 +191,7 @@ week_urls_to_all_matches <- function(week_urls) {
 
 ```{r}
 # Summarize previous file
-prev_matches <- readRDS("match_data/all_matches_2019spring.Rdata")
+prev_matches <- readRDS("match_data/all_matches_2019springplayoffs.Rdata")
 
 prev_matches %>% 
   group_by(match_date) %>% 
@@ -200,7 +200,7 @@ prev_matches %>%
 
 ```{r}
 # Get updated Spring 2019 results and check
-new_data_urls <- str_c("https://www.sfpapool.org/stats/week/", 70) # Most recent week
+new_data_urls <- str_c("https://www.sfpapool.org/stats/week/", 71) # Most recent week
 new_matches <- week_urls_to_all_matches(new_data_urls)
 
 bind_rows(prev_matches, new_matches) %>% 
@@ -210,14 +210,14 @@ bind_rows(prev_matches, new_matches) %>%
 
 ```{r}
 # Add to previous results
-all_matches_2019spring <- bind_rows(prev_matches, new_matches)
+all_matches_2019springplayoffs <- bind_rows(prev_matches, new_matches)
   
-saveRDS(all_matches_2019spring, "match_data/all_matches_2019spring.Rdata")
+saveRDS(all_matches_2019springplayoffs, "match_data/all_matches_2019springplayoffs.Rdata")
 ```
 
 
 Scrape an outside file from a tournament:
-```{r}
+```{r, eval=FALSE, echo=FALSE}
 new_matches <- 
   read_csv("tournaments/spring2019_8ball.csv") %>% 
   mutate(home_team = NA_character_, away_team = NA_character_)
@@ -233,7 +233,7 @@ saveRDS(all_matches_2019spring, "match_data/all_matches_2019spring.Rdata")
 ```
 
 Spring 2018 data generation:
-```{r}
+```{r, eval=FALSE, echo=FALSE}
 # Save down 2018 spring results
 week_urls_2018spring <- str_c("https://www.sfpapool.org/stats/week/", c(9:10)) # Spring 2018
 all_matches_2018spring <- week_urls_to_all_matches(week_urls_2018spring)
@@ -263,7 +263,7 @@ saveRDS(all_matches_2018springplayoffs, "match_data/all_matches_2018springplayof
 ```
 
 Fall 2018 data generation:
-```{r}
+```{r, eval=FALSE, echo=FALSE}
 # Save down 2018 fall results
 week_urls_2018fall <- str_c("https://www.sfpapool.org/stats/week/", c(33:39, 41:46)) # Fall 2018
 all_matches_2018fall <- week_urls_to_all_matches(week_urls_2018fall)
