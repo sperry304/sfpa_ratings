@@ -1,18 +1,9 @@
----
-title: "SFPA Ratings - Data Scraping"
-author: "Skip Perry"
-date: "March 2019"
-output: github_document
----
-  
-```{r setup, include=FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
-library(rvest)
-library(lubridate)
-```
+SFPA Ratings - Data Scraping
+================
+Skip Perry
+March 2019
 
-```{r}
+``` r
 # Produces a list of URLs of score sheets for a given completed week
 # Starts with week_url of form https://www.sfpapool.org/stats/week/52/
 
@@ -189,7 +180,7 @@ week_urls_to_all_matches <- function(week_urls) {
 #week_urls_to_all_matches(str_c("https://www.sfpapool.org/stats/week/", c(57:58)))
 ```
 
-```{r}
+``` r
 # Summarize previous file
 prev_matches <- readRDS("match_data/all_matches_2019springplayoffs.Rdata")
 
@@ -198,99 +189,44 @@ prev_matches %>%
   count()
 ```
 
-```{r}
-# Get updated Spring 2019 results and check
-new_data_urls <- str_c("https://www.sfpapool.org/stats/week/", 73) # Most recent week
-new_matches <- week_urls_to_all_matches(new_data_urls)
+    ## # A tibble: 2 x 2
+    ## # Groups:   match_date [2]
+    ##   match_date     n
+    ##   <date>     <int>
+    ## 1 2019-05-14   170
+    ## 2 2019-05-16   136
 
+``` r
+# Get updated Spring 2019 results and check
+new_data_urls <- str_c("https://www.sfpapool.org/stats/week/", 72) # Most recent week
+new_matches <- week_urls_to_all_matches(new_data_urls)
+```
+
+    ## [1] "Starting week 1"
+    ## [1] "Week 1 complete"
+
+``` r
 bind_rows(prev_matches, new_matches) %>% 
   group_by(match_date) %>% 
   count()
 ```
 
-```{r}
+    ## # A tibble: 2 x 2
+    ## # Groups:   match_date [2]
+    ##   match_date     n
+    ##   <date>     <int>
+    ## 1 2019-05-14   170
+    ## 2 2019-05-16   272
+
+``` r
 # Add to previous results
 all_matches_2019springplayoffs <- bind_rows(prev_matches, new_matches)
   
 saveRDS(all_matches_2019springplayoffs, "match_data/all_matches_2019springplayoffs.Rdata")
 ```
 
+Scrape an outside file from a tournament:
 
-```{r, eval=FALSE, echo=FALSE}
-#Scrape an outside file from a tournament:
-new_matches <- 
-  read_csv("tournaments/spring2019_8ball.csv") %>% 
-  mutate(home_team = NA_character_, away_team = NA_character_)
+Spring 2018 data generation:
 
-bind_rows(prev_matches, new_matches) %>% 
-  group_by(match_date) %>% 
-  count()
-
-# Add to previous results
-all_matches_2019spring <- bind_rows(prev_matches, new_matches)
-  
-saveRDS(all_matches_2019spring, "match_data/all_matches_2019spring.Rdata")
-```
-
-```{r, eval=FALSE, echo=FALSE}
-# Spring 2018 data generation:
-
-# Save down 2018 spring results
-week_urls_2018spring <- str_c("https://www.sfpapool.org/stats/week/", c(9:10)) # Spring 2018
-all_matches_2018spring <- week_urls_to_all_matches(week_urls_2018spring)
-
-all_matches_2018spring %>% 
-  group_by(game_num) %>% 
-  count()
-
-all_matches_2018spring %>% 
-  group_by(match_date) %>% 
-  count()
-
-saveRDS(all_matches_2018spring, "match_data/all_matches_2018spring.Rdata")
-
-week_urls_2018springplayoffs <- str_c("https://www.sfpapool.org/stats/week/", c(23:32)) # Spring 2018 playoffs
-all_matches_2018springplayoffs <- week_urls_to_all_matches(week_urls_2018springplayoffs)
-
-all_matches_2018springplayoffs %>% 
-  group_by(game_num) %>% 
-  count()
-
-all_matches_2018springplayoffs %>% 
-  group_by(match_date) %>% 
-  count()
-
-saveRDS(all_matches_2018springplayoffs, "match_data/all_matches_2018springplayoffs.Rdata")
-```
-
-```{r, eval=FALSE, echo=FALSE}
-# Fall 2018 data generation:
-
-# Save down 2018 fall results
-week_urls_2018fall <- str_c("https://www.sfpapool.org/stats/week/", c(33:39, 41:46)) # Fall 2018
-all_matches_2018fall <- week_urls_to_all_matches(week_urls_2018fall)
-
-all_matches_2018fall %>% 
-  group_by(game_num) %>% 
-  count()
-
-all_matches_2018fall %>% 
-  group_by(match_date) %>% 
-  count()
-
-saveRDS(all_matches_2018fall, "match_data/all_matches_2018fall.Rdata")
-
-week_urls_2018fallplayoffs <- str_c("https://www.sfpapool.org/stats/week/", c(48:56)) # Fall 2018 playoffs
-all_matches_2018fallplayoffs <- week_urls_to_all_matches(week_urls_2018fallplayoffs)
-
-all_matches_2018fallplayoffs %>% 
-  group_by(game_num) %>% 
-  count()
-
-all_matches_2018fallplayoffs %>% 
-  group_by(match_date) %>% 
-  count()
-
-saveRDS(all_matches_2018fallplayoffs, "match_data/all_matches_2018fallplayoffs.Rdata")
-```
-
+Fall 2018 data generation:

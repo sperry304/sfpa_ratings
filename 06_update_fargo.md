@@ -1,7 +1,7 @@
 SFPA Fargo Ratings v.3
 ================
 Skip Perry
-April 2019
+May 2019
 
 ``` r
 latest_results_date <- 
@@ -102,16 +102,16 @@ fargo_df %>%
     ## # A tibble: 331 x 3
     ##    player          rating raw_rating
     ##    <chr>            <dbl>      <dbl>
-    ##  1 Hector Ortega     732.      2042.
-    ##  2 Mike Maxwell      718.      1849.
-    ##  3 Skip Perry        712.      1777.
-    ##  4 Ryan Piaget       703.      1663.
-    ##  5 Evan Burgess      686.      1484.
-    ##  6 Thayer McDougle   683.      1451.
-    ##  7 Bob Simon         682.      1443.
-    ##  8 Stefano Lopez     673.      1350.
-    ##  9 Rhys Hughes       672.      1344.
-    ## 10 Jesse La Fear     669.      1316.
+    ##  1 Hector Ortega     733.      2050.
+    ##  2 Mike Maxwell      722.      1903.
+    ##  3 Skip Perry        707.      1706.
+    ##  4 Ryan Piaget       705.      1689.
+    ##  5 Evan Burgess      691.      1530.
+    ##  6 Bob Simon         687.      1486.
+    ##  7 Thayer McDougle   684.      1454.
+    ##  8 Rhys Hughes       680.      1421.
+    ##  9 Nick Lansdown     675.      1369.
+    ## 10 Stefano Lopez     674.      1356.
     ## # … with 321 more rows
 
 ``` r

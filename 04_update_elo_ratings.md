@@ -92,16 +92,16 @@ elo_ratings %>%
     ## # A tibble: 347 x 3
     ##    player          rating team                      
     ##    <chr>            <dbl> <chr>                     
-    ##  1 Hector Ortega     1789 <NA>                      
-    ##  2 Mike Maxwell      1787 Route 101 Rawhides        
-    ##  3 Mike Maxwell      1787 <NA>                      
-    ##  4 Skip Perry        1781 Tandy Tokers              
-    ##  5 Ryan Piaget       1780 Clean Slate               
-    ##  6 Thayer McDougle   1763 Lucky Horseshoe Caballeros
-    ##  7 Thayer McDougle   1763 <NA>                      
-    ##  8 Evan Burgess      1762 Lucky Horseshoe Caballeros
-    ##  9 Evan Burgess      1762 <NA>                      
-    ## 10 Danny Mullan      1734 Route 101 Rawhides        
+    ##  1 Mike Maxwell      1805 Route 101 Rawhides        
+    ##  2 Mike Maxwell      1805 <NA>                      
+    ##  3 Hector Ortega     1789 <NA>                      
+    ##  4 Ryan Piaget       1789 Clean Slate               
+    ##  5 Evan Burgess      1781 Lucky Horseshoe Caballeros
+    ##  6 Evan Burgess      1781 <NA>                      
+    ##  7 Skip Perry        1763 Tandy Tokers              
+    ##  8 Thayer McDougle   1763 Lucky Horseshoe Caballeros
+    ##  9 Thayer McDougle   1763 <NA>                      
+    ## 10 Bob Simon         1751 Route 101 Rawhides        
     ## # … with 337 more rows
 
 ``` r
@@ -189,16 +189,16 @@ elo_team_ratings %>%
     ## # A tibble: 35 x 2
     ##    team                       rating
     ##    <chr>                       <dbl>
-    ##  1 Lucky Horseshoe Caballeros   1675
-    ##  2 Route 101 Rawhides           1663
-    ##  3 Golden Slate Warriors        1651
-    ##  4 Smoke & Rumors               1619
-    ##  5 Clean Slate                  1613
-    ##  6 Tandy Tokers                 1559
-    ##  7 Rumors Never Die             1543
-    ##  8 Dovre & Out                  1539
-    ##  9 Cinch You're Down There      1536
-    ## 10 Cafe Ballbusters             1535
+    ##  1 Lucky Horseshoe Caballeros   1683
+    ##  2 Route 101 Rawhides           1668
+    ##  3 Golden Slate Warriors        1640
+    ##  4 Clean Slate                  1625
+    ##  5 Smoke & Rumors               1619
+    ##  6 Tandy Tokers                 1551
+    ##  7 Rumors Never Die             1537
+    ##  8 Cafe Ballbusters             1535
+    ##  9 Dovre & Out                  1532
+    ## 10 Cafe Cafaholics              1530
     ## # … with 25 more rows
 
 ``` r

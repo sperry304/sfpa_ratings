@@ -128,29 +128,29 @@ elo_ratings %>%
 
 | player          | rating | team                       |
 | :-------------- | -----: | :------------------------- |
+| Mike Maxwell    |   1805 | Route 101 Rawhides         |
 | Hector Ortega   |   1789 | NA                         |
-| Mike Maxwell    |   1787 | Route 101 Rawhides         |
-| Skip Perry      |   1781 | Tandy Tokers               |
-| Ryan Piaget     |   1780 | Clean Slate                |
+| Ryan Piaget     |   1789 | Clean Slate                |
+| Evan Burgess    |   1781 | Lucky Horseshoe Caballeros |
+| Skip Perry      |   1763 | Tandy Tokers               |
 | Thayer McDougle |   1763 | Lucky Horseshoe Caballeros |
-| Evan Burgess    |   1762 | Lucky Horseshoe Caballeros |
-| Danny Mullan    |   1734 | Route 101 Rawhides         |
-| Bob Simon       |   1733 | Route 101 Rawhides         |
-| Patty West      |   1720 | Golden Slate Warriors      |
-| Rhys Hughes     |   1715 | Golden Slate Warriors      |
-| Chris DuCoing   |   1713 | Smoke & Rumors             |
-| James Neale     |   1710 | Lucky Horseshoe Caballeros |
-| Nick Lansdown   |   1709 | Lucky Horseshoe Caballeros |
+| Bob Simon       |   1751 | Route 101 Rawhides         |
+| Rhys Hughes     |   1743 | Golden Slate Warriors      |
+| Nick Lansdown   |   1732 | Lucky Horseshoe Caballeros |
+| Danny Mullan    |   1722 | Route 101 Rawhides         |
+| James Neale     |   1718 | Lucky Horseshoe Caballeros |
+| Chris DuCoing   |   1711 | Smoke & Rumors             |
 | Andy Luong      |   1697 | NA                         |
-| Nick Callado    |   1687 | NA                         |
+| Patty West      |   1689 | Golden Slate Warriors      |
+| Nick Callado    |   1688 | NA                         |
+| Rene Denis      |   1684 | Smoke & Rumors             |
 | Stefano Lopez   |   1684 | NA                         |
-| Bob Schnatterly |   1683 | Cinch Pack                 |
+| Tom Seymour     |   1684 | Route 101 Rawhides         |
 | Crystal Kelem   |   1683 | Cafe Strikes Again         |
 | Diogo Martini   |   1683 | Golden Slate Warriors      |
-| Tom Seymour     |   1682 | Route 101 Rawhides         |
+| Bob Schnatterly |   1682 | Cinch Pack                 |
 | Hugo Valseca    |   1680 | NA                         |
-| Eugene Fan      |   1674 | Rumors Never Die           |
-| Rene Denis      |   1658 | Smoke & Rumors             |
+| Eugene Fan      |   1670 | Rumors Never Die           |
 | Wyatt Moss      |   1656 | Naked Lunch Nice Rack      |
 | Jesse La Fear   |   1655 | NA                         |
 
@@ -256,31 +256,31 @@ ratings_changes %>%
 
 | player               | initial | final | diff | team                         | new\_old   |
 | :------------------- | ------: | ----: | ---: | :--------------------------- | :--------- |
-| Nick Lansdown        |    1558 |  1709 |  151 | Lucky Horseshoe Caballeros   | Old player |
-| Mark Butler          |    1469 |  1606 |  137 | Golden Slate Warriors        | Old player |
+| Nick Lansdown        |    1558 |  1732 |  175 | Lucky Horseshoe Caballeros   | Old player |
+| Mark Butler          |    1469 |  1593 |  124 | Golden Slate Warriors        | Old player |
 | John McNulty         |    1371 |  1492 |  121 | Lone Star Longhorns          | Old player |
 | Mathieu Guglielmi    |    1406 |  1526 |  120 | Tandy Tokers                 | Old player |
-| Chris DuCoing        |    1596 |  1713 |  117 | Smoke & Rumors               | Old player |
+| Rene Denis           |    1564 |  1684 |  120 | Smoke & Rumors               | Old player |
+| Chris DuCoing        |    1596 |  1711 |  114 | Smoke & Rumors               | Old player |
 | Cloaky Jones         |    1469 |  1578 |  108 | Harry’s Humdingers           | Old player |
-| Keith Deming         |    1423 |  1532 |  108 | Naked Lunch Nice Rack        | Old player |
+| Alex Mendes da Costa |    1500 |  1605 |  105 | Rumors Never Die             | New player |
 | Thayer McDougle      |    1659 |  1763 |  104 | Lucky Horseshoe Caballeros   | Old player |
-| Alex Mendes da Costa |    1500 |  1603 |  103 | Rumors Never Die             | New player |
 | Arthur Patterson     |    1480 |  1583 |  103 | Bare Naked 6 Holes           | Old player |
 | Jon Williams         |    1500 |  1602 |  102 | Cafe Ballbusters             | New player |
-| Patty West           |    1618 |  1720 |  102 | Golden Slate Warriors        | Old player |
 | Tae Yim              |    1500 |  1601 |  101 | Cafe 2 for 1’s               | New player |
-| Bob Schnatterly      |    1588 |  1683 |   95 | Cinch Pack                   | Old player |
-| Rene Denis           |    1564 |  1658 |   94 | Smoke & Rumors               | Old player |
-| Danny Mullan         |    1642 |  1734 |   92 | Route 101 Rawhides           | Old player |
+| Bob Schnatterly      |    1588 |  1682 |   94 | Cinch Pack                   | Old player |
+| Marcelo Aviles       |    1499 |  1588 |   89 | Clean Slate                  | Old player |
+| Ryan Piaget          |    1701 |  1789 |   88 | Clean Slate                  | Old player |
+| Keith Deming         |    1423 |  1510 |   87 | Naked Lunch Nice Rack        | Old player |
 | James Horsefall      |    1500 |  1584 |   84 | Lucky Horseshoe Glue Factory | New player |
-| Marcelo Aviles       |    1499 |  1582 |   83 | Clean Slate                  | Old player |
-| Ryan Piaget          |    1701 |  1780 |   79 | Clean Slate                  | Old player |
-| Alex Peralta         |    1500 |  1574 |   74 | Rumors Never Die             | New player |
-| John Frakes          |    1530 |  1603 |   73 | Cinch Pack                   | Old player |
+| Danny Mullan         |    1642 |  1722 |   80 | Route 101 Rawhides           | Old player |
 | Rob Cosgriff         |    1440 |  1512 |   72 | Naked Lunch Nice Rack        | Old player |
 | Ell Jackson          |    1556 |  1627 |   70 | Hole in the Wall Howlers     | Old player |
+| Patty West           |    1618 |  1689 |   70 | Golden Slate Warriors        | Old player |
 | Erik Proctor         |    1377 |  1445 |   68 | Cafe Cafaholics              | Old player |
 | Martin Smidak        |    1575 |  1642 |   67 | Golden Slate Warriors        | Old player |
+| John Putnam          |    1328 |  1394 |   66 | Cafe 2 for 1’s               | Old player |
+| Mikki Paull          |    1510 |  1576 |   66 | Wicked Bitches of the West   | Old player |
 
 ``` r
 # Players with the biggest declines
@@ -301,7 +301,6 @@ ratings_changes %>%
 | Levon Sanossian   |    1500 |  1311 | \-189 | Lone Star Rebels           | New player |
 | Brady Ralston     |    1500 |  1340 | \-160 | Lone Star Longhorns        | New player |
 | Keelin Ingoldsby  |    1500 |  1345 | \-155 | Harry’s Humdingers         | New player |
-| Fran Herman       |    1600 |  1466 | \-134 | Pilsner Penguins           | Old player |
 | Jonathen Diego    |    1500 |  1374 | \-126 | House of Ginger            | New player |
 | Jules Tanseco     |    1500 |  1375 | \-125 | Harry’s Hooligans          | New player |
 | Savonna Hasson    |    1429 |  1312 | \-117 | Harry’s Hooligans          | Old player |
@@ -309,6 +308,7 @@ ratings_changes %>%
 | Sharon Yencharis  |    1500 |  1386 | \-114 | Lone Star Rebels           | New player |
 | Rick Potts        |    1423 |  1312 | \-111 | Cinch Phoenix              | Old player |
 | John Larkin       |    1500 |  1393 | \-107 | Harry’s Humdingers         | New player |
+| Fran Herman       |    1600 |  1495 | \-105 | Pilsner Penguins           | Old player |
 | Steven Chamberlin |    1408 |  1317 |  \-92 | Cinchsationals             | Old player |
 | Tim Doyle         |    1452 |  1364 |  \-88 | Bare Naked 6 Holes         | Old player |
 | Caleb Christian   |    1500 |  1418 |  \-82 | Hole in the Wall Bangers   | New player |
@@ -318,9 +318,9 @@ ratings_changes %>%
 | Keith Neal        |    1430 |  1351 |  \-79 | Ginger Strokes             | Old player |
 | Siedra Loeffler   |    1373 |  1295 |  \-78 | Wicked Bitches of the West | Old player |
 | Antonio Herrera   |    1468 |  1391 |  \-77 | Cafe Cafaholics            | Old player |
+| Sheree Taft       |    1574 |  1501 |  \-73 | Cafe Cafaholics            | Old player |
 | Justin Dayton     |    1516 |  1447 |  \-69 | Bare Naked 6 Holes         | Old player |
 | Travis Santos     |    1500 |  1432 |  \-68 | Pilsner Innmates           | New player |
-| Perry Logan       |    1571 |  1509 |  \-63 | Cafe Strikes Again         | Old player |
 
 ``` r
 # Data frame of all team names for all seasons
