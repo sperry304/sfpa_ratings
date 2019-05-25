@@ -192,9 +192,9 @@ elo_team_ratings %>%
     ##  1 Lucky Horseshoe Caballeros   1687
     ##  2 Route 101 Rawhides           1667
     ##  3 Golden Slate Warriors        1622
-    ##  4 Clean Slate                  1621
+    ##  4 Clean Slate                  1620
     ##  5 Smoke & Rumors               1620
-    ##  6 Cafe Ballbusters             1552
+    ##  6 Cafe Ballbusters             1565
     ##  7 Rumors Never Die             1539
     ##  8 Tandy Tokers                 1537
     ##  9 Dovre & Out                  1532
