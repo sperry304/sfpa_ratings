@@ -102,16 +102,16 @@ fargo_df %>%
     ## # A tibble: 331 x 3
     ##    player          rating raw_rating
     ##    <chr>            <dbl>      <dbl>
-    ##  1 Hector Ortega     733.      2052.
-    ##  2 Mike Maxwell      724.      1924.
-    ##  3 Ryan Piaget       704.      1675.
-    ##  4 Evan Burgess      696.      1579.
-    ##  5 Skip Perry        693.      1546.
-    ##  6 Bob Simon         685.      1469.
-    ##  7 Thayer McDougle   684.      1459.
-    ##  8 Rhys Hughes       681.      1421.
+    ##  1 Hector Ortega     734.      2052.
+    ##  2 Mike Maxwell      727.      1958.
+    ##  3 Ryan Piaget       704.      1676.
+    ##  4 Evan Burgess      695.      1572.
+    ##  5 Skip Perry        693.      1547.
+    ##  6 Bob Simon         685.      1466.
+    ##  7 Thayer McDougle   684.      1456.
+    ##  8 Rhys Hughes       681.      1426.
     ##  9 Nick Lansdown     678.      1392.
-    ## 10 Stefano Lopez     674.      1354.
+    ## 10 Stefano Lopez     674.      1356.
     ## # … with 321 more rows
 
 ``` r
