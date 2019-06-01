@@ -97,7 +97,7 @@ elo_ratings %>%
     ##  3 Evan Burgess      1796 Lucky Horseshoe Caballeros
     ##  4 Evan Burgess      1796 <NA>                      
     ##  5 Hector Ortega     1789 <NA>                      
-    ##  6 Ryan Piaget       1785 Clean Slate               
+    ##  6 Ryan Piaget       1761 Clean Slate               
     ##  7 Thayer McDougle   1760 Lucky Horseshoe Caballeros
     ##  8 Thayer McDougle   1760 <NA>                      
     ##  9 Rhys Hughes       1743 Golden Slate Warriors     
@@ -191,9 +191,9 @@ elo_team_ratings %>%
     ##    <chr>                       <dbl>
     ##  1 Lucky Horseshoe Caballeros   1685
     ##  2 Route 101 Rawhides           1669
-    ##  3 Clean Slate                  1628
+    ##  3 Smoke & Rumors               1631
     ##  4 Golden Slate Warriors        1622
-    ##  5 Smoke & Rumors               1621
+    ##  5 Clean Slate                  1617
     ##  6 Cafe Ballbusters             1565
     ##  7 Tandy Tokers                 1537
     ##  8 Dovre & Out                  1532
