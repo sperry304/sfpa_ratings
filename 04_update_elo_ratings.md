@@ -92,16 +92,16 @@ elo_ratings %>%
     ## # A tibble: 347 x 3
     ##    player          rating team                      
     ##    <chr>            <dbl> <chr>                     
-    ##  1 Mike Maxwell      1825 Route 101 Rawhides        
-    ##  2 Mike Maxwell      1825 <NA>                      
-    ##  3 Evan Burgess      1796 Lucky Horseshoe Caballeros
-    ##  4 Evan Burgess      1796 <NA>                      
-    ##  5 Hector Ortega     1789 <NA>                      
-    ##  6 Ryan Piaget       1761 Clean Slate               
-    ##  7 Thayer McDougle   1760 Lucky Horseshoe Caballeros
-    ##  8 Thayer McDougle   1760 <NA>                      
+    ##  1 Mike Maxwell      1808 Route 101 Rawhides        
+    ##  2 Mike Maxwell      1808 <NA>                      
+    ##  3 Hector Ortega     1789 <NA>                      
+    ##  4 Evan Burgess      1767 Lucky Horseshoe Caballeros
+    ##  5 Evan Burgess      1767 <NA>                      
+    ##  6 Thayer McDougle   1762 Lucky Horseshoe Caballeros
+    ##  7 Thayer McDougle   1762 <NA>                      
+    ##  8 Ryan Piaget       1761 Clean Slate               
     ##  9 Rhys Hughes       1743 Golden Slate Warriors     
-    ## 10 Bob Simon         1741 Route 101 Rawhides        
+    ## 10 Bob Simon         1738 Route 101 Rawhides        
     ## # … with 337 more rows
 
 ``` r
@@ -189,16 +189,16 @@ elo_team_ratings %>%
     ## # A tibble: 35 x 2
     ##    team                       rating
     ##    <chr>                       <dbl>
-    ##  1 Lucky Horseshoe Caballeros   1685
-    ##  2 Route 101 Rawhides           1669
-    ##  3 Smoke & Rumors               1631
+    ##  1 Lucky Horseshoe Caballeros   1686
+    ##  2 Route 101 Rawhides           1672
+    ##  3 Smoke & Rumors               1627
     ##  4 Golden Slate Warriors        1622
     ##  5 Clean Slate                  1617
     ##  6 Cafe Ballbusters             1565
     ##  7 Tandy Tokers                 1537
     ##  8 Dovre & Out                  1532
     ##  9 Rumors Never Die             1532
-    ## 10 Cinch Pack                   1530
+    ## 10 Cinch Pack                   1531
     ## # … with 25 more rows
 
 ``` r
