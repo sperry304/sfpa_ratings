@@ -114,7 +114,7 @@ home_advantage <- log((1 - actual_home_win_pct) / actual_home_win_pct) / log(10)
 home_advantage
 
 results_no_forfeits %>% 
-  filter(week_number > 1) %>% 
+  filter(week_number > 1, week_number < 50) %>% 
   group_by(season, game_winner) %>% 
   count() %>% 
   group_by(season) %>% 

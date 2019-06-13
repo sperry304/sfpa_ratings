@@ -213,6 +213,8 @@ win_prob_summary %>%
   )
 ```
 
+Data sources: Spring 2018 SFPA season, Fall 2018 SFPA season, Spring 2019 SFPA season, Spring 2019 SFPA 8-ball tournament, Spring 2019 Slate 8-ball tournament 
+
 ```{r}
 
 ```
