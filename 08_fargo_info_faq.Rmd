@@ -1,7 +1,7 @@
 ---
 title: "SFPA Player Ratings, v.1"
 author: "Skip Perry"
-date: "May 2019"
+date: "June 2019"
 output: html_document
 
 references:
@@ -59,23 +59,23 @@ library(tidyverse)
 
 What do the ratings mean? 
 
-* The first meaningful number here is 500, which has been set as the global league average. The second meaningful number is 100, the rating difference which denotes a player having a predicted 2-to-1 advantage in a single game. 
+* The first meaningful number is 500, which has been set as the global league average. The second meaningful number is 100, the rating difference which denotes a player having a predicted 2-to-1 advantage in a single game. 
 
 How and why does my rating go up or down?
 
 * Ratings can change one of two ways: Your performance, and the performance of your opponents:
 
-    * The most important factor is your own performance. A player's rating will go up after performing better than the current ratings predict, and it will go down after performing worse than the current ratings predict. Match results that track existing predictions will result in little to no change. 
+    * The most important factor is your own performance. A player's rating will go up after performing better than the current ratings predict, and it will go down after performing worse than the current ratings predict. Match results that track existing predictions will result in no change. 
   
     * A secondary factor is the performance of the people a player has competed against. Let's assume you have a 7-3 record against some previous opponent. If that opponent has a few great nights and his or her rating increases, you are likely to earn a couple additional points for having done well against that person. (The opposite is true if your previous opponent's rating decreases.)
 
 How much do ratings change over time?
 
-* Some players perform at a consistent level over time. Other people have seen large shifts in their ratings, both positive and negative. Substantial changes in players' ratings are almost always due to changes in their own performance, rather than changes in the performance of their past opponents. 
+* Some players perform at a consistent level while other people have seen large shifts in their ratings, both positive and negative. Substantial changes in players' ratings are almost always due to changes in their own performance, rather than changes in the performance of their past opponents. 
 
-Do new league players have starter ratings?
+Do new players have starter ratings?
 
-* Players begin with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some set period of time, we let the results follow the data even if that data is noisy at first. Within three games, more weight starts to be placed on actual match results than on the initial rating.
+* Players begin with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some set period of time, we let the results follow the data even if that data is noisy at first. Within three games, more weight starts to be placed on actual match results than on the initial rating peg.
 
 How many games are needed to indicate that a rating is trustworthy?
 
@@ -107,11 +107,11 @@ $$\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1
 
 Like the MLE, MAP estimation provides a point estimate, though in this case it is the mode of a posterior distribution rather than the value at which a likelihood function is maximized. (Note that for $a = 1$ and $b = 0$, the MAP and maximum likelihood estimates are equivalent; see @carondoucet for more information.) 
 
-Under this setup, as in many Bayesian applications, the choice of prior has a major impact on the model. When $a = 1$, we simply have the MLE; as the value of $a$ increases, the impact of actual game results decreases as the numerator and denominator in the update formula become dominated by the constant $a-1$ and $b$ terms. Hyperparameter tuning for $a$ resulted in an optimal choice of 3 - a weakly informative prior. 
+Under this setup, as in many Bayesian applications, the choice of prior has a major impact on the model. When $a = 1$, we get the MLE; as the value of $a$ increases, the impact of actual game results decreases as the numerator and denominator in the update formula become dominated by the constant $a-1$ and $b$ terms. Hyperparameter tuning for $a$ resulted in an optimal choice of 3 - a weakly informative prior. 
 
 The scale of these ratings is arbitrary; any set of ratings can be multiplied by some positive constant and result in the same probability $p_{i>j}$ for all $i$ and $j$. As a result, in the MLE context, we would need to peg a player rating $\pi_i$ to a particular value, or set up an additional constraint such as $1 / n * \sum_{i=1}^{n} \pi_i = 1000$, in order to arrive at a unique solution. In the MAP formulation, we can make the model identifiable by setting $b = (a - 1) / 500$ and ensure a rough average player rating of about 500 in the process.
 
-That said, the raw ratings $\pi$ using this system have interpretability problems. For instance, a 100-point gap between players rated 200 and 300 (a 60% win probability for the higher-ranked player) means something different than the same 100-point gap between players rated 800 and 900 (a 53% win probability for the higher-ranked player). A solution is to transform the raw rating $\pi_i$ into a new rating $R_i$, where $\mu$ is the mean logged rating across the league:
+One issue with the system as described so far is interpretability. Ratings are only meaningful in relation to each other; a 100-point gap between players rated 200 and 300 (a 60% win probability for the higher-ranked player) means something different than the same 100-point gap between players rated 800 and 900 (a 53% win probability for the higher-ranked player). A solution is to transform the raw rating $\pi_i$ into a new rating $R_i$, where $\mu$ is the mean logged rating across the league:
 
 $$R_i = 144 \text{ log}(\pi_i) + 500 - \mu$$
 
@@ -121,7 +121,7 @@ $$p_{i > j} = \frac{1}{1 + \text{exp}\Big{(}\frac{R_j - R_i}{144}\Big{)}}$$
 
 (Plugging in the formulas for $R_i$ and $R_j$ in the above will demonstrate the equality of this formulation with the original $p_{i > j} = \pi_i/(\pi_i + \pi_j)$.)
 
-This transformation adds one more step to the process but leads to ratings that are easier to interpret. First, the $500 - \mu$ factor means the system is explicitly centered at 500. Second, the scaling factor in the exponential denominator results in rating comparisons having a consistent meaning: no matter how high or low a player is ranked, an advantage of 100 rating points means they have 2-to-1 odds to win a game, regardless of whether the matchup in question is 200 vs. 300 or 600 vs. 700. These differences are multiplicative, meaning that a 200-point advantage predicts 4-to-1 odds, a 300-point advantage 8-to-1, and so on. This has the follow-on effect of reducing rightward skew in the data and providing a natural limit to players' ratings.
+This transformation adds one more step to the process but leads to ratings that are easier to understand. First, the $500 - \mu$ factor means the system is explicitly centered at 500. Second, the scaling factor in the exponential denominator results in rating comparisons having a consistent meaning: no matter how high or low a player is ranked, an advantage of 100 rating points means they have 2-to-1 odds to win a game, regardless of whether the matchup in question is 200 vs. 300 or 600 vs. 700. These differences are multiplicative, meaning that a 200-point advantage predicts 4-to-1 odds, a 300-point advantage 8-to-1, and so on. This has the follow-on effect of reducing rightward skew in the data and providing a natural limit to players' ratings.
 
 Other considerations included:
 
@@ -159,7 +159,7 @@ Cons:
 
 Experiments with Elo ratings in various $K$ formulations showed slightly weaker predictive results, probably because this data set has the triple challenges of sparsity (most players don't play each other and when they do play each other it's only once), weak connections in the data (teams across the skill level spectrum only play each other for the first five weeks of the season), and a high-variance input (one game of 8-ball, where even beginners can run out with a good layout). Low or strongly decreasing values of $K$ along with number of games played resulted in rating changes moving too slowly; higher values of $K$ created too much noise. 
 
-More importantly, it is clear from a conceptual standpoint that each game can provide useful information about more than the two players involved. If player A beats player B this week and player B beat player C last week, then this week we learned something about player C. The Elo system ignores this information while Bradley-Terry uses it to update our best guess of player C's skill level.
+More importantly, it is clear from a conceptual standpoint that each game can provide useful information about more than the two players involved. If player A beat player B last week and player B beats player C this week, then this week we learned something about player A even though he or she didn't compete. The Elo system ignores this information while Bradley-Terry uses it to update our best guess of player A's skill level.
 
 ### References 
 
