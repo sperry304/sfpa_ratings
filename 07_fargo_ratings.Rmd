@@ -1,0 +1,222 @@
+---
+title: "SFPA Player Ratings, v.1"
+author: "Skip Perry"
+date: "June 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lubridate)
+
+latest_fargo_date <- 
+  list.files("other_data", pattern = "fargo") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+fargo_path <-
+  str_c("other_data/fargo_", latest_fargo_date, ".Rdata")
+
+fargo_df <- 
+  fargo_path %>% 
+  read_rds()
+
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits_path <-
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata")
+
+results_no_forfeits <- 
+  results_no_forfeits_path %>% 
+  read_rds()
+
+results_19_no_forfeits <- 
+  results_no_forfeits %>% 
+  filter(season == "Spring 2019")
+
+count_games <- function(player_of_interest, results_df) {
+  results_df %>% 
+    filter(away == player_of_interest | home == player_of_interest) %>% 
+    count() %>% 
+    transmute(player = player_of_interest, games_in_system = n) %>% 
+    pull()
+}
+
+games_in_system <- 
+  bind_rows(
+    results_no_forfeits %>% select(player = home),
+    results_no_forfeits %>% select(player = away)
+  ) %>% 
+  distinct() %>% 
+  arrange(player) %>% 
+  mutate(games_in_system = 0)
+
+for (i in 1:nrow(games_in_system)) {
+  games_in_system$games_in_system[i] <- 
+    count_games(games_in_system$player[i], results_no_forfeits)
+}
+
+team_names_by_player <- 
+  bind_rows(
+    results_19_no_forfeits %>% select(player = home, team = home_team),
+    results_19_no_forfeits %>% select(player = away, team = away_team)
+  ) %>% 
+  distinct() %>% 
+  arrange(player, team) %>% 
+  filter(!is.na(team))
+
+ratings_for_printing <- 
+  fargo_df %>% 
+  arrange(desc(rating)) %>% 
+  mutate(rank = row_number()) %>% 
+  left_join(team_names_by_player, by = "player") %>% 
+  left_join(games_in_system, by = "player") %>% 
+  transmute(
+    rank, 
+    player, 
+    current_team = replace_na(team, "--"), 
+    rating = round(rating),
+    games_in_system
+  )
+```
+
+### Ratings as of `r latest_fargo_date`:
+
+```{r, echo=FALSE}
+ratings_for_printing %>% 
+  filter(games_in_system > 9) %>% 
+  arrange(desc(rating)) %>% 
+  knitr::kable()
+```
+
+```{r, echo=FALSE}
+fargo_for_team_plots <- 
+  ratings_for_printing %>% 
+  filter(current_team != "--") %>% 
+  group_by(current_team) %>% 
+  arrange(current_team, desc(rating)) %>% 
+  mutate(
+    team_rank = row_number(),
+    top4 = team_rank < 5
+  ) %>% 
+  ungroup() %>% 
+  mutate(qtile = as.factor(ntile(rating, 6)))
+
+fargo_for_team_plots %>% 
+  group_by(current_team) %>% 
+  mutate(team_rating = exp(mean(log(rating)))) %>% 
+  ggplot(aes(x = reorder(current_team, team_rating))) +
+  geom_point(aes(y = team_rating), color = "gray50", size = 1.7, alpha = 0.5) +
+  geom_vline(xintercept = 18.5, color = "green", alpha = 0.2, size = 1) +
+  geom_point(aes(y = rating, color = qtile), alpha = 0.5) +
+  coord_flip() +
+  theme(
+    axis.title = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    title = "Ratings by Team and Player (Full Team)",
+    color = "Sextile"
+  )
+
+fargo_for_team_plots %>% 
+  filter(top4 == TRUE) %>% 
+  group_by(current_team) %>% 
+  mutate(team_rating = exp(mean(log(rating)))) %>% 
+  ggplot(aes(x = reorder(current_team, team_rating))) +
+  geom_point(aes(y = team_rating), color = "gray50", size = 1.7, alpha = 0.5) +
+  geom_vline(xintercept = 18.5, color = "green", alpha = 0.2, size = 1) +
+  geom_point(aes(y = rating, color = qtile), alpha = 0.5) +
+  coord_flip() +
+  theme(
+    axis.title = element_blank(),
+    plot.title = element_text(hjust = 0.5)
+  ) +
+  labs(
+    title = "Ratings by Team and Player (Top 4 Only)",
+    color = "Sextile"
+  )
+```
+
+```{r, echo=FALSE}
+test_date <- "2019-03-12"
+  
+test_fargo_path <-
+  str_c("other_data/fargo_", test_date, ".Rdata")
+
+test_fargo_df <- 
+  test_fargo_path %>% 
+  read_rds()
+
+test_data <- 
+  results_no_forfeits %>% 
+  select(-c(forfeit:t2_end_rating)) %>% 
+  filter(match_date > test_date)
+
+test_data_with_win_probs <- 
+  test_data %>% 
+  left_join(test_fargo_df %>% transmute(home = player, home_rating = rating), by = "home") %>% 
+  left_join(test_fargo_df %>% transmute(away = player, away_rating = rating), by = "away") %>% 
+  mutate(
+    home_win = if_else(game_winner == "home", 1, 0),
+    home_win_prob = 1 / (1 + exp((away_rating - home_rating) / 144)),
+    prob = round(home_win_prob, 1)
+  )
+
+win_prob_summary <- 
+  test_data_with_win_probs %>% 
+  filter(!is.na(prob)) %>% 
+  group_by(prob) %>% 
+  summarize(
+    wins = sum(home_win),
+    nsize = n(),
+    win_pct = wins / nsize
+  ) %>% 
+  mutate(
+    lo_ci = win_pct - 1.96 * sqrt(win_pct * (1 - win_pct) / nsize),
+    hi_ci = win_pct + 1.96 * sqrt(win_pct * (1 - win_pct) / nsize),
+    lo_ci = if_else(lo_ci < 0, 0, lo_ci),
+    hi_ci = if_else(hi_ci > 1, 1, hi_ci)
+  )
+
+win_prob_summary %>% 
+  filter(nsize > 50) %>% 
+  ggplot(aes(x = prob, y = win_pct)) +
+  geom_line() +
+  geom_abline(slope = 1, intercept = 0, color = "white", size = 2) +
+  geom_point() +
+  geom_line() +
+  geom_ribbon(aes(ymin = lo_ci, ymax = hi_ci), linetype = 2, alpha = 0.1) +
+  coord_fixed(
+    xlim = c(0, 1), 
+    ylim = c(0, 1)
+  ) +
+  scale_x_continuous(
+    breaks = seq(0, 1, by = 0.2),
+    labels = str_c(seq(0, 100, by = 20), "%")
+  ) +
+  scale_y_continuous(
+    breaks = seq(0, 1, by = 0.2),
+    labels = str_c(seq(0, 100, by = 20), "%")
+  ) +
+  labs(
+    x = "Predicted Home Win Probability",
+    y = "Actual Home Win Percentage",
+    title = "Predictions vs. Actual Results",
+    caption = "Ratings as of 3/12, results post-3/12, shaded area 95% CI"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
+```
+
+Data sources: Spring 2018 SFPA season, Fall 2018 SFPA season, Spring 2019 SFPA season, Spring 2019 SFPA 8-ball tournament, Spring 2019 Slate 8-ball tournament 
+
+```{r}
+
+```
+
