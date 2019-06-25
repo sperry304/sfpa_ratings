@@ -226,7 +226,7 @@ prev_matches %>%
 
 new_matches <- 
   read_csv("tournaments/spring2019_slate8ball.csv") %>% 
-  mutate(home_team = NA_character_, away_team = NA_character_)
+  mutate(home_team = NA_character_, away_team = NA_character_, forfeit = NA_character_)
 
 bind_rows(prev_matches, new_matches) %>% 
   group_by(match_date) %>% 
