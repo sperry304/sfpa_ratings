@@ -38,7 +38,7 @@ get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
   }
   
   b <- (a - 1) / 500
-
+  
   results_df %>% 
     filter(away == player_of_interest | home == player_of_interest) %>% 
     transmute(

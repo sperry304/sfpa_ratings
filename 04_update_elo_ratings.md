@@ -89,20 +89,20 @@ elo_ratings %>%
   append_team_names()
 ```
 
-    ## # A tibble: 347 x 3
+    ## # A tibble: 390 x 3
     ##    player          rating team                      
     ##    <chr>            <dbl> <chr>                     
-    ##  1 Mike Maxwell      1808 Route 101 Rawhides        
-    ##  2 Mike Maxwell      1808 <NA>                      
-    ##  3 Hector Ortega     1789 <NA>                      
-    ##  4 Evan Burgess      1767 Lucky Horseshoe Caballeros
-    ##  5 Evan Burgess      1767 <NA>                      
-    ##  6 Thayer McDougle   1762 Lucky Horseshoe Caballeros
-    ##  7 Thayer McDougle   1762 <NA>                      
-    ##  8 Ryan Piaget       1761 Clean Slate               
+    ##  1 Mike Maxwell      1844 Route 101 Rawhides        
+    ##  2 Mike Maxwell      1844 <NA>                      
+    ##  3 Evan Burgess      1767 Lucky Horseshoe Caballeros
+    ##  4 Evan Burgess      1767 <NA>                      
+    ##  5 Hector Ortega     1767 <NA>                      
+    ##  6 Ryan Piaget       1761 Clean Slate               
+    ##  7 Thayer McDougle   1758 Lucky Horseshoe Caballeros
+    ##  8 Thayer McDougle   1758 <NA>                      
     ##  9 Rhys Hughes       1743 Golden Slate Warriors     
-    ## 10 Bob Simon         1738 Route 101 Rawhides        
-    ## # … with 337 more rows
+    ## 10 Skip Perry        1742 Tandy Tokers              
+    ## # … with 380 more rows
 
 ``` r
 # Set K based on optimization
@@ -195,10 +195,10 @@ elo_team_ratings %>%
     ##  4 Golden Slate Warriors        1622
     ##  5 Clean Slate                  1617
     ##  6 Cafe Ballbusters             1565
-    ##  7 Tandy Tokers                 1537
+    ##  7 Tandy Tokers                 1538
     ##  8 Dovre & Out                  1532
     ##  9 Rumors Never Die             1532
-    ## 10 Cinch Pack                   1531
+    ## 10 Cinch Pack                   1530
     ## # … with 25 more rows
 
 ``` r

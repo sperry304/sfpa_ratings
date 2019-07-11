@@ -72,9 +72,10 @@ team_names_by_player <-
 ratings_for_printing <- 
   fargo_df %>% 
   arrange(desc(rating)) %>% 
-  mutate(rank = row_number()) %>% 
   left_join(team_names_by_player, by = "player") %>% 
   left_join(games_in_system, by = "player") %>% 
+  filter(games_in_system > 9) %>% 
+  mutate(rank = row_number()) %>% 
   transmute(
     rank, 
     player, 
@@ -88,8 +89,6 @@ ratings_for_printing <-
 
 ```{r, echo=FALSE}
 ratings_for_printing %>% 
-  filter(games_in_system > 9) %>% 
-  arrange(desc(rating)) %>% 
   knitr::kable()
 ```
 

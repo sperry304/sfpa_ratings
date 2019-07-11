@@ -225,7 +225,7 @@ prev_matches %>%
   count()
 
 new_matches <- 
-  read_csv("tournaments/spring2019_slate8ball.csv") %>% 
+  read_csv("tournaments/spring2019_slate8ball_week1.csv") %>% 
   mutate(home_team = NA_character_, away_team = NA_character_, forfeit = NA_character_)
 
 bind_rows(prev_matches, new_matches) %>% 
@@ -235,7 +235,7 @@ bind_rows(prev_matches, new_matches) %>%
 # Add to previous results
 all_matches_2019springplayoffs <- bind_rows(prev_matches, new_matches)
   
-saveRDS(all_matches_2019springplayoffs, "match_data/all_matches_2019spring.Rdata")
+saveRDS(all_matches_2019springplayoffs, "match_data/all_matches_2019springplayoffs.Rdata")
 ```
 
 ```{r, eval=FALSE, echo=FALSE}

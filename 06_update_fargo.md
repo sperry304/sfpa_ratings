@@ -30,7 +30,7 @@ get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
   }
   
   b <- (a - 1) / 500
-
+  
   results_df %>% 
     filter(away == player_of_interest | home == player_of_interest) %>% 
     transmute(
@@ -99,20 +99,20 @@ fargo_df %>%
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 331 x 3
+    ## # A tibble: 354 x 3
     ##    player          rating raw_rating
     ##    <chr>            <dbl>      <dbl>
-    ##  1 Hector Ortega     733.      2049.
-    ##  2 Mike Maxwell      725.      1930.
-    ##  3 Ryan Piaget       699.      1609.
-    ##  4 Skip Perry        693.      1544.
-    ##  5 Evan Burgess      692.      1532.
-    ##  6 Thayer McDougle   685.      1462.
-    ##  7 Bob Simon         685.      1461.
-    ##  8 Rhys Hughes       681.      1423.
-    ##  9 Nick Lansdown     678.      1394.
-    ## 10 Stefano Lopez     674.      1353.
-    ## # … with 321 more rows
+    ##  1 Hector Ortega     733.      2063.
+    ##  2 Mike Maxwell      730.      2018.
+    ##  3 Skip Perry        697.      1600.
+    ##  4 Ryan Piaget       696.      1596.
+    ##  5 Evan Burgess      690.      1522.
+    ##  6 Thayer McDougle   688.      1506.
+    ##  7 Bob Simon         683.      1451.
+    ##  8 Rhys Hughes       679.      1410.
+    ##  9 Nick Lansdown     676.      1386.
+    ## 10 Stefano Lopez     672.      1347.
+    ## # … with 344 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("other_data/fargo_", latest_results_date, ".Rdata"))
