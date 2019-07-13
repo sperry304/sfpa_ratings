@@ -110,26 +110,28 @@ url_list_to_final_df <- function(url_list) {
     process_game_results_df
 }
 
+
 # Happy
-url_list <- 
+happy_url_list <- 
   c(
     str_c("https://nomadpool.com/games?page=", 7:2, "&status=Final&venue_id=2"),
     "https://nomadpool.com/games?status=Final&venue_id=2"
   )
 
 df <- 
-  url_list %>% 
+  happy_url_list %>% 
   url_list_to_final_df
 
+
 # Slate
-url_list <- 
+slate_url_list <- 
   c(
     str_c("https://nomadpool.com/games?page=", 7:2, "&status=Final&venue_id=54"),
     "https://nomadpool.com/games?status=Final&venue_id=54"
   )
 
 df <- 
-  url_list %>% 
+  slate_url_list %>% 
   url_list_to_final_df
 
 
