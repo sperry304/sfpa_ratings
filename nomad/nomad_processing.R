@@ -121,22 +121,6 @@ df <-
   url_list %>% 
   url_list_to_final_df
 
-
-
-
-
-df_tmp <-
-  map_dfr(url_list, url_to_game_results_df) %>% 
-  group_by(date_short) %>% 
-  arrange(date) %>% 
-  mutate(game_num = row_number()) %>% 
-  ungroup()
-
-df <- 
-  df_tmp %>% 
-  process_game_results_df
-
-
 # Slate
 url_list <- 
   c(
@@ -144,15 +128,8 @@ url_list <-
     "https://nomadpool.com/games?status=Final&venue_id=54"
   )
 
-df_tmp <-
-  map_dfr(url_list, url_to_game_results_df) %>% 
-  group_by(date_short) %>% 
-  arrange(date) %>% 
-  mutate(game_num = row_number()) %>% 
-  ungroup()
-
 df <- 
-  df_tmp %>% 
-  process_game_results_df
+  url_list %>% 
+  url_list_to_final_df
 
-df
+
