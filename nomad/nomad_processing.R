@@ -3,8 +3,10 @@ library(rvest)
 library(lubridate)
 library(readODS)
 
+setwd("~/Documents/sfpa_ratings")
+
 name_list <- 
-  read_ods("Documents/sfpa_ratings/nomad/nomad_names.ods") %>% 
+  read_ods("nomad/nomad_names.ods") %>% 
   #filter(is.na(need_to_check)) %>% 
   select(nickname, name)
 
@@ -71,6 +73,28 @@ process_game_results_df <- function(game_results_df) {
     df <- bind_rows(df, scotch_games)
   }
   
+  if (any(game_results_df$game_type == "#mini8 (s)")) {
+    set.seed(1)
+    mini_scotch_games <- 
+      game_results_df %>% 
+      filter(game_type == "#mini8 (s)") %>% 
+      separate(away, into = c("away1", "away2"), sep = "&") %>% 
+      mutate_at(vars(contains("away")), str_trim) %>% 
+      gather(key = type, value = away, away1:away2) %>% 
+      select(-type) %>% 
+      separate(home, into = c("home1", "home2"), sep = "&") %>% 
+      mutate_at(vars(contains("home")), str_trim) %>% 
+      gather(key = type, value = home, home1:home2) %>% 
+      arrange(date) %>% 
+      select(-type) %>% 
+      mutate(
+        game_winner = sample(c("home", "away"), nrow(.), replace = TRUE),
+        game_type = "mini_scotch"
+      )
+    
+    df <- bind_rows(df, mini_scotch_games)
+  }
+  
   if (any(game_results_df$game_type == "#8ball")) {
     set.seed(1)
     regular_games <- 
@@ -107,20 +131,20 @@ url_list_to_final_df <- function(url_list) {
     arrange(date) %>% 
     mutate(game_num = row_number()) %>% 
     ungroup() %>% 
-    process_game_results_df
+    process_game_results_df()
 }
 
 
 # Happy
 happy_url_list <- 
   c(
-    str_c("https://nomadpool.com/games?page=", 7:2, "&status=Final&venue_id=2"),
+    str_c("https://nomadpool.com/games?page=", 12:2, "&status=Final&venue_id=2"),
     "https://nomadpool.com/games?status=Final&venue_id=2"
   )
 
 happy_df <- 
   happy_url_list %>% 
-  url_list_to_final_df
+  url_list_to_final_df()
 
 
 # Slate
@@ -132,6 +156,9 @@ slate_url_list <-
 
 slate_df <- 
   slate_url_list %>% 
-  url_list_to_final_df
+  url_list_to_final_df()
 
 
+
+game_results_df <- 
+  url_to_game_results_df("https://nomadpool.com/games?page=7&status=Final&venue_id=2")

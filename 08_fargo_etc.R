@@ -61,7 +61,7 @@ player_performance <- function(player_of_interest) {
     )
 } 
 
-player_results_history("Jesse La Fear") %>% 
+player_results_history("Skip Perry") %>% 
   knitr::kable()
 
 player_performance("Chris Peterson")
@@ -72,4 +72,5 @@ player_performance("Bobby Yulo")
 player_performance("Thayer McDougle")
 player_performance("Jesse La Fear")
 player_performance("Mathieu Guglielmi")
+player_performance("Hector Ortega")
 
