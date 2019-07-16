@@ -211,7 +211,7 @@ bind_rows(prev_matches, new_matches) %>%
 ```{r}
 # Add to previous results
 all_matches_2019springplayoffs <- bind_rows(prev_matches, new_matches)
-  
+
 saveRDS(all_matches_2019springplayoffs, "match_data/all_matches_2019springplayoffs.Rdata")
 ```
 

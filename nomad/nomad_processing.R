@@ -118,7 +118,7 @@ happy_url_list <-
     "https://nomadpool.com/games?status=Final&venue_id=2"
   )
 
-df <- 
+happy_df <- 
   happy_url_list %>% 
   url_list_to_final_df
 
@@ -130,7 +130,7 @@ slate_url_list <-
     "https://nomadpool.com/games?status=Final&venue_id=54"
   )
 
-df <- 
+slate_df <- 
   slate_url_list %>% 
   url_list_to_final_df
 

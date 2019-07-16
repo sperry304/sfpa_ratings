@@ -34,40 +34,37 @@ results_no_forfeits <-
   results_no_forfeits_path %>% 
   read_rds()
 
-results_19_no_forfeits <- 
-  results_no_forfeits %>% 
-  filter(season == "Spring 2019")
-
-count_games <- function(player_of_interest, results_df) {
-  results_df %>% 
-    filter(away == player_of_interest | home == player_of_interest) %>% 
-    count() %>% 
-    transmute(player = player_of_interest, games_in_system = n) %>% 
-    pull()
-}
-
-games_in_system <- 
+player_list <- 
   bind_rows(
     results_no_forfeits %>% select(player = home),
     results_no_forfeits %>% select(player = away)
   ) %>% 
   distinct() %>% 
   arrange(player) %>% 
-  mutate(games_in_system = 0)
+  pull()
 
-for (i in 1:nrow(games_in_system)) {
-  games_in_system$games_in_system[i] <- 
-    count_games(games_in_system$player[i], results_no_forfeits)
+count_games_by_player <- function(player_of_interest) {
+  results_no_forfeits %>% 
+    filter(away == player_of_interest | home == player_of_interest) %>% 
+    count() %>% 
+    transmute(player = player_of_interest, games_in_system = n)
 }
+
+games_in_system <- 
+  map_dfr(player_list, count_games_by_player)
 
 team_names_by_player <- 
   bind_rows(
-    results_19_no_forfeits %>% select(player = home, team = home_team),
-    results_19_no_forfeits %>% select(player = away, team = away_team)
+    results_no_forfeits %>% 
+      filter(season == "Spring 2019") %>% 
+      select(player = home, team = home_team),
+    results_no_forfeits %>% 
+      filter(season == "Spring 2019") %>% 
+      select(player = away, team = away_team)
   ) %>% 
+  filter(!is.na(team)) %>% 
   distinct() %>% 
-  arrange(player, team) %>% 
-  filter(!is.na(team))
+  arrange(player, team)
 
 ratings_for_printing <- 
   fargo_df %>% 

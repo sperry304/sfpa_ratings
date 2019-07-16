@@ -10,41 +10,35 @@ fall18 <- read_rds("match_data/all_matches_2018fall.Rdata")
 fall18playoffs <- read_rds("match_data/all_matches_2018fallplayoffs.Rdata")
 spring19 <- read_rds("match_data/all_matches_2019spring.Rdata")
 spring19playoffs <- read_rds("match_data/all_matches_2019springplayoffs.Rdata")
-spring19tournaments <- 
-  read_csv("tournaments/spring2019_tournaments.csv") %>% 
-  mutate(
-    home_team = NA_character_, away_team = NA_character_, 
-    forfeit = NA_character_, game_type = NA_character_
-  )
+
+# With this, need functions from 01_data_scrape.Rmd
+#spring19 <- 
+#  spring19 %>% 
+#  bind_rows(week_urls_to_all_matches("https://www.sfpapool.org/stats/week/63/"))
 
 # Get combined file
 results <-
   bind_rows(
-    spring18 %>% 
-      add_column(league = "SFPA", .before = "season") %>% 
-      add_column(match_type = "regular", .before = "season") %>% 
-      add_column(game_type = NA_character_),
-    spring18playoffs %>% 
-      add_column(league = "SFPA", .before = "season") %>% 
-      add_column(match_type = "playoffs", .before = "season") %>% 
-      add_column(game_type = NA_character_),
-    fall18 %>% 
-      add_column(league = "SFPA", .before = "season") %>% 
-      add_column(match_type = "regular", .before = "season") %>% 
-      add_column(game_type = NA_character_),
-    fall18playoffs %>% 
-      add_column(league = "SFPA", .before = "season") %>% 
-      add_column(match_type = "playoffs", .before = "season") %>% 
-      add_column(game_type = NA_character_),
-    spring19 %>% 
-      add_column(league = "SFPA", .before = "season") %>% 
-      add_column(match_type = "regular", .before = "season") %>% 
-      add_column(game_type = NA_character_),
-    spring19playoffs %>% 
-      add_column(league = "SFPA", .before = "season") %>% 
-      add_column(match_type = "playoffs", .before = "season") %>% 
-      add_column(game_type = NA_character_),
-    spring19tournaments
+    spring18,
+    spring18playoffs,
+    fall18,
+    fall18playoffs,
+    spring19,
+    spring19playoffs
+  )
+
+results_17_18 <-
+  bind_rows(
+    spring18,
+    spring18playoffs,
+    fall18,
+    fall18playoffs
+  )
+
+results_19 <-
+  bind_rows(
+    spring19,
+    spring19playoffs
   )
 
 # Pull out forfeits and omitted playoff games from data frames, clean names
@@ -77,8 +71,6 @@ remove_forfeits <- function(results_df) {
       away = if_else(away == "Mike Romano", "Michael Romano", away),
       home = if_else(home == "James Horsefall", "James Horsfall", home),
       away = if_else(away == "James Horsefall", "James Horsfall", away),
-      home = str_trim(home),
-      away = str_trim(away),
       home_team = if_else(home_team == "The Black Willows", "Black Willows", home_team),
       away_team = if_else(away_team == "The Black Willows", "Black Willows", away_team),
       home_team = if_else(home_team == "Lucky Horseshoe", "Lucky Horseshoe Unnamed", home_team),
@@ -91,6 +83,10 @@ remove_forfeits <- function(results_df) {
       away_team = if_else(away_team == "Lucky Break", "Lone Star Rebels", away_team),
       home_team = if_else(home_team == "Mixing in Action", "Mix VANGIE", home_team),
       away_team = if_else(away_team == "Mixing in Action", "Mix VANGIE", away_team),
+      p1_start_rating = NA_real_, 
+      p1_end_rating = NA_real_,
+      p2_start_rating = NA_real_, 
+      p2_end_rating = NA_real_,
       t1_start_rating = NA_real_, 
       t1_end_rating = NA_real_,
       t2_start_rating = NA_real_, 
@@ -98,10 +94,34 @@ remove_forfeits <- function(results_df) {
     )
 }
 
-results_no_forfeits <- 
-  results %>% 
-  remove_forfeits
-  
+results_17_18_no_forfeits <- remove_forfeits(results_17_18)
+results_19_no_forfeits <- remove_forfeits(results_19)
+results_no_forfeits <- remove_forfeits(results)
+train <- results_17_18_no_forfeits
+test <- results_19_no_forfeits
+
+# Get optimal home advantage parameter
+# Remove week 1 since teams in the same bar play the same table
+actual_home_win_pct <- 
+  results_no_forfeits %>% 
+  filter(week_number > 1) %>% 
+  group_by(game_winner) %>% 
+  count() %>% 
+  group_by() %>% 
+  mutate(pct = n / sum(n)) %>% 
+  filter(game_winner == "home") %>% 
+  pull(pct)
+
+home_advantage <- log((1 - actual_home_win_pct) / actual_home_win_pct) / log(10) * -400
+home_advantage
+
+results_no_forfeits %>% 
+  filter(week_number > 1, week_number < 50) %>% 
+  group_by(season, game_winner) %>% 
+  count() %>% 
+  group_by(season) %>% 
+  mutate(pct = round(n / sum(n), 2))
+
 latest_match_date <- 
   results_no_forfeits %>% 
   pull(match_date) %>% 
