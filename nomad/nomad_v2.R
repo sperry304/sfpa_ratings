@@ -150,7 +150,6 @@ url_list_to_nickname_df <- function(url_list) {
     process_game_results_df() %>% 
     group_by(date_short) %>% 
     arrange(date) %>% 
-    ungroup() %>% 
     mutate(
       game_num = row_number(),
       season = case_when(
@@ -158,8 +157,11 @@ url_list_to_nickname_df <- function(url_list) {
         TRUE ~ str_c("Fall ", year(date))
       )
     ) %>% 
+    ungroup() %>% 
     filter(!(home %in% c("1", "2", "3", "4", "A", "B", "C", "D"))) %>% 
-    filter(!(away %in% c("1", "2", "3", "4", "A", "B", "C", "D")))
+    filter(!(home2 %in% c("1", "2", "3", "4", "A", "B", "C", "D"))) %>% 
+    filter(!(away %in% c("1", "2", "3", "4", "A", "B", "C", "D"))) %>% 
+    filter(!(away2 %in% c("1", "2", "3", "4", "A", "B", "C", "D")))
 }
 
 # Happy
@@ -222,7 +224,7 @@ slate_players <-
   ungroup() %>% 
   left_join(name_list, by = c("player" = "nickname"))
 
-all_players <- 
+all_players_total <- 
   slate_players %>% 
   transmute(player, name, slate_games = num_games) %>% 
   full_join(happy_players %>% transmute(player, name, happy_games = num_games), by = c("player", "name")) %>% 
@@ -231,23 +233,6 @@ all_players <-
     total_games = happy_games + slate_games
   ) %>% 
   arrange(desc(total_games))
-
-
-
-happy_df %>% 
-  filter(home == "acracchiolo0921" | home2 == "acracchiolo0921" | 
-           away == "acracchiolo0921" | away2 == "acracchiolo0921") %>% 
-  knitr::kable()
-
-
-happy_df_named <- 
-  happy_df %>% 
-  left_join(name_list %>% transmute(home = nickname, name)) %>% 
-  #mutate(home = name) %>% 
-  #select(-name) %>% 
-  left_join(name_list %>% transmute(home2 = nickname, name2 = name))
-  #mutate(home2 = name) %>% 
-  #select(-name)
 
 # Slate
 #slate_url_list <- 
@@ -260,27 +245,73 @@ happy_df_named <-
 #  slate_url_list %>% 
 #  url_list_to_nickname_df()
 
-bind_rows(
-  happy_df %>% transmute(player = home),
-  happy_df %>% transmute(player = home2),
-  happy_df %>% transmute(player = away),
-  happy_df %>% transmute(player = away2)
-) %>% 
-  distinct() %>% 
-  arrange(player) %>% 
-  knitr::kable()
+nomad_games <- 
+  bind_rows(
+    slate_df %>% mutate(league = "slate"),
+    happy_df %>% mutate(league = "happy")
+  ) %>% 
+  inner_join(name_list %>% transmute(home = nickname, home_actual = name), by = "home") %>% 
+  inner_join(name_list %>% transmute(home2 = nickname, home2_actual = name), by = "home2") %>% 
+  inner_join(name_list %>% transmute(away = nickname, away_actual = name), by = "away") %>% 
+  inner_join(name_list %>% transmute(away2 = nickname, away2_actual = name), by = "away2") %>% 
+  transmute(
+    league,
+    match_type = "tournament",
+    season,
+    match_date = date, 
+    week_number = 75,
+    home_team = NA_character_,
+    away_team = NA_character_,
+    game_num,
+    home = home_actual,
+    home2 = home2_actual,
+    away = away_actual,
+    away2 = away2_actual,
+    game_winner,
+    forfeit = NA_character_,
+    game_type
+  ) %>% 
+  arrange(match_date, game_num)
 
+nomad_players <- 
+  bind_rows(
+    nomad_games %>% transmute(player = home),
+    nomad_games %>% transmute(player = home2),
+    nomad_games %>% transmute(player = away),
+    nomad_games %>% transmute(player = away2)
+  ) %>% 
+  group_by(player) %>% 
+  count(name = "num_games") %>% 
+  arrange(-num_games) %>% 
+  ungroup()
 
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
 
+#latest_results_date <- "2019-03-12"
 
+results_no_forfeits_path <-
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata")
 
-happy_ratings <- 
-  happy_players %>% 
-  mutate(rating = 500)
+results_no_forfeits <- 
+  results_no_forfeits_path %>% 
+  read_rds()
 
-results_df <- happy_df
-ratings_df <- happy_ratings
-player_of_interest <- "robert"
+all_games <- 
+  results_no_forfeits %>% 
+  add_column(home2 = NA_character_, .after = "home") %>% 
+  add_column(away2 = NA_character_, .after = "away") %>% 
+  mutate(
+    home2 = if_else(is.na(home2), home, home2),
+    away2 = if_else(is.na(away2), away, away2),
+    match_date = parse_date_time(match_date, orders = "%Y-%m-%d"),
+    game_type = "8ball"
+  ) %>% 
+  bind_rows(nomad_games)
+
+results_df <- all_games
 
 games_involving_player <- function(player_of_interest, results_df) {
   results_df %>% 
@@ -289,7 +320,7 @@ games_involving_player <- function(player_of_interest, results_df) {
         away == player_of_interest | away2 == player_of_interest
     ) %>% 
     transmute(
-      date,
+      match_date,
       season,
       game_type,
       player = player_of_interest,
@@ -334,14 +365,11 @@ append_ratings <- function(games_involving_player_df, ratings_df) {
       min_opponent_rating = pmin(opponent1_rating, opponent2_rating)
     )
 }
-  
+
 get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
   game_count <- 
-    ratings_df %>% 
-    filter(player == player_of_interest) %>% 
-    select(num_games) %>% 
-    pull()
-  
+    ratings_df$num_games[ratings_df$player == player_of_interest]
+
   if (game_count == 0) {
     return(
       ratings_df %>% 
@@ -353,54 +381,71 @@ get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
   
   b <- (a - 1) / 500
   
-  games_involving_player(player_of_interest, happy_df) %>% 
+  games_involving_player(player_of_interest, results_df) %>% 
     append_ratings(ratings_df) %>% 
     mutate(
-      A = 1 / ((2 * max_team_rating + min_team_rating) / 3 + (2 * max_opponent_rating + min_opponent_rating) / 3),
+      A = 1 / ((max_team_rating + min_team_rating) / 2 + (max_opponent_rating + min_opponent_rating) / 2),
       W = if_else(game_result == "W", 1, 0),
       decay = case_when(
-        season == "Spring 2018" ~ 0.6,
-        season == "Fall 2018" ~ 0.8,
+        season == "Spring 2016" ~ 0.4,
+        season == "Fall 2016" ~ 0.5,
+        season == "Spring 2017" ~ 0.6,
+        season == "Fall 2017" ~ 0.7,
+        season == "Spring 2018" ~ 0.8,
+        season == "Fall 2018" ~ 0.9,
         season == "Spring 2019" ~ 1.0,
         season == "Fall 2019" ~ 1.0
-      )
+      ),
+      scotch_wt = if_else(str_detect(game_type, "scotch"), 0.5, 1)
     ) %>% 
-    summarize(rating = ((a - 1) + sum(W * decay)) / (b + sum(A * decay))) %>% 
+    summarize(rating = ((a - 1) + sum(W * decay * scotch_wt)) / (b + sum(A * decay * scotch_wt))) %>% 
     pull(rating)
 }
 
 results_to_ratings <- function(results_df, a, mae_stop = 100) {
-  fargo_ratings <- 
+  player_list <- 
     bind_rows(
       results_df %>% transmute(player = home),
       results_df %>% transmute(player = home2),
       results_df %>% transmute(player = away),
       results_df %>% transmute(player = away2)
     ) %>% 
-    group_by(player) %>% 
-    count(name = "num_games") %>% 
-    arrange(-num_games) %>% 
-    ungroup() %>% 
+    distinct() %>% 
+    arrange(player) %>% 
+    pull()
+  
+  print(str_c("Number of players: ", len(player_list)))
+  print(str_c("Number of games: ", results_df %>% count() %>% pull(n)))
+  
+  count_games_by_player <- function(player_of_interest) {
+    games_involving_player(player_of_interest, results_df) %>% 
+      count() %>% 
+      transmute(player = player_of_interest, num_games = n)
+  }
+  
+  ratings_df <- 
+    map_dfr(player_list, count_games_by_player) %>% 
+    arrange(desc(num_games)) %>% 
     mutate(rating = 500)
   
   abs_diff <- 100000
   while (abs_diff > mae_stop) {
-    old_ratings <- fargo_ratings %>% pull(rating)
-    for (i in 1:nrow(fargo_ratings)) {
-      player_name <- fargo_ratings$player[i]
-      fargo_ratings$rating[i] <- 
-        get_updated_rating(player_name, results_df = results_df, ratings_df = fargo_ratings, a = a)
+    old_ratings <- ratings_df %>% pull(rating)
+    for (i in 1:nrow(ratings_df)) {
+      player_name <- ratings_df$player[i]
+      ratings_df$rating[i] <- 
+        get_updated_rating(player_name, results_df = results_df, ratings_df = ratings_df, a = a)
     }
-    new_ratings <- fargo_ratings %>% pull(rating)
+    new_ratings <- ratings_df %>% pull(rating)
     print(str_c("Mean absolute difference: ", sum(abs(old_ratings - new_ratings))))
     abs_diff <- sum(abs(old_ratings - new_ratings))
   }
   
-  fargo_ratings
+  ratings_df
 }
 
 test_ratings <- 
-  results_to_ratings(happy_df, a = 3, mae_stop = 100) %>% 
+  results_to_ratings(all_games %>% filter(!str_detect(game_type, "scotch")), a = 3, mae_stop = 100) %>% 
   mutate(
     raw_rating = rating,
     rating = log(rating) * 144,
@@ -415,4 +460,53 @@ test_ratings %>%
   filter(player == "Belle")
 
 
-games_involving_player("2", happy_df)
+games_involving_player("Evan Burgess", all_games) %>% 
+  knitr::kable()
+
+set.seed(1)
+all_games %>% 
+  filter(str_detect(game_type, "scotch")) %>% 
+  select(home:game_winner) %>% 
+  mutate(shuffle = sample(c(0, 1), size = nrow(.), replace = TRUE)) %>% 
+  mutate(
+    player = if_else(shuffle == 0, home, away),
+    teammate = if_else(shuffle == 0, home2, away2),
+    opponent1 = if_else(shuffle == 0, away, home),
+    opponent2 = if_else(shuffle == 0, away2, home2),
+    game_winner = if_else(shuffle == 0, "home", "away")
+  ) %>% 
+  inner_join(test_ratings %>% transmute(player, player_rating = rating), by = "player") %>% 
+  inner_join(test_ratings %>% transmute(teammate = player, teammate_rating = rating), by = "teammate") %>% 
+  inner_join(test_ratings %>% transmute(opponent1 = player, opponent1_rating = rating), by = "opponent1") %>% 
+  inner_join(test_ratings %>% transmute(opponent2 = player, opponent2_rating = rating), by = "opponent2") %>% 
+  select(-c(home:away2, shuffle)) %>% 
+  mutate(
+    Hmax = pmax(player_rating, teammate_rating),
+    Hmin = pmin(player_rating, teammate_rating),
+    Amax = pmax(opponent1_rating, opponent2_rating),
+    Amin = pmin(opponent1_rating, opponent2_rating)
+  ) %>% 
+  mutate(
+    home_win = if_else(game_winner == "home", 1, 0),
+    win_prob = 1 / (1 + exp(((Amax + Amin) / 2 - (Hmax + Hmin) / 2) / 144)),
+    win_prob_round = round(win_prob, 1)
+  ) %>% 
+  group_by(win_prob_round) %>% 
+  summarize(
+    mean_home_win = mean(home_win),
+    total_games = n()
+  ) %>% 
+  ggplot(aes(x = win_prob_round, y = mean_home_win)) +
+  geom_abline(slope = 1, intercept = 0, color = "white", size = 2) +
+  geom_point() +
+  coord_fixed() +
+  scale_x_continuous(
+    limits = c(0, 1),
+    expand = c(0, 0)
+  ) +
+  scale_y_continuous(
+    limits = c(0, 1),
+    expand = c(0, 0)
+  )
+  
+  
