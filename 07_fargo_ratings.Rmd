@@ -191,7 +191,7 @@ win_prob_summary <-
   )
 
 win_prob_summary %>% 
-  filter(nsize > 50) %>% 
+  filter(nsize > 25) %>% 
   ggplot(aes(x = favorite_win_prob_round, y = win_pct)) +
   geom_line() +
   geom_abline(slope = 1, intercept = 0, color = "white", size = 2) +
