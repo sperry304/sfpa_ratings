@@ -195,6 +195,10 @@ write_rds(slate_df, "nomad/slate_games_2016.Rdata")
 happy_df <-
   read_rds("nomad/happy_games_2018.Rdata")
 
+#happy_singles <-
+#  happy_df %>% 
+#  filter(home == home2)
+
 slate_df <-
   read_rds("nomad/slate_games_2016.Rdata")
 
@@ -229,6 +233,8 @@ all_players_total <-
   transmute(player, name, slate_games = num_games) %>% 
   full_join(happy_players %>% transmute(player, name, happy_games = num_games), by = c("player", "name")) %>% 
   mutate_if(is.numeric, ~ replace_na(., 0)) %>% 
+  group_by(name) %>% 
+  summarize(slate_games = sum(slate_games), happy_games = sum(happy_games)) %>% 
   mutate(
     total_games = happy_games + slate_games
   ) %>% 

@@ -16,6 +16,7 @@ spring19tournaments <-
     home_team = NA_character_, away_team = NA_character_, 
     forfeit = NA_character_, game_type = NA_character_
   )
+fall19 <- read_rds("match_data/all_matches_2019fall.Rdata")
 
 # Get combined file
 results <-
@@ -44,7 +45,11 @@ results <-
       add_column(league = "SFPA", .before = "season") %>% 
       add_column(match_type = "playoffs", .before = "season") %>% 
       add_column(game_type = NA_character_),
-    spring19tournaments
+    spring19tournaments,
+    fall19 %>% 
+      add_column(league = "SFPA", .before = "season") %>% 
+      add_column(match_type = "regular", .before = "season") %>% 
+      add_column(game_type = NA_character_),
   )
 
 # Pull out forfeits and omitted playoff games from data frames, clean names
@@ -77,6 +82,8 @@ remove_forfeits <- function(results_df) {
       away = if_else(away == "Mike Romano", "Michael Romano", away),
       home = if_else(home == "James Horsefall", "James Horsfall", home),
       away = if_else(away == "James Horsefall", "James Horsfall", away),
+      home = if_else(home == "Ninad Desei", "Ninad Desai", home),
+      away = if_else(away == "Ninad Desei", "Ninad Desai", away),
       home = str_trim(home),
       away = str_trim(away),
       home_team = if_else(home_team == "The Black Willows", "Black Willows", home_team),
@@ -91,6 +98,8 @@ remove_forfeits <- function(results_df) {
       away_team = if_else(away_team == "Lucky Break", "Lone Star Rebels", away_team),
       home_team = if_else(home_team == "Mixing in Action", "Mix VANGIE", home_team),
       away_team = if_else(away_team == "Mixing in Action", "Mix VANGIE", away_team),
+      home_team = if_else(home_team == "Harry Harringtons v 2.0", "Harry Harringtons", home_team),
+      away_team = if_else(away_team == "Harry Harringtons v 2.0", "Harry Harringtons", away_team),
       t1_start_rating = NA_real_, 
       t1_end_rating = NA_real_,
       t2_start_rating = NA_real_, 
@@ -100,7 +109,7 @@ remove_forfeits <- function(results_df) {
 
 results_no_forfeits <- 
   results %>% 
-  remove_forfeits
+  remove_forfeits()
   
 latest_match_date <- 
   results_no_forfeits %>% 

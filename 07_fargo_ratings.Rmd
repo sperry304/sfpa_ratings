@@ -1,14 +1,19 @@
 ---
 title: "SFPA Player Ratings, v.1"
 author: "Skip Perry"
-date: "June 2019"
+date: "August 2019"
 output: html_document
 ---
+
+```{r}
+
+```
 
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
+library(rvest)
 
 latest_fargo_date <- 
   list.files("other_data", pattern = "fargo") %>% 
@@ -54,24 +59,26 @@ games_in_system <-
   map_dfr(player_list, count_games_by_player)
 
 team_names_by_player <- 
-  bind_rows(
-    results_no_forfeits %>% 
-      filter(season == "Spring 2019") %>% 
-      select(player = home, team = home_team),
-    results_no_forfeits %>% 
-      filter(season == "Spring 2019") %>% 
-      select(player = away, team = away_team)
+  read_html("https://www.sfpapool.org/stats/players/6") %>% 
+  html_nodes("tr") %>% 
+  html_nodes("a") %>% 
+  html_text() %>% 
+  enframe(name = NULL) %>% 
+  mutate(
+    row_type = rep(c("player", "team"), nrow(.) / 2),
+    row_number = rep(1:(nrow(.) / 2), each = 2)
   ) %>% 
-  filter(!is.na(team)) %>% 
-  distinct() %>% 
-  arrange(player, team)
+  spread(row_type, value) %>% 
+  select(player, team) %>% 
+  mutate(team = if_else(team == "Harry Harringtons v 2.0", "Harry Harringtons", team)) %>% 
+  arrange(player)
 
 ratings_for_printing <- 
   fargo_df %>% 
   arrange(desc(rating)) %>% 
   left_join(team_names_by_player, by = "player") %>% 
   left_join(games_in_system, by = "player") %>% 
-  filter(games_in_system > 9) %>% 
+  #filter(games_in_system > 9) %>% 
   mutate(rank = row_number()) %>% 
   transmute(
     rank, 
