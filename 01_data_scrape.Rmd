@@ -191,7 +191,7 @@ week_urls_to_all_matches <- function(week_urls) {
 
 ```{r}
 # Summarize previous file
-prev_matches <- readRDS("match_data/all_matches_2019springplayoffs.Rdata")
+prev_matches <- readRDS("match_data/all_matches_2019fall.Rdata")
 
 prev_matches %>% 
   group_by(match_date) %>% 

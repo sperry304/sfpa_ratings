@@ -11,28 +11,21 @@ library(tidyverse)
 library(lubridate)
 library(rvest)
 
-latest_fargo_date <- 
-  list.files("other_data", pattern = "fargo") %>% 
-  str_extract("\\d+-\\d+-\\d+") %>% 
-  max()
-
-fargo_path <-
-  str_c("other_data/fargo_", latest_fargo_date, ".Rdata")
-
-fargo_df <- 
-  fargo_path %>% 
+all_fargo_ratings <- 
+  "fargo_ratings/all_fargo_ratings.Rdata" %>% 
   read_rds()
+
+fargo_df <-
+  all_fargo_ratings %>% 
+  filter(date == max(date))
 
 latest_results_date <- 
   list.files("match_data", pattern = "results_no_forfeits") %>% 
   str_extract("\\d+-\\d+-\\d+") %>% 
   max()
 
-results_no_forfeits_path <-
-  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata")
-
 results_no_forfeits <- 
-  results_no_forfeits_path %>% 
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata") %>% 
   read_rds()
 
 player_list <- 
@@ -100,12 +93,14 @@ ratings_for_printing <-
   )
 ```
 
-### Ratings as of `r latest_fargo_date`:
+### Ratings as of `r latest_results_date`:
 
 ```{r, echo=FALSE}
 ratings_for_printing %>% 
   knitr::kable()
 ```
+
+<br> 
 
 ```{r, echo=FALSE}
 fargo_for_team_plots <- 
@@ -157,13 +152,10 @@ fargo_for_team_plots %>%
 ```
 
 ```{r, echo=FALSE}
-test_date <- "2019-03-12"
-  
-test_fargo_path <-
-  str_c("other_data/fargo_", test_date, ".Rdata")
+test_date <- "2019-04-23"
 
 test_fargo_df <- 
-  test_fargo_path %>% 
+  str_c("fargo_ratings/fargo_", test_date, ".Rdata") %>% 
   read_rds()
 
 test_data <- 
@@ -178,7 +170,7 @@ test_data_with_win_probs <-
   transmute(
     home_win = if_else(game_winner == "home", 1, 0),
     home_win_prob = 1 / (1 + exp((away_rating - home_rating) / 144)),
-    prob = round(home_win_prob, 1),
+    #prob = round(home_win_prob, 1),
     favorite_win = case_when(
       home_rating > away_rating & home_win == 1 ~ 1,
       away_rating > home_rating & home_win == 0 ~ 1,
@@ -229,14 +221,51 @@ win_prob_summary %>%
     x = "Predicted Win Probability of Favored Player",
     y = "Actual Win Percentage of Favored Player",
     title = "Predictions vs. Actual Results",
-    caption = "Ratings as of 3/12, results post-3/12, shaded area 95% CI"
+    caption = "Ratings as of 4/23, results post-4/23, shaded area 95% CI"
   ) +
   theme(
     plot.title = element_text(hjust = 0.5)
   )
 ```
 
-Data sources: Spring 2018 SFPA season, Fall 2018 SFPA season, Spring 2019 SFPA season, Spring 2019 SFPA 8-ball tournament, Spring 2019 Slate 8-ball tournament 
+<br> 
+
+#### This week's biggest movers:
+
+```{r, echo=FALSE}
+two_most_recent <- 
+  list.files("fargo_ratings", pattern = "fargo") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  enframe(name = NULL) %>% 
+  filter(!is.na(value)) %>% 
+  arrange(desc(value)) %>% 
+  slice(1:2) %>% 
+  arrange(value) %>% 
+  transmute(date = ymd(value))
+
+all_fargo_ratings %>% 
+  inner_join(two_most_recent, by = "date") %>% 
+  mutate(time_period = if_else(date == max(date), "curr", "prev")) %>% 
+  select(-c(raw_rating, date)) %>% 
+  spread(time_period, rating) %>% 
+  transmute(
+    player, 
+    previous = round(prev),
+    current = round(curr),
+    change = round(curr - prev),
+    abs_change = abs(change)
+  ) %>% 
+  arrange(desc(abs_change)) %>% 
+  left_join(team_names_by_player, by = "player") %>% 
+  left_join(games_in_system, by = "player") %>% 
+  transmute(player, team, previous, current, change, games_in_system = total_games) %>% 
+  slice(1:20) %>% 
+  knitr::kable()
+```
+
+<br> 
+
+Data sources: Spring 2018 SFPA season, Fall 2018 SFPA season, Spring 2019 SFPA season, Spring 2019 SFPA 8-ball tournament, Spring 2019 Slate 8-ball tournament, 2016-2019 Slate Saturday night tournaments
 
 ```{r}
 
