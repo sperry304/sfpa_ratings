@@ -195,9 +195,9 @@ write_rds(slate_df, "nomad/slate_games_2016.Rdata")
 happy_df <-
   read_rds("nomad/happy_games_2018.Rdata")
 
-#happy_singles <-
-#  happy_df %>% 
-#  filter(home == home2)
+happy_singles <-
+  happy_df %>% 
+  filter(home == home2)
 
 slate_df <-
   read_rds("nomad/slate_games_2016.Rdata")

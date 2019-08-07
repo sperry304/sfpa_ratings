@@ -49,9 +49,13 @@ get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
       A = 1 / (player_rating + opponent_rating),
       W = if_else(game_result == "W", 1, 0),
       decay = case_when(
-        season == "Spring 2018" ~ 0.7,
-        season == "Fall 2018" ~ 0.8,
-        season == "Spring 2019" ~ 0.9,
+        season == "Spring 2016" ~ 0.7,
+        season == "Fall 2016" ~ 0.75,
+        season == "Spring 2017" ~ 0.8,
+        season == "Fall 2017" ~ 0.85,
+        season == "Spring 2018" ~ 0.9,
+        season == "Fall 2018" ~ 0.95,
+        season == "Spring 2019" ~ 1.0,
         season == "Fall 2019" ~ 1.0
       )
     ) %>% 
@@ -97,48 +101,49 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Mean absolute difference: 39587.7145415439"
-    ## [1] "Mean absolute difference: 17895.5431988675"
-    ## [1] "Mean absolute difference: 10904.2325619171"
-    ## [1] "Mean absolute difference: 7486.10772638972"
-    ## [1] "Mean absolute difference: 5363.44669236056"
-    ## [1] "Mean absolute difference: 3915.251162658"
-    ## [1] "Mean absolute difference: 2885.90987410991"
-    ## [1] "Mean absolute difference: 2140.86094887684"
-    ## [1] "Mean absolute difference: 1593.84669455046"
-    ## [1] "Mean absolute difference: 1189.69600101319"
-    ## [1] "Mean absolute difference: 890.204133627076"
-    ## [1] "Mean absolute difference: 667.561841479325"
-    ## [1] "Mean absolute difference: 501.472123414206"
-    ## [1] "Mean absolute difference: 377.196125859461"
-    ## [1] "Mean absolute difference: 284.101136234972"
-    ## [1] "Mean absolute difference: 214.531185272012"
-    ## [1] "Mean absolute difference: 162.541745881818"
-    ## [1] "Mean absolute difference: 123.566045181847"
-    ## [1] "Mean absolute difference: 94.5096427957949"
-    ## [1] "Mean absolute difference: 73.1049358021878"
-    ## [1] "Mean absolute difference: 57.4520655472372"
-    ## [1] "Mean absolute difference: 46.0026631091736"
+    ## [1] "Mean absolute difference: 45197.4000394801"
+    ## [1] "Mean absolute difference: 19426.1092389406"
+    ## [1] "Mean absolute difference: 11893.0247651626"
+    ## [1] "Mean absolute difference: 8335.09512908505"
+    ## [1] "Mean absolute difference: 6089.48417273591"
+    ## [1] "Mean absolute difference: 4532.46358851698"
+    ## [1] "Mean absolute difference: 3402.09954946256"
+    ## [1] "Mean absolute difference: 2566.77684961621"
+    ## [1] "Mean absolute difference: 1944.03545145189"
+    ## [1] "Mean absolute difference: 1477.17879830821"
+    ## [1] "Mean absolute difference: 1124.87584476408"
+    ## [1] "Mean absolute difference: 857.673750913234"
+    ## [1] "Mean absolute difference: 654.852700623405"
+    ## [1] "Mean absolute difference: 500.419429588733"
+    ## [1] "Mean absolute difference: 382.618844804668"
+    ## [1] "Mean absolute difference: 292.647498896952"
+    ## [1] "Mean absolute difference: 223.903363817711"
+    ## [1] "Mean absolute difference: 171.389709472026"
+    ## [1] "Mean absolute difference: 131.268946253002"
+    ## [1] "Mean absolute difference: 100.585385051902"
+    ## [1] "Mean absolute difference: 77.1201185275588"
+    ## [1] "Mean absolute difference: 59.200639360827"
+    ## [1] "Mean absolute difference: 45.5414378493624"
 
 ``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 378 x 3
-    ##    player          rating raw_rating
-    ##    <chr>            <dbl>      <dbl>
-    ##  1 Hector Ortega     757.      2444.
-    ##  2 Mike Maxwell      725.      1951.
-    ##  3 Evan Burgess      698.      1619.
-    ##  4 Skip Perry        693.      1562.
-    ##  5 Ryan Piaget       692.      1558.
-    ##  6 Bob Simon         688.      1508.
-    ##  7 Nick Lansdown     683.      1462.
-    ##  8 Thayer McDougle   679.      1420.
-    ##  9 Rhys Hughes       679.      1417.
-    ## 10 Jesse La Fear     673.      1362.
-    ## # … with 368 more rows
+    ## # A tibble: 425 x 3
+    ##    player           rating raw_rating
+    ##    <chr>             <dbl>      <dbl>
+    ##  1 Hector Ortega      729.      2021.
+    ##  2 Mike Maxwell       727.      1982.
+    ##  3 Evan Burgess       698.      1628.
+    ##  4 Skip Perry         697.      1609.
+    ##  5 Ryan Piaget        694.      1585.
+    ##  6 Bob Simon          689.      1531.
+    ##  7 Michael Gonzales   684.      1472.
+    ##  8 Nick Lansdown      683.      1464.
+    ##  9 Rhys Hughes        681.      1446.
+    ## 10 Nick Callado       680.      1438.
+    ## # … with 415 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("other_data/fargo_", latest_results_date, ".Rdata"))

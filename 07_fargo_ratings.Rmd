@@ -45,10 +45,20 @@ player_list <-
   pull()
 
 count_games_by_player <- function(player_of_interest) {
-  results_no_forfeits %>% 
+  df <- 
+    results_no_forfeits %>% 
     filter(away == player_of_interest | home == player_of_interest) %>% 
+    mutate(player = player_of_interest) %>% 
+    group_by(player, league) %>% 
     count() %>% 
-    transmute(player = player_of_interest, games_in_system = n)
+    ungroup() %>% 
+    spread(league, n)
+  
+  if (!("Slate" %in% colnames(df))) { df <- df %>% mutate(Slate = 0)}
+  if (!("SFPA" %in% colnames(df))) { df <- df %>% mutate(SFPA = 0)}
+  
+  df %>% 
+    transmute(player, sfpa_games = SFPA, slate_games = Slate, total_games = SFPA + Slate)
 }
 
 games_in_system <- 
@@ -77,14 +87,16 @@ ratings_for_printing <-
   arrange(desc(rating)) %>% 
   left_join(team_names_by_player, by = "player") %>% 
   left_join(games_in_system, by = "player") %>% 
-  #filter(games_in_system > 9) %>% 
+  #filter(total_games > 9) %>% 
   mutate(rank = row_number()) %>% 
   transmute(
     rank, 
     player, 
     current_team = replace_na(team, "--"), 
     rating = round(rating),
-    games_in_system
+    sfpa_games,
+    slate_games,
+    total_games
   )
 ```
 

@@ -57,9 +57,13 @@ get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
       A = 1 / (player_rating + opponent_rating),
       W = if_else(game_result == "W", 1, 0),
       decay = case_when(
-        season == "Spring 2018" ~ 0.7,
-        season == "Fall 2018" ~ 0.8,
-        season == "Spring 2019" ~ 0.9,
+        season == "Spring 2016" ~ 0.7,
+        season == "Fall 2016" ~ 0.75,
+        season == "Spring 2017" ~ 0.8,
+        season == "Fall 2017" ~ 0.85,
+        season == "Spring 2018" ~ 0.9,
+        season == "Fall 2018" ~ 0.95,
+        season == "Spring 2019" ~ 1.0,
         season == "Fall 2019" ~ 1.0
       )
     ) %>% 
