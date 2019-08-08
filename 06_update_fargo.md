@@ -9,13 +9,8 @@ latest_results_date <-
   str_extract("\\d+-\\d+-\\d+") %>% 
   max()
 
-#latest_results_date <- "2019-03-12"
-
-results_no_forfeits_path <-
-  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata")
-
 results_no_forfeits <- 
-  results_no_forfeits_path %>% 
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata") %>% 
   read_rds()
 
 get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
@@ -91,7 +86,9 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
   
   fargo_ratings
 }
+```
 
+``` r
 fargo_df <- 
   results_to_ratings(results_no_forfeits, a = 3, mae_stop = 50) %>% 
   mutate(
@@ -101,50 +98,102 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Mean absolute difference: 45197.4000394801"
-    ## [1] "Mean absolute difference: 19426.1092389406"
-    ## [1] "Mean absolute difference: 11893.0247651626"
-    ## [1] "Mean absolute difference: 8335.09512908505"
-    ## [1] "Mean absolute difference: 6089.48417273591"
-    ## [1] "Mean absolute difference: 4532.46358851698"
-    ## [1] "Mean absolute difference: 3402.09954946256"
-    ## [1] "Mean absolute difference: 2566.77684961621"
-    ## [1] "Mean absolute difference: 1944.03545145189"
-    ## [1] "Mean absolute difference: 1477.17879830821"
-    ## [1] "Mean absolute difference: 1124.87584476408"
-    ## [1] "Mean absolute difference: 857.673750913234"
-    ## [1] "Mean absolute difference: 654.852700623405"
-    ## [1] "Mean absolute difference: 500.419429588733"
-    ## [1] "Mean absolute difference: 382.618844804668"
-    ## [1] "Mean absolute difference: 292.647498896952"
-    ## [1] "Mean absolute difference: 223.903363817711"
-    ## [1] "Mean absolute difference: 171.389709472026"
-    ## [1] "Mean absolute difference: 131.268946253002"
-    ## [1] "Mean absolute difference: 100.585385051902"
-    ## [1] "Mean absolute difference: 77.1201185275588"
-    ## [1] "Mean absolute difference: 59.200639360827"
-    ## [1] "Mean absolute difference: 45.5414378493624"
+    ## [1] "Mean absolute difference: 44704.668831123"
+    ## [1] "Mean absolute difference: 19387.4234441037"
+    ## [1] "Mean absolute difference: 11867.6208140662"
+    ## [1] "Mean absolute difference: 8309.16723572448"
+    ## [1] "Mean absolute difference: 6071.23627034187"
+    ## [1] "Mean absolute difference: 4520.56129312091"
+    ## [1] "Mean absolute difference: 3394.03790933308"
+    ## [1] "Mean absolute difference: 2561.15211248802"
+    ## [1] "Mean absolute difference: 1939.99296859378"
+    ## [1] "Mean absolute difference: 1474.22837868949"
+    ## [1] "Mean absolute difference: 1122.7170833915"
+    ## [1] "Mean absolute difference: 856.042587491189"
+    ## [1] "Mean absolute difference: 653.615256464574"
+    ## [1] "Mean absolute difference: 499.470406434779"
+    ## [1] "Mean absolute difference: 381.882761492874"
+    ## [1] "Mean absolute difference: 292.074875289866"
+    ## [1] "Mean absolute difference: 223.455069663227"
+    ## [1] "Mean absolute difference: 171.032882107377"
+    ## [1] "Mean absolute difference: 130.983727187919"
+    ## [1] "Mean absolute difference: 100.359177421099"
+    ## [1] "Mean absolute difference: 76.9369092243038"
+    ## [1] "Mean absolute difference: 59.0434393480531"
+    ## [1] "Mean absolute difference: 45.4004793233492"
 
 ``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 425 x 3
+    ## # A tibble: 423 x 3
     ##    player           rating raw_rating
     ##    <chr>             <dbl>      <dbl>
-    ##  1 Hector Ortega      729.      2021.
-    ##  2 Mike Maxwell       727.      1982.
+    ##  1 Hector Ortega      729.      2011.
+    ##  2 Mike Maxwell       727.      1981.
     ##  3 Evan Burgess       698.      1628.
-    ##  4 Skip Perry         697.      1609.
-    ##  5 Ryan Piaget        694.      1585.
-    ##  6 Bob Simon          689.      1531.
-    ##  7 Michael Gonzales   684.      1472.
-    ##  8 Nick Lansdown      683.      1464.
+    ##  4 Skip Perry         697.      1608.
+    ##  5 Ryan Piaget        695.      1585.
+    ##  6 Bob Simon          689.      1530.
+    ##  7 Michael Gonzales   684.      1470.
+    ##  8 Nick Lansdown      683.      1462.
     ##  9 Rhys Hughes        681.      1446.
-    ## 10 Nick Callado       680.      1438.
-    ## # … with 415 more rows
+    ## 10 Nick Callado       681.      1438.
+    ## # … with 413 more rows
 
 ``` r
-saveRDS(fargo_df, str_c("other_data/fargo_", latest_results_date, ".Rdata"))
+saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))
+```
+
+``` r
+fargo_files <- 
+  list.files("fargo_ratings", pattern = "fargo")
+
+fargo_dates <- 
+  fargo_files %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  enframe(name = NULL) %>% 
+  arrange(value) %>% 
+  transmute(
+    source = row_number(),
+    date = ymd(value)
+  )
+
+all_fargo_ratings <- 
+  str_c("fargo_ratings/", fargo_files) %>% 
+  map_dfr(read_rds, .id = "source") %>% 
+  mutate(source = as.numeric(source)) %>% 
+  left_join(fargo_dates, by = "source") %>% 
+  select(-source)
+
+saveRDS(all_fargo_ratings, str_c("fargo_ratings/all_fargo_ratings.Rdata"))
+```
+
+``` r
+# Do this to update previous fargo ratings after adding new data
+date_list <- 
+  results_no_forfeits %>% 
+  select(match_date) %>% 
+  distinct() %>% 
+  arrange(match_date) %>% 
+  pull()
+
+length(date_list)
+
+for (i in 71:102) {
+  results_date <- date_list[i]
+  
+  print(results_date)
+  
+  fargo_df <- 
+    results_to_ratings(results_no_forfeits %>% filter(match_date <= results_date), a = 3, mae_stop = 50) %>% 
+    mutate(
+      raw_rating = rating,
+      rating = log(rating) * 144,
+      rating = rating - mean(rating) + 500
+    )
+  
+  saveRDS(fargo_df, str_c("fargo_ratings/fargo_", results_date, ".Rdata"))
+}
 ```

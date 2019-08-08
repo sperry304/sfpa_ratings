@@ -65,7 +65,7 @@ player_performance <- function(player_of_interest) {
     )
 } 
 
-player_results_history("Michael Gonzales") %>% 
+player_results_history("Gabriela Benuto") %>% 
   knitr::kable()
 
 player_performance("Chris Peterson")
@@ -77,6 +77,10 @@ player_performance("Thayer McDougle")
 player_performance("Jesse La Fear")
 player_performance("Mathieu Guglielmi")
 player_performance("Hector Ortega")
+
+all_fargo_ratings %>% 
+  filter(player == "Gabriela Benuto") %>% 
+  knitr::kable()
 
 
 
@@ -101,5 +105,5 @@ all_fargo_ratings %>%
   #left_join(most_volatile, by = "player") %>% 
   ggplot(aes(x = date, y = rating, group = player)) + 
   geom_hline(yintercept = 500, color = "white", size = 2) +
-  geom_line(alpha = 0.1) +
+  #geom_line(alpha = 0.1) +
   geom_line(data = . %>% filter(player %in% player_list), aes(color = player))

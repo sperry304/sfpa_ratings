@@ -115,7 +115,7 @@ saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))
 
 ```{r}
 fargo_files <- 
-  list.files("fargo_ratings", pattern = "fargo")
+  list.files("fargo_ratings", pattern = "^fargo")
 
 fargo_dates <- 
   fargo_files %>% 
@@ -139,6 +139,7 @@ saveRDS(all_fargo_ratings, str_c("fargo_ratings/all_fargo_ratings.Rdata"))
 
 ```{r, eval=FALSE}
 # Do this to update previous fargo ratings after adding new data
+# or making other changes to player names etc.
 date_list <- 
   results_no_forfeits %>% 
   select(match_date) %>% 
@@ -147,9 +148,11 @@ date_list <-
   pull()
 
 length(date_list)
+tail(date_list, 2)
 
-for (i in 71:102) {
-  results_date <- date_list[i]
+#for (i in 71:102) {
+for (i in 1:2) {
+  results_date <- tail(date_list, 2)[i]
   
   print(results_date)
   

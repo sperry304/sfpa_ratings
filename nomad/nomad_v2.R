@@ -167,7 +167,7 @@ url_list_to_nickname_df <- function(url_list) {
 # Happy
 happy_url_list <- 
   c(
-    str_c("https://nomadpool.com/games?page=", 63:2, "&status=Final&venue_id=2"),
+    str_c("https://nomadpool.com/games?page=", 135:2, "&status=Final&venue_id=2"),
     "https://nomadpool.com/games?status=Final&venue_id=2"
   )
 
@@ -175,7 +175,7 @@ happy_df <-
   happy_url_list %>% 
   url_list_to_nickname_df()
 
-write_rds(happy_df, "nomad/happy_games_2018.Rdata")
+write_rds(happy_df, "nomad/happy_games_2016_2018_v1.Rdata")
 
 
 # Slate
@@ -193,11 +193,22 @@ write_rds(slate_df, "nomad/slate_games_2016.Rdata")
 
 
 happy_df <-
-  read_rds("nomad/happy_games_2018.Rdata")
+  read_rds("nomad/happy_games_2016_2018_v1.Rdata")
 
 happy_singles <-
   happy_df %>% 
   filter(home == home2)
+
+happy_singles_named <- 
+  happy_singles %>% 
+  select(-c(home2, away2, result)) %>% 
+  left_join(name_list %>% transmute(home = nickname, home_actual = name), by = "home") %>% 
+  left_join(name_list %>% transmute(away = nickname, away_actual = name), by = "away") 
+
+happy_singles_named_filtered <- 
+  happy_singles_named %>% 
+  filter(!is.na(home_actual), !is.na(away_actual), !is.na(season))
+
 
 slate_df <-
   read_rds("nomad/slate_games_2016.Rdata")

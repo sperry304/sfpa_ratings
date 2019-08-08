@@ -1,6 +1,7 @@
 library(tidyverse)
 library(rvest)
 library(lubridate)
+library(readODS)
 
 setwd("~/Documents/sfpa_ratings")
 
@@ -44,8 +45,31 @@ slate_nicknamed_df <-
     game_type = NA_character_
   )
 
+happy_nicknamed_df <-
+  read_rds("nomad/happy_games_2016_2018_v1.Rdata") %>% 
+  filter(home == home2, !is.na(season)) %>% 
+  select(-c(home2, away2)) %>% 
+  group_by(date_short) %>% 
+  mutate(game_num = row_number()) %>% 
+  ungroup() %>% 
+  transmute(
+    league = "Slate",
+    season, 
+    match_date = ymd(parse_date_time(date_short, orders = "%a %b %d %Y")),
+    week_number = 75,
+    home_team = NA_character_,
+    away_team = NA_character_,
+    game_num,
+    home_nickname = home,
+    away_nickname = away,
+    game_winner,
+    forfeit = NA_character_,
+    game_type = NA_character_
+  )
+
 slate_df <- 
   slate_nicknamed_df %>% 
+  bind_rows(happy_nicknamed_df) %>% 
   left_join(
     nomad_name_list %>% transmute(home_nickname = nickname, home = name),
     by = "home_nickname"
