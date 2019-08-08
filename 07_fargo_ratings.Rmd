@@ -41,17 +41,25 @@ count_games_by_player <- function(player_of_interest) {
   df <- 
     results_no_forfeits %>% 
     filter(away == player_of_interest | home == player_of_interest) %>% 
-    mutate(player = player_of_interest) %>% 
+    mutate(
+      player = player_of_interest,
+      league = if_else(league == "SFPA", "SFPA", "Other")
+    ) %>% 
     group_by(player, league) %>% 
     count() %>% 
     ungroup() %>% 
     spread(league, n)
   
-  if (!("Slate" %in% colnames(df))) { df <- df %>% mutate(Slate = 0)}
+  if (!("Other" %in% colnames(df))) { df <- df %>% mutate(Other = 0)}
   if (!("SFPA" %in% colnames(df))) { df <- df %>% mutate(SFPA = 0)}
   
   df %>% 
-    transmute(player, sfpa_games = SFPA, slate_games = Slate, total_games = SFPA + Slate)
+    transmute(
+      player, 
+      sfpa_games = SFPA, 
+      other_games = Other, 
+      total_games = SFPA + Other
+    )
 }
 
 games_in_system <- 
@@ -88,7 +96,7 @@ ratings_for_printing <-
     current_team = replace_na(team, "--"), 
     rating = round(rating),
     sfpa_games,
-    slate_games,
+    other_games,
     total_games
   )
 ```
@@ -265,7 +273,7 @@ all_fargo_ratings %>%
 
 <br> 
 
-Data sources: Spring 2018 SFPA season, Fall 2018 SFPA season, Spring 2019 SFPA season, Spring 2019 SFPA 8-ball tournament, Spring 2019 Slate 8-ball tournament, 2016-2019 Slate Saturday night tournaments
+Data sources: Spring 2018 SFPA season, Fall 2018 SFPA season, Spring 2019 SFPA season, Spring 2019 SFPA 8-ball tournament, Spring 2019 Slate 8-ball tournament, 2016-2019 Slate Saturday night tournaments, 2016-2019 Happy singles tournaments
 
 ```{r}
 

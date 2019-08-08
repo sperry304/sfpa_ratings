@@ -53,7 +53,7 @@ happy_nicknamed_df <-
   mutate(game_num = row_number()) %>% 
   ungroup() %>% 
   transmute(
-    league = "Slate",
+    league = "Happy",
     season, 
     match_date = ymd(parse_date_time(date_short, orders = "%a %b %d %Y")),
     week_number = 75,

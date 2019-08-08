@@ -65,7 +65,7 @@ player_performance <- function(player_of_interest) {
     )
 } 
 
-player_results_history("Gabriela Benuto") %>% 
+player_results_history("Bobby Yulo") %>% 
   knitr::kable()
 
 player_performance("Chris Peterson")

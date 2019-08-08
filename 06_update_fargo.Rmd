@@ -147,7 +147,7 @@ date_list <-
   arrange(match_date) %>% 
   pull()
 
-length(date_list)
+#length(date_list)
 tail(date_list, 2)
 
 #for (i in 71:102) {
