@@ -65,7 +65,7 @@ player_performance <- function(player_of_interest) {
     )
 } 
 
-player_results_history("Bobby Yulo") %>% 
+player_results_history("Patty West") %>% 
   knitr::kable()
 
 player_performance("Chris Peterson")

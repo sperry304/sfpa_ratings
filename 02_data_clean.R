@@ -67,9 +67,32 @@ happy_nicknamed_df <-
     game_type = NA_character_
   )
 
-slate_df <- 
+thorn_nicknamed_df <-
+  read_rds("nomad/thorn_games_2012.Rdata") %>% 
+  filter(home == home2, !is.na(season)) %>% 
+  select(-c(home2, away2)) %>% 
+  group_by(date_short) %>% 
+  mutate(game_num = row_number()) %>% 
+  ungroup() %>% 
+  transmute(
+    league = "Thorn",
+    season, 
+    match_date = ymd(parse_date_time(date_short, orders = "%a %b %d %Y")),
+    week_number = 75,
+    home_team = NA_character_,
+    away_team = NA_character_,
+    game_num,
+    home_nickname = home,
+    away_nickname = away,
+    game_winner,
+    forfeit = NA_character_,
+    game_type = NA_character_
+  )
+
+nomad_df <- 
   slate_nicknamed_df %>% 
   bind_rows(happy_nicknamed_df) %>% 
+  #bind_rows(thorn_nicknamed_df) %>% 
   left_join(
     nomad_name_list %>% transmute(home_nickname = nickname, home = name),
     by = "home_nickname"
@@ -118,7 +141,7 @@ results <-
       add_column(league = "SFPA", .before = "season") %>% 
       add_column(match_type = "regular", .before = "season") %>% 
       add_column(game_type = NA_character_),
-    slate_df
+    nomad_df
   )
 
 # Pull out forfeits and omitted playoff games from data frames, clean names
@@ -181,7 +204,7 @@ remove_forfeits <- function(results_df) {
 results_no_forfeits <- 
   results %>% 
   remove_forfeits()
-  
+
 latest_match_date <- 
   results_no_forfeits %>% 
   pull(match_date) %>% 

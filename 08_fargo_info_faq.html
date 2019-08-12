@@ -7,6 +7,7 @@
 <meta charset="utf-8" />
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
 <meta name="author" content="Skip Perry" />
@@ -343,18 +344,6 @@ summary {
 }
 </style>
 
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-
-$(document).ready(function () {
-  $('.tabset-dropdown > .nav-tabs > li').click(function () {
-    $(this).parent().toggleClass('nav-tabs-open')
-  });
-});
-</script>
-
 <!-- code folding -->
 
 
@@ -376,7 +365,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">SFPA Player Ratings, v.1</h1>
 <h4 class="author">Skip Perry</h4>
-<h4 class="date">June 2019</h4>
+<h4 class="date">August 2019</h4>
 
 </div>
 
@@ -433,15 +422,15 @@ $(document).ready(function () {
 <p>Other considerations included:</p>
 <ul>
 <li><p>Home-table advantage: In the past three seasons, about 52% of games have been won by the home team, a small but significant edge to the home player. There also exists a simple way to incorporate this factor into the ratings, letting <span class="math inline">\(p_{i&gt;j} = \frac{\theta \pi_i}{\theta \pi_i + \pi_j}\)</span> where <span class="math inline">\(\theta &gt; 1\)</span> is the home-table advantage (or <span class="math inline">\(\theta &lt; 1\)</span> if it’s a disadvantage). Unfortunately, this is a noisy input: due to scheduling conflicts and bar remodeling, teams often play “home” games at other bars; most week 1 games are home games for both teams; and playoff games represent an uneven playing field since higher-seeded teams play at home while lower-seeded teams play on the road, among other factors. After quite a bit of experimentation in this area failed to improve model performance, I omitted the home-table advantage from the rating system.</p></li>
-<li><p>Time decay: In pool, a player’s skill level can sometimes change over time. One extreme would be to assume that these changes are the result of random noise and place equal weight on every game in a player’s match history; another would be to use a subset of a player’s most recent games, on the assumption that those games most accurately reflect their skill. The middle ground solution used here is to place less weight on older matches. The current season is Spring 2019; these most recent matches are weighted at 1. Older matches in Fall 2018 and Spring 2018 have weights of 0.8 and 0.6, respectively. The exact values for these parameters had little impact on model results so these numbers were chosen arbitrarily. The end result is a rating system that is responsive to change but reduces the number of wild temporary swings, especially for players with more established ratings.</p></li>
-<li><p>Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, it is also possible to introduce weighting factors that reduce the impact of games involving newcomers. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. Exploratory analysis of players’ ratings over time showed standard deviations plateauing at 15 games - meaning that within only four match nights, a new player’s rating has reached a relative steady state. As a result, for now the ratings do not include a robustness penalty against new players.</p></li>
+<li><p>Time decay: In pool, a player’s skill level can sometimes change over time. One approach to this phenomenon is to assume that these changes are the result of random noise and place equal weight on every game in a player’s match history; another might be to use a subset of a player’s most recent games, on the assumption that those games most accurately reflect their skill. The middle-ground solution used here is to place less weight on older matches. The current season is Fall 2019; these most recent matches are given a full weighting factor of 1. Each previous season is given a reduced weight of 5%, meaning Spring 2019 games have a weight of 0.95, Fall 2018 games have a weight of 0.9, and so on. The exact values for these parameters had little impact on model performance so the weights were chosen arbitrarily. The end result is a rating system that is responsive to change but reduces the number of wild temporary swings, especially for players with a large number of games. One potential issue with this process going forward is that players who haven’t competed in a number of years will see their ratings drift toward the league average as the smaller weighting factors increase the impact of the prior relative to actual game results.</p></li>
+<li><p>Robustness: In order to prevent new players with ratings based on a small amount of data from having an outsize impact on the ratings of more established players, it is also possible to introduce weighting factors that reduce the impact of games involving newcomers. As with the time decay, experimentation with different reasonable values of this parameter showed a negligible impact on model performance. Exploratory analysis of players’ ratings over time showed week-to-week standard deviations plateauing at 15 games - meaning that within only four match nights, a new player’s rating has reached a relative steady state. As a result, for now the ratings do not include a robustness penalty against new players.</p></li>
 </ul>
 </div>
 <div id="comparison-with-elo-ratings" class="section level3">
 <h3>Comparison with Elo ratings</h3>
 <p>The Elo system, used in chess and many other zero-sum competitive settings, has many similarities with the Bradley-Terry setup <span class="citation">(Glickman and Jones 1999)</span>. Each player has a rating which is used to estimate a game win probability, which feeds back into the model in the form of a new rating conditional on the eventual result. Unlike the complex iterative method used to find a Bradley-Terry estimate, the Elo rating update formula is simple:</p>
 <p><span class="math display">\[R_{new} = R_{old} + K(1_{win} - P_{win})\]</span></p>
-<p>We can think of this as akin to a player putting poker chips into the pot before each game, and receiving a reward proportional to their likelihood of winning. The greater a player’s chance of winning, the smaller the increase in their rating will be if they win and the larger the decrease will be if they lose. The <span class="math inline">\(K\)</span> term is a velocity parameter that determines how quickly ratings change along with new information. A higher value of <span class="math inline">\(K\)</span> results in faster updates, but also more noise in the model. This is a sequential process in which rating updates are applied after each game or match, and only the ratings of the two players involved are affected. Like all models, this has its pluses and minuses.</p>
+<p>We can think of this as akin to a player putting poker chips into the pot before each game, and receiving a reward proportional to their likelihood of winning. The greater a player’s chance of winning, the smaller the increase in their rating will be if they win and the larger the decrease will be if they lose. The <span class="math inline">\(K\)</span> term is a velocity parameter that determines how quickly ratings change along with new information. A higher value of <span class="math inline">\(K\)</span> results in faster updates, but also more noise in the model. This is a sequential process in which rating updates are applied after each game or match, and only the ratings of the two players involved are affected. Like all models, this has its pluses and minuses:</p>
 <p>Pros:</p>
 <ul>
 <li><p>Less computationally intensive</p></li>
@@ -455,12 +444,16 @@ $(document).ready(function () {
 <li><p>Different values of <span class="math inline">\(K\)</span> have a drastic impact on the model</p></li>
 <li><p>Each game only affects two players; Bradley-Terry populates changes throughout the entire player population</p></li>
 </ul>
-<p>Experiments with Elo ratings in various <span class="math inline">\(K\)</span> formulations showed slightly weaker predictive results, probably because this data set has the triple challenges of sparsity (most players don’t play each other and when they do play each other it’s only once), weak connections in the data (teams across the skill level spectrum only play each other for the first five weeks of the season), and a high-variance input (one game of 8-ball, where even beginners can run out with a good layout). Low or strongly decreasing values of <span class="math inline">\(K\)</span> along with number of games played resulted in rating changes moving too slowly; higher values of <span class="math inline">\(K\)</span> created too much noise.</p>
+<p>See <span class="citation">Aldous (2017)</span> for a more in-depth discussion of this subject.</p>
+<p>Experiments with Elo ratings in the current context with various <span class="math inline">\(K\)</span> formulations showed slightly weaker predictive results than the Bradley-Terry model, probably because this data set has the triple challenges of sparsity (most players don’t play each other and when they do play each other it’s only once), weak connections in the data (teams across the skill level spectrum only play each other for the first five weeks of the season), and a high-variance input (one game of 8-ball, where even beginners can run out with a good layout). Low or strongly decreasing values of <span class="math inline">\(K\)</span> along with number of games played resulted in rating changes moving too slowly; higher values of <span class="math inline">\(K\)</span> created too much noise.</p>
 <p>More importantly, it is clear from a conceptual standpoint that each game can provide useful information about more than the two players involved. If player A beat player B last week and player B beats player C this week, then this week we learned something about player A even though he or she didn’t compete. The Elo system ignores this information while Bradley-Terry uses it to update our best guess of player A’s skill level.</p>
 </div>
 <div id="references" class="section level3 unnumbered">
 <h3>References</h3>
 <div id="refs" class="references">
+<div id="ref-aldous">
+<p>Aldous, David. 2017. “Elo Ratings and the Sports Model.” <em>Statistical Science</em> 32 (4): 616–29. <a href="https://www.stat.berkeley.edu/~aldous/Papers/me-Elo-SS.pdf">https://www.stat.berkeley.edu/~aldous/Papers/me-Elo-SS.pdf</a>.</p>
+</div>
 <div id="ref-carondoucet">
 <p>Caron, François, and Arnoud Doucet. 2012. “Efficient Bayesian Inference for Generalized Bradley-Terry Models.” <em>Journal of Computational and Graphical Statistics</em> 21 (1): 174–96. <a href="http://www.stats.ox.ac.uk/%7Edoucet/caron_doucet_bayesianbradleyterry.pdf">http://www.stats.ox.ac.uk/%7Edoucet/caron_doucet_bayesianbradleyterry.pdf</a>.</p>
 </div>
@@ -490,6 +483,23 @@ $(document).ready(function () {
 
 
 </script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

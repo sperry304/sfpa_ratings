@@ -267,7 +267,7 @@ all_fargo_ratings %>%
   left_join(team_names_by_player, by = "player") %>% 
   left_join(games_in_system, by = "player") %>% 
   transmute(player, team, previous, current, change, games_in_system = total_games) %>% 
-  slice(1:20) %>% 
+  slice(1:30) %>% 
   knitr::kable()
 ```
 

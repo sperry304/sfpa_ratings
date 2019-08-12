@@ -10,9 +10,11 @@ name_list <-
   filter(is.na(need_to_check)) %>% 
   select(nickname, name)
 
+url <- "https://nomadpool.com/games?page=72&status=Final&venue_id=4"
+
 url_to_game_results_df <- function(url) {
   # Takes in a URL, creates data frame with date, players, result
-  df <-
+  df <- 
     url %>% 
     read_html %>% 
     html_nodes("td") %>% 
@@ -34,6 +36,8 @@ url_to_game_results_df <- function(url) {
     select(-game_num) %>% 
     mutate(
       date = str_remove_all(date, "@|th| PT(.)+"),
+      date = str_remove_all(date, "\\s\\d+s$|\\d+s$"),
+      date = str_remove_all(date, "\\d+m$"),
       date = if_else(
         str_detect(date, "\\'18"),
         str_c(date, " 2018"),
@@ -43,12 +47,33 @@ url_to_game_results_df <- function(url) {
           if_else(
             str_detect(date, "\\'16"),
             str_c(date, " 2016"),
-            str_c(date, " 2019")
+            if_else(
+              str_detect(date, "\\'15"),
+              str_c(date, " 2015"),
+              if_else(
+                str_detect(date, "\\'14"),
+                str_c(date, " 2014"),
+                if_else(
+                  str_detect(date, "\\'13"),
+                  str_c(date, " 2013"),
+                  if_else(
+                    str_detect(date, "\\'12"),
+                    str_c(date, " 2012"),
+                    str_c(date, " 2019")
+                  )
+                )
+              )
+            )
           )
         )
       ),
-      date = str_remove_all(date, " \\'16| \\'17| \\'18"),
-      date = parse_date_time(date, orders = "%a %b %d %I:%M%p%Y", tz = "America/Los_Angeles")
+      date = str_remove_all(date, " \\'12| \\'13| \\'14| \\'15| \\'16| \\'17| \\'18"),
+      date = parse_date_time(date, orders = "%a %b %d %I:%M%p%Y", tz = "America/Los_Angeles"),
+      date_short = if_else(
+        date_short == "", 
+        str_c((wday(date, label = TRUE)), month(date, label = TRUE), day(date), sep = " "), 
+        date_short
+      )
     ) %>% 
     mutate(
       multi_game = str_extract(result, "\\d+-\\d+")
@@ -191,6 +216,19 @@ slate_df <-
 
 write_rds(slate_df, "nomad/slate_games_2016.Rdata")
 
+# Blackthorn
+thorn_url_list <- 
+  c(
+    str_c("https://nomadpool.com/games?page=", 74:2, "&status=Final&venue_id=4"),
+    "https://nomadpool.com/games?status=Final&venue_id=4"
+  )
+
+thorn_df <- 
+  thorn_url_list %>% 
+  url_list_to_nickname_df()
+
+write_rds(thorn_df, "nomad/thorn_games_2012.Rdata")
+
 
 happy_df <-
   read_rds("nomad/happy_games_2016_2018_v1.Rdata")
@@ -209,6 +247,20 @@ happy_singles_named_filtered <-
   happy_singles_named %>% 
   filter(!is.na(home_actual), !is.na(away_actual), !is.na(season))
 
+
+thorn_singles_named <- 
+  thorn_df %>% 
+  filter(home == home2) %>% 
+  select(-c(home2, away2, result)) %>% 
+  left_join(name_list %>% transmute(home = nickname, home_actual = name), by = "home") %>% 
+  left_join(name_list %>% transmute(away = nickname, away_actual = name), by = "away") 
+
+
+thorn_singles_named %>% transmute(player = home) %>% 
+  bind_rows(thorn_singles_named %>% transmute(player = away)) %>% 
+  count(player, sort = TRUE) %>% 
+  left_join(name_list %>% transmute(player = nickname, name), by = "player") %>% 
+  knitr::kable()
 
 slate_df <-
   read_rds("nomad/slate_games_2016.Rdata")

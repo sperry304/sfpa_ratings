@@ -200,7 +200,7 @@ prev_matches %>%
 
 ```{r}
 # Get updated Spring 2019 results and check
-new_data_urls <- str_c("https://www.sfpapool.org/stats/week/", 80) # Most recent week
+new_data_urls <- str_c("https://www.sfpapool.org/stats/week/", 80:81) # Most recent week
 new_matches <- week_urls_to_all_matches(new_data_urls)
 
 bind_rows(prev_matches, new_matches) %>% 
@@ -210,6 +210,8 @@ bind_rows(prev_matches, new_matches) %>%
 
 ```{r}
 # Add to previous results
+all_matches_2019fall <- new_matches
+  
 all_matches_2019fall <- bind_rows(prev_matches, new_matches)
 
 saveRDS(all_matches_2019fall, "match_data/all_matches_2019fall.Rdata")
