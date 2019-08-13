@@ -72,7 +72,7 @@ library(tidyverse)
 
 What do the ratings mean? 
 
-* The first meaningful number is 500, which has been set as the global league average. The second meaningful number is 100, the rating difference which denotes a player having a predicted 2-to-1 advantage in a single game. 
+* The first meaningful number is 500, which has been set as the global league average. The second important number is 100, the rating difference which denotes a player having a predicted 2-to-1 advantage in a single game. 
 
 How and why does my rating go up or down?
 

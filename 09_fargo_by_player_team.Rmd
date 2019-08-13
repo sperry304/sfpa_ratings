@@ -72,7 +72,6 @@ plot_player_ratings <- function(team_name) {
 }
 ```
 
-
 ```{r, echo=FALSE}
 walk(team_list, plot_player_ratings)
 ```

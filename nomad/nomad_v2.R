@@ -230,8 +230,50 @@ thorn_df <-
 write_rds(thorn_df, "nomad/thorn_games_2012.Rdata")
 
 
+slate_df <-
+  read_rds("nomad/slate_games_2016.Rdata")
+
 happy_df <-
   read_rds("nomad/happy_games_2016_2018_v1.Rdata")
+
+all_singles <- 
+  slate_df %>% 
+  filter(home == home2) %>% 
+  bind_rows(
+    happy_df %>% filter(home == home2)
+  ) %>% 
+  select(-c(home2, away2, result))
+  
+all_singles_num_matches_by_player <- 
+  all_singles %>% 
+  transmute(player = home) %>% 
+  bind_rows(
+    all_singles %>% transmute(player = away)
+  ) %>% 
+  group_by(player) %>% 
+  count(sort = TRUE) %>% 
+  left_join(name_list %>% transmute(player = nickname, name), by = "player")
+
+all_doubles <- 
+  slate_df %>% 
+  filter(home != home2) %>% 
+  bind_rows(
+    happy_df %>% filter(home != home2)
+  )
+
+all_doubles_num_matches_by_player <-
+  all_doubles %>% 
+  transmute(player = home) %>% 
+  bind_rows(all_doubles %>% transmute(player = home2)) %>% 
+  bind_rows(all_doubles %>% transmute(player = away)) %>% 
+  bind_rows(all_doubles %>% transmute(player = away2)) %>% 
+  group_by(player) %>% 
+  count(sort = TRUE) %>% 
+  left_join(name_list %>% transmute(player = nickname, name), by = "player")
+
+
+all_singles %>% 
+  filter(home == "Randy")
 
 happy_singles <-
   happy_df %>% 
@@ -262,8 +304,6 @@ thorn_singles_named %>% transmute(player = home) %>%
   left_join(name_list %>% transmute(player = nickname, name), by = "player") %>% 
   knitr::kable()
 
-slate_df <-
-  read_rds("nomad/slate_games_2016.Rdata")
 
 happy_players <- 
   bind_rows(
