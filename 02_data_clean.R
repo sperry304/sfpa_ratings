@@ -67,15 +67,15 @@ happy_nicknamed_df <-
     game_type = NA_character_
   )
 
-thorn_nicknamed_df <-
-  read_rds("nomad/thorn_games_2012.Rdata") %>% 
+fiveforty_nicknamed_df <-
+  read_rds("nomad/fiveforty_games_2017.Rdata") %>% 
   filter(home == home2, !is.na(season)) %>% 
   select(-c(home2, away2)) %>% 
   group_by(date_short) %>% 
   mutate(game_num = row_number()) %>% 
   ungroup() %>% 
   transmute(
-    league = "Thorn",
+    league = "540",
     season, 
     match_date = ymd(parse_date_time(date_short, orders = "%a %b %d %Y")),
     week_number = 75,
@@ -92,7 +92,7 @@ thorn_nicknamed_df <-
 nomad_df <- 
   slate_nicknamed_df %>% 
   bind_rows(happy_nicknamed_df) %>% 
-  #bind_rows(thorn_nicknamed_df) %>% 
+  bind_rows(fiveforty_nicknamed_df) %>% 
   left_join(
     nomad_name_list %>% transmute(home_nickname = nickname, home = name),
     by = "home_nickname"
@@ -213,3 +213,7 @@ latest_match_date <-
 rnf_save_path <- str_c("match_data/results_no_forfeits_", latest_match_date, ".Rdata")
 
 saveRDS(results_no_forfeits, rnf_save_path)
+
+fiveforty_games <- 
+  results_no_forfeits %>% 
+  filter(league == "540")

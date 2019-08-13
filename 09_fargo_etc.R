@@ -65,8 +65,12 @@ player_performance <- function(player_of_interest) {
     )
 } 
 
-player_results_history("Patty West") %>% 
+player_results_history("Benito Taylor") %>% 
   knitr::kable()
+
+player_of_interest <- "Benito Taylor"
+results_no_forfeits %>% 
+  filter(home == player_of_interest | away == player_of_interest)
 
 player_performance("Chris Peterson")
 player_performance("Skip Perry")

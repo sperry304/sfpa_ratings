@@ -229,6 +229,39 @@ thorn_df <-
 
 write_rds(thorn_df, "nomad/thorn_games_2012.Rdata")
 
+# 540
+fiveforty_url_list <- 
+  "https://nomadpool.com/games?status=Final&venue_id=17"
+
+fiveforty_df <- 
+  fiveforty_url_list %>% 
+  url_list_to_nickname_df()
+
+fiveforty_df <-
+  fiveforty_df %>% 
+  filter(year(date) == 2017)
+
+write_rds(fiveforty_df, "nomad/fiveforty_games_2017.Rdata")
+
+# Iron Throne
+ironthrone_url_list <- 
+  "https://nomadpool.com/tournaments/2654"
+
+url <- "https://nomadpool.com/tournaments/2654"
+
+ironthrone_df <- 
+  ironthrone_url_list %>% 
+  url_list_to_nickname_df()
+
+fiveforty_df <-
+  fiveforty_df %>% 
+  filter(year(date) == 2017)
+
+write_rds(fiveforty_df, "nomad/fiveforty_games_2017.Rdata")
+
+
+
+
 
 slate_df <-
   read_rds("nomad/slate_games_2016.Rdata")
@@ -272,8 +305,8 @@ all_doubles_num_matches_by_player <-
   left_join(name_list %>% transmute(player = nickname, name), by = "player")
 
 
-all_singles %>% 
-  filter(home == "Randy")
+happy_df %>% 
+  filter(away == "Benito T")
 
 happy_singles <-
   happy_df %>% 
