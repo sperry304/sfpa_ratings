@@ -34,22 +34,24 @@ team_names_by_player <-
   select(player, team) %>% 
   mutate(
     team = if_else(team == "Harry Harringtons v 2.0", "Harry Harringtons", team),
-    player = if_else(player == "James Horsefall", "James Horsfall", player)
+    player = if_else(player == "James Horsefall", "James Horsfall", player),
+    player = if_else(player == "Jules Tanseco", "Jukers Tanseco", player)
   ) %>% 
   arrange(player)
-
-team_list <-
-  team_names_by_player %>% 
-  select(team) %>% 
-  distinct() %>% 
-  arrange(team) %>% 
-  pull()
 
 all_fargo_ratings <- 
   "fargo_ratings/all_fargo_ratings.Rdata" %>% 
   read_rds() %>% 
   inner_join(team_names_by_player, by = "player") %>% 
   select(-raw_rating)
+
+team_list <- 
+  all_fargo_ratings %>% 
+  filter(date == max(date)) %>% 
+  group_by(team) %>% 
+  summarize(rating = mean(rating)) %>% 
+  arrange(desc(rating)) %>% 
+  pull(team)
 
 plot_player_ratings <- function(team_name) {
   p <- 
@@ -58,7 +60,10 @@ plot_player_ratings <- function(team_name) {
     ggplot(aes(x = date, y = rating, color = player)) +
     geom_hline(yintercept = 500, color = "white", size = 2) +
     geom_line() +
-    scale_y_continuous(limits = c(200, 800)) +
+    scale_y_continuous(
+      limits = c(200, 750),
+      breaks = seq(200, 700, by = 100)
+    ) +
     labs(
       title = str_c(team_name, " Player Ratings")
     ) +
