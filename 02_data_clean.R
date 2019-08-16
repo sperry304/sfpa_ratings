@@ -213,7 +213,3 @@ latest_match_date <-
 rnf_save_path <- str_c("match_data/results_no_forfeits_", latest_match_date, ".Rdata")
 
 saveRDS(results_no_forfeits, rnf_save_path)
-
-fiveforty_games <- 
-  results_no_forfeits %>% 
-  filter(league == "540")

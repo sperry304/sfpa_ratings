@@ -83,6 +83,18 @@ team_names_by_player <-
   ) %>% 
   arrange(player)
 
+team_names_by_player <- 
+  bind_rows(
+    results_no_forfeits %>% 
+      filter(league == "SFPA", season == "Fall 2019") %>% 
+      transmute(player = home, team = home_team),
+    results_no_forfeits %>% 
+      filter(league == "SFPA", season == "Fall 2019") %>% 
+      transmute(player = away, team = away_team)
+  ) %>% 
+  distinct() %>% 
+  arrange(player)
+
 ratings_for_printing <- 
   fargo_df %>% 
   arrange(desc(rating)) %>% 
@@ -156,6 +168,83 @@ fargo_for_team_plots %>%
   labs(
     title = "Ratings by Team and Player (Top 4 Only)",
     color = "Sextile"
+  )
+```
+
+```{r, echo=FALSE}
+team_ratings <- 
+  fargo_for_team_plots %>% 
+  mutate(team = current_team) %>% 
+  group_by(team) %>% 
+  summarize(team_rating = exp(mean(log(rating)))) %>% 
+  mutate(qtile = as.factor(ntile(team_rating, 5)))
+
+team_list <-
+  team_ratings %>% 
+  pull(team)
+
+fall_2019_games <- 
+  results_no_forfeits %>% 
+  filter(league == "SFPA", season == "Fall 2019")
+
+plus_minus_by_week <- function(team_of_interest) {
+  fall_2019_games %>% 
+    filter(home_team == team_of_interest | away_team == team_of_interest) %>% 
+    transmute(
+      match_date,
+      game_num,
+      team = team_of_interest,
+      opponent = if_else(
+        home_team == team_of_interest, away_team, home_team
+      ),
+      game_winner,
+      game_result = case_when(
+        home_team == team_of_interest & game_winner == "home" ~ 1L,
+        away_team == team_of_interest & game_winner == "away" ~ 1L,
+        TRUE ~ -1L
+      )
+    ) %>% 
+    group_by(team, match_date) %>% 
+    summarize(plus_minus = sum(game_result)) %>% 
+    ungroup() %>% 
+    transmute(
+      team,
+      match_date,
+      overall_plus_minus = cumsum(plus_minus)
+    )
+}
+
+match_dates <-
+  c(as_date("2019-07-23"), fall_2019_games %>% select(match_date) %>% distinct() %>% arrange() %>% pull())
+
+fall_2019_games %>% select(match_date) %>% distinct() %>% arrange()
+team_list %>% 
+  enframe(name = NULL) %>% 
+  transmute(
+    team = value, match_date = as_date("2019-07-23"), overall_plus_minus = 0L
+  ) %>% 
+  bind_rows(map_dfr(team_list, plus_minus_by_week)) %>% 
+  arrange(team, match_date) %>% 
+  left_join(team_ratings, by = "team") %>% 
+  ggplot(aes(x = match_date, y = overall_plus_minus, color = qtile, group = team)) +
+  geom_hline(yintercept = 0, color = "white", size = 2) +
+  geom_line() +
+  geom_point(size = 1) +
+  guides(color = guide_legend(reverse = TRUE)) +
+  scale_x_date(
+    breaks = match_dates,
+    minor_breaks = NULL,
+    date_labels = "%b %d"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    axis.title.x = element_blank()
+  ) +
+  labs(
+    title = "Team Performance by Mean Player Rating",
+    y = "Plus/Minus",
+    color = "Quintile"
   )
 ```
 
