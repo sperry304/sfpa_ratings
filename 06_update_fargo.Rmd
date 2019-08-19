@@ -1,7 +1,7 @@
 ---
 title: "SFPA Fargo Ratings v.3"
 author: "Skip Perry"
-date: "May 2019"
+date: "August 2019"
 output: github_document
 ---
 
@@ -159,6 +159,7 @@ date_list <-
   pull()
 
 num_dates <- 63
+# Last time ran back to 2018-08-07
 
 #length(date_list)
 tail(date_list, num_dates)

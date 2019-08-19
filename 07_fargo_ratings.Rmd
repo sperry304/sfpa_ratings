@@ -79,7 +79,8 @@ team_names_by_player <-
   select(player, team) %>% 
   mutate(
     team = if_else(team == "Harry Harringtons v 2.0", "Harry Harringtons", team),
-    player = if_else(player == "James Horsefall", "James Horsfall", player)
+    player = if_else(player == "James Horsefall", "James Horsfall", player),
+    player = if_else(player == "James Bavaso", "James Bavuso", player)
   ) %>% 
   arrange(player)
 
@@ -95,12 +96,26 @@ team_names_by_player <-
   distinct() %>% 
   arrange(player)
 
+player_list_no_fall_2018 <- 
+  bind_rows(
+    results_no_forfeits %>% 
+      filter(season != "Spring 2018") %>% 
+      transmute(player = home),
+    results_no_forfeits %>% 
+      filter(season != "Spring 2018") %>% 
+      transmute(player = away)
+  ) %>% 
+  distinct() %>% 
+  arrange(player)
+  
 ratings_for_printing <- 
   fargo_df %>% 
-  arrange(desc(rating)) %>% 
   left_join(team_names_by_player, by = "player") %>% 
   left_join(games_in_system, by = "player") %>% 
+  inner_join(player_list_no_fall_2018, by = "player") %>% 
+  filter(sfpa_games > 0, player != "JT") %>% 
   #filter(total_games > 9) %>% 
+  arrange(desc(rating)) %>% 
   mutate(rank = row_number()) %>% 
   transmute(
     rank, 
@@ -217,19 +232,29 @@ plus_minus_by_week <- function(team_of_interest) {
 match_dates <-
   c(as_date("2019-07-23"), fall_2019_games %>% select(match_date) %>% distinct() %>% arrange() %>% pull())
 
-fall_2019_games %>% select(match_date) %>% distinct() %>% arrange()
-team_list %>% 
+team_plus_minus_by_date <-
+  team_list %>% 
   enframe(name = NULL) %>% 
   transmute(
     team = value, match_date = as_date("2019-07-23"), overall_plus_minus = 0L
   ) %>% 
   bind_rows(map_dfr(team_list, plus_minus_by_week)) %>% 
   arrange(team, match_date) %>% 
-  left_join(team_ratings, by = "team") %>% 
+  left_join(team_ratings, by = "team")
+
+team_qtile_plus_minus_by_date <- 
+  team_plus_minus_by_date %>% 
+  group_by(qtile, match_date) %>% 
+  summarize(overall_plus_minus = mean(overall_plus_minus)) %>% 
+  mutate(team = str_c("Quintile", qtile, "Average", sep = " "))
+
+team_plus_minus_by_date %>% 
   ggplot(aes(x = match_date, y = overall_plus_minus, color = qtile, group = team)) +
   geom_hline(yintercept = 0, color = "white", size = 2) +
-  geom_line() +
-  geom_point(size = 1) +
+  geom_line(alpha = 0.4) +
+  geom_point(alpha = 0.4, size = 1) +
+  geom_line(data = team_qtile_plus_minus_by_date) +
+  geom_point(data = team_qtile_plus_minus_by_date) +
   guides(color = guide_legend(reverse = TRUE)) +
   scale_x_date(
     breaks = match_dates,

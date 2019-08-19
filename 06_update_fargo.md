@@ -80,7 +80,9 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
     mutate(rating = 500)
   
   abs_diff <- 100000
+  n_iter <- 0
   while (abs_diff > mae_stop) {
+    n_iter <- n_iter + 1
     old_ratings <- fargo_ratings %>% pull(rating)
     for (i in 1:nrow(fargo_ratings)) {
       player_name <- fargo_ratings$player[i]
@@ -88,9 +90,10 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
         get_updated_rating(player_name, results_df = results_df, ratings_df = fargo_ratings, a = a)
     }
     new_ratings <- fargo_ratings %>% pull(rating)
-    print(str_c("Mean absolute difference: ", sum(abs(old_ratings - new_ratings))))
+    #print(str_c("Mean absolute difference: ", sum(abs(old_ratings - new_ratings))))
     abs_diff <- sum(abs(old_ratings - new_ratings))
   }
+  print(str_c("Number of iterations: ", n_iter))
   
   fargo_ratings
 }
@@ -106,50 +109,27 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Mean absolute difference: 49132.0314175395"
-    ## [1] "Mean absolute difference: 20538.9714594359"
-    ## [1] "Mean absolute difference: 12329.9788476455"
-    ## [1] "Mean absolute difference: 8614.79962322866"
-    ## [1] "Mean absolute difference: 6350.7927185655"
-    ## [1] "Mean absolute difference: 4788.99746029958"
-    ## [1] "Mean absolute difference: 3641.93309459001"
-    ## [1] "Mean absolute difference: 2781.81034084354"
-    ## [1] "Mean absolute difference: 2130.86308857641"
-    ## [1] "Mean absolute difference: 1635.79359067469"
-    ## [1] "Mean absolute difference: 1257.48655441021"
-    ## [1] "Mean absolute difference: 967.205857525751"
-    ## [1] "Mean absolute difference: 744.325818713774"
-    ## [1] "Mean absolute difference: 573.170624856858"
-    ## [1] "Mean absolute difference: 441.480132289226"
-    ## [1] "Mean absolute difference: 340.201863797457"
-    ## [1] "Mean absolute difference: 262.29848719945"
-    ## [1] "Mean absolute difference: 202.390166327949"
-    ## [1] "Mean absolute difference: 156.362712335707"
-    ## [1] "Mean absolute difference: 121.177929961317"
-    ## [1] "Mean absolute difference: 94.2930629844606"
-    ## [1] "Mean absolute difference: 73.7430162491135"
-    ## [1] "Mean absolute difference: 58.1334345153421"
-    ## [1] "Mean absolute difference: 46.4675324744064"
+    ## [1] "Number of iterations: 28"
 
 ``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 468 x 3
+    ## # A tibble: 490 x 3
     ##    player           rating raw_rating
     ##    <chr>             <dbl>      <dbl>
-    ##  1 Hector Ortega      728.      2018.
-    ##  2 Mike Maxwell       727.      2003.
-    ##  3 Evan Burgess       697.      1634.
-    ##  4 Skip Perry         695.      1612.
-    ##  5 Ryan Piaget        693.      1590.
-    ##  6 Michael Gonzales   691.      1561.
-    ##  7 Bob Simon          688.      1535.
-    ##  8 Nick Lansdown      684.      1485.
-    ##  9 Rhys Hughes        680.      1451.
-    ## 10 Diogo Martini      680.      1445.
-    ## # … with 458 more rows
+    ##  1 Hector Ortega      733.      2086.
+    ##  2 Mike Maxwell       731.      2066.
+    ##  3 Skip Perry         699.      1658.
+    ##  4 Evan Burgess       699.      1652.
+    ##  5 Ryan Piaget        697.      1634.
+    ##  6 Michael Gonzales   692.      1569.
+    ##  7 Bob Simon          690.      1557.
+    ##  8 Diogo Martini      686.      1508.
+    ##  9 Nick Lansdown      685.      1496.
+    ## 10 Rhys Hughes        682.      1470.
+    ## # … with 480 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))
@@ -189,12 +169,15 @@ date_list <-
   arrange(match_date) %>% 
   pull()
 
+num_dates <- 63
+# Last time ran back to 2018-08-07
+
 #length(date_list)
-tail(date_list, 2)
+tail(date_list, num_dates)
 
 #for (i in 71:102) {
-for (i in 1:2) {
-  results_date <- tail(date_list, 2)[i]
+for (i in 1:num_dates) {
+  results_date <- tail(date_list, num_dates)[i]
   
   print(results_date)
   
