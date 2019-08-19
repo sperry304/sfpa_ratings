@@ -1,7 +1,7 @@
 SFPA Fargo Ratings v.3
 ================
 Skip Perry
-May 2019
+August 2019
 
 ``` r
 latest_results_date <- 
@@ -109,27 +109,27 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Number of iterations: 28"
+    ## [1] "Number of iterations: 29"
 
 ``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 490 x 3
+    ## # A tibble: 489 x 3
     ##    player           rating raw_rating
     ##    <chr>             <dbl>      <dbl>
-    ##  1 Hector Ortega      733.      2086.
-    ##  2 Mike Maxwell       731.      2066.
-    ##  3 Skip Perry         699.      1658.
-    ##  4 Evan Burgess       699.      1652.
-    ##  5 Ryan Piaget        697.      1634.
-    ##  6 Michael Gonzales   692.      1569.
-    ##  7 Bob Simon          690.      1557.
-    ##  8 Diogo Martini      686.      1508.
-    ##  9 Nick Lansdown      685.      1496.
-    ## 10 Rhys Hughes        682.      1470.
-    ## # … with 480 more rows
+    ##  1 Hector Ortega      733.      2087.
+    ##  2 Mike Maxwell       731.      2069.
+    ##  3 Skip Perry         700.      1659.
+    ##  4 Evan Burgess       699.      1655.
+    ##  5 Ryan Piaget        698.      1635.
+    ##  6 Michael Gonzales   692.      1570.
+    ##  7 Bob Simon          691.      1559.
+    ##  8 Diogo Martini      686.      1510.
+    ##  9 Nick Lansdown      685.      1498.
+    ## 10 Rhys Hughes        682.      1472.
+    ## # … with 479 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))
