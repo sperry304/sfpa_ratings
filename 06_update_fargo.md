@@ -109,27 +109,27 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Number of iterations: 29"
+    ## [1] "Number of iterations: 31"
 
 ``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 489 x 3
+    ## # A tibble: 491 x 3
     ##    player           rating raw_rating
     ##    <chr>             <dbl>      <dbl>
-    ##  1 Hector Ortega      733.      2087.
-    ##  2 Mike Maxwell       731.      2069.
-    ##  3 Skip Perry         700.      1659.
-    ##  4 Evan Burgess       699.      1655.
-    ##  5 Ryan Piaget        698.      1635.
-    ##  6 Michael Gonzales   692.      1570.
-    ##  7 Bob Simon          691.      1559.
-    ##  8 Diogo Martini      686.      1510.
-    ##  9 Nick Lansdown      685.      1498.
-    ## 10 Rhys Hughes        682.      1472.
-    ## # … with 479 more rows
+    ##  1 Hector Ortega      734.      2090.
+    ##  2 Mike Maxwell       733.      2083.
+    ##  3 Evan Burgess       701.      1663.
+    ##  4 Skip Perry         701.      1663.
+    ##  5 Ryan Piaget        699.      1644.
+    ##  6 Michael Gonzales   692.      1571.
+    ##  7 Bob Simon          691.      1551.
+    ##  8 Nick Lansdown      689.      1531.
+    ##  9 Diogo Martini      686.      1506.
+    ## 10 Rhys Hughes        684.      1483.
+    ## # … with 481 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))

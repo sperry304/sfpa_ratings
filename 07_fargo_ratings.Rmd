@@ -252,8 +252,8 @@ team_qtile_plus_minus_by_date <-
 team_plus_minus_by_date %>% 
   ggplot(aes(x = match_date, y = overall_plus_minus, color = qtile, group = team)) +
   geom_hline(yintercept = 0, color = "white", size = 2) +
-  geom_line(alpha = 0.4) +
-  geom_point(alpha = 0.4, size = 1) +
+  geom_line(alpha = 0.3) +
+  geom_point(alpha = 0.3, size = 1) +
   geom_line(data = team_qtile_plus_minus_by_date) +
   geom_point(data = team_qtile_plus_minus_by_date) +
   guides(color = guide_legend(reverse = TRUE)) +

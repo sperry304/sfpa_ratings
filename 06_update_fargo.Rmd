@@ -98,7 +98,7 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
         get_updated_rating(player_name, results_df = results_df, ratings_df = fargo_ratings, a = a)
     }
     new_ratings <- fargo_ratings %>% pull(rating)
-    #print(str_c("Mean absolute difference: ", sum(abs(old_ratings - new_ratings))))
+    print(str_c("Mean absolute difference: ", sum(abs(old_ratings - new_ratings))))
     abs_diff <- sum(abs(old_ratings - new_ratings))
   }
   print(str_c("Number of iterations: ", n_iter))
