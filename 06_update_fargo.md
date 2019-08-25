@@ -90,7 +90,7 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
         get_updated_rating(player_name, results_df = results_df, ratings_df = fargo_ratings, a = a)
     }
     new_ratings <- fargo_ratings %>% pull(rating)
-    #print(str_c("Mean absolute difference: ", sum(abs(old_ratings - new_ratings))))
+    print(str_c("Mean absolute difference: ", sum(abs(old_ratings - new_ratings))))
     abs_diff <- sum(abs(old_ratings - new_ratings))
   }
   print(str_c("Number of iterations: ", n_iter))
@@ -109,27 +109,59 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Number of iterations: 31"
+    ## [1] "Mean absolute difference: 53832.4199437815"
+    ## [1] "Mean absolute difference: 22009.2020102864"
+    ## [1] "Mean absolute difference: 12974.6915098894"
+    ## [1] "Mean absolute difference: 8922.15336857491"
+    ## [1] "Mean absolute difference: 6504.27630089133"
+    ## [1] "Mean absolute difference: 4871.13913166015"
+    ## [1] "Mean absolute difference: 3689.26900210382"
+    ## [1] "Mean absolute difference: 2808.56014681409"
+    ## [1] "Mean absolute difference: 2145.36355306807"
+    ## [1] "Mean absolute difference: 1642.39405053632"
+    ## [1] "Mean absolute difference: 1259.72481039824"
+    ## [1] "Mean absolute difference: 968.036758555094"
+    ## [1] "Mean absolute difference: 745.685168338768"
+    ## [1] "Mean absolute difference: 576.08451318375"
+    ## [1] "Mean absolute difference: 447.147953099235"
+    ## [1] "Mean absolute difference: 349.931533194592"
+    ## [1] "Mean absolute difference: 276.887452662984"
+    ## [1] "Mean absolute difference: 222.642538848413"
+    ## [1] "Mean absolute difference: 182.423317886293"
+    ## [1] "Mean absolute difference: 152.854636014847"
+    ## [1] "Mean absolute difference: 132.147944546203"
+    ## [1] "Mean absolute difference: 116.794984518664"
+    ## [1] "Mean absolute difference: 104.443450376348"
+    ## [1] "Mean absolute difference: 94.1293692392283"
+    ## [1] "Mean absolute difference: 85.3887850451208"
+    ## [1] "Mean absolute difference: 77.8920976229532"
+    ## [1] "Mean absolute difference: 71.3985155855594"
+    ## [1] "Mean absolute difference: 65.71981248882"
+    ## [1] "Mean absolute difference: 60.7085025211224"
+    ## [1] "Mean absolute difference: 56.2486718066797"
+    ## [1] "Mean absolute difference: 52.248879356713"
+    ## [1] "Mean absolute difference: 48.6366661529943"
+    ## [1] "Number of iterations: 32"
 
 ``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 491 x 3
+    ## # A tibble: 493 x 3
     ##    player           rating raw_rating
     ##    <chr>             <dbl>      <dbl>
-    ##  1 Hector Ortega      734.      2090.
-    ##  2 Mike Maxwell       733.      2083.
-    ##  3 Evan Burgess       701.      1663.
-    ##  4 Skip Perry         701.      1663.
-    ##  5 Ryan Piaget        699.      1644.
-    ##  6 Michael Gonzales   692.      1571.
-    ##  7 Bob Simon          691.      1551.
-    ##  8 Nick Lansdown      689.      1531.
-    ##  9 Diogo Martini      686.      1506.
-    ## 10 Rhys Hughes        684.      1483.
-    ## # … with 481 more rows
+    ##  1 Hector Ortega      733.      2089.
+    ##  2 Mike Maxwell       733.      2087.
+    ##  3 Evan Burgess       701.      1666.
+    ##  4 Skip Perry         701.      1665.
+    ##  5 Ryan Piaget        699.      1645.
+    ##  6 Michael Gonzales   691.      1557.
+    ##  7 Bob Simon          691.      1552.
+    ##  8 Nick Lansdown      689.      1534.
+    ##  9 Diogo Martini      686.      1507.
+    ## 10 Rhys Hughes        684.      1484.
+    ## # … with 483 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))

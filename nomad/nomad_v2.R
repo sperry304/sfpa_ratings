@@ -10,7 +10,7 @@ name_list <-
   filter(is.na(need_to_check)) %>% 
   select(nickname, name)
 
-url <- "https://nomadpool.com/games?page=72&status=Final&venue_id=4"
+#url <- "https://nomadpool.com/games?page=72&status=Final&venue_id=4"
 
 url_to_game_results_df <- function(url) {
   # Takes in a URL, creates data frame with date, players, result
@@ -206,7 +206,7 @@ write_rds(happy_df, "nomad/happy_games_2016_2018_v1.Rdata")
 # Slate
 slate_url_list <- 
   c(
-    str_c("https://nomadpool.com/games?page=", 16:2, "&status=Final&venue_id=54"),
+    str_c("https://nomadpool.com/games?page=", 2, "&status=Final&venue_id=54"),
     "https://nomadpool.com/games?status=Final&venue_id=54"
   )
 
@@ -214,7 +214,24 @@ slate_df <-
   slate_url_list %>% 
   url_list_to_nickname_df()
 
-write_rds(slate_df, "nomad/slate_games_2016.Rdata")
+new_slate_games <- 
+  slate_df %>% 
+  filter(month(date) > 7)
+
+old_slate_games <- 
+  read_rds("nomad/slate_games_2016.Rdata")
+
+old_slate_games %>% 
+  count()
+
+new_slate_games %>% 
+  count()
+
+updated_slate_df <-
+  old_slate_games %>% 
+  bind_rows(new_slate_games)
+
+write_rds(updated_slate_df, "nomad/slate_games_2016.Rdata")
 
 # Blackthorn
 thorn_url_list <- 
