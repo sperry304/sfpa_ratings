@@ -2,7 +2,7 @@
 title: "SFPA Player Ratings, v.1"
 author: "Skip Perry"
 date: "August 2019"
-output: html_document
+output: github_document
 
 references:
 - id: hunter2004
@@ -98,7 +98,9 @@ How many games are needed to indicate that a rating is trustworthy?
 
 These ratings are based on the Bradley-Terry model, which since the 1950s has been one of the standard methods of assessing the skill of competitors who are repeatedly paired against one another. Considering two players $i$ and $j$ with ratings $\pi_i$ and $\pi_j$, the model estimates that player $i$ has the following probability of defeating player $j$:
 
-$$\text{P[Player } i \text{ defeats player } j] = p_{i > j} = \frac{\pi_i}{\pi_i + \pi_j}$$
+<!-- $$\text{P[Player } i \text{ defeats player } j] = p_{i > j} = \frac{\pi_i}{\pi_i + \pi_j}$$ -->
+
+![](images/eqn1.png){figwidth=50%}
 
 A common place to start when trying to compute parameters like these is maximum likelihood estimation. Under the above framework, each game's outcome has a specific probability of occurring: a win by player $i$ happens with probability $\pi_i/(\pi_i + \pi_j)$, while a win by player $j$ happens with 1 minus that probability. If we assume that game results are independent and identically distributed, we get a _likelihood_ of the complete data set by multiplying together the occurrence probabilities of all contested games. The maximum likelihood estimate, or MLE, is the collection of player ratings $\pi_1, ..., \pi_n$ for all $n$ players in the league that maximizes the value of this likelihood function.
 
