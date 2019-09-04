@@ -1,0 +1,124 @@
+---
+title: "SFPA Team ELO Ratings"
+author: "Skip Perry"
+date: "May 2019"
+output: github_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(rvest)
+library(lubridate)
+
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits_path <-
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata")
+
+results_no_forfeits <- 
+  results_no_forfeits_path %>% 
+  read_rds()
+```
+
+```{r}
+# Set K based on optimization
+K_team <- 4
+
+# Data frame of all team names for all seasons
+team_names <- 
+  bind_rows(
+    results_no_forfeits %>% transmute(team = home_team),
+    results_no_forfeits %>% transmute(team = away_team)
+  ) %>% 
+  distinct() %>% 
+  filter(!is.na(team)) %>% 
+  arrange(team)
+
+# Data frame of team names in the current Spring 2019 season
+team_names_2019 <- 
+  bind_rows(
+    results_no_forfeits %>% filter(season == "Spring 2019") %>% transmute(team = home_team),
+    results_no_forfeits %>% filter(season == "Spring 2019") %>% transmute(team = away_team)
+  ) %>% 
+  distinct() %>% 
+  filter(!is.na(team)) %>% 
+  arrange(team)
+
+# Helper function for ELO match win probability
+match_win_probability <- function(team_of_interest, home_rating, away_rating, home_advantage) {
+  if (team_of_interest == "home") {
+    prob <- 1 / (1 + 10 ^ ((away_rating - (home_rating + home_advantage)) / 400))
+  } else {
+    prob <- 1 / (1 + 10 ^ (((home_rating + home_advantage) - away_rating) / 400))
+  }
+  prob
+}
+
+# Helper function to get a team's rating
+get_team_rating <- function(team_name, ratings_df) {
+  ratings_df %>% 
+    filter(team == team_name) %>% 
+    pull(rating)
+}
+
+# Initialize ratings at 1500
+elo_team_ratings <-
+  team_names %>% 
+  mutate(rating = 1500)
+
+# Populate real-time match ratings throughout results data frame
+for (i in 1:nrow(results_no_forfeits)) {
+  team1 <- results_no_forfeits$home_team[i]
+  team2 <- results_no_forfeits$away_team[i]
+  if (is.na(team1)) { 
+    next 
+  } 
+  team1_rating <- get_team_rating(team1, elo_team_ratings)
+  team2_rating <- get_team_rating(team2, elo_team_ratings)
+  results_no_forfeits$t1_start_rating[i] <- team1_rating
+  results_no_forfeits$t2_start_rating[i] <- team2_rating
+  team1_expected <-
+    match_win_probability(
+      team_of_interest = "home", home_rating = team1_rating, away_rating = team2_rating,
+      home_advantage = 0
+    )
+  team2_expected <-
+    match_win_probability(
+      team_of_interest = "away", home_rating = team1_rating, away_rating = team2_rating,
+      home_advantage = 0
+    )
+  winner <- results_no_forfeits$game_winner[i]
+  S1 <- ifelse(winner == "home", 1, 0)
+  S2 <- ifelse(winner == "home", 0, 1)
+  team1_rating_new <- team1_rating + K_team * (S1 - team1_expected)
+  team2_rating_new <- team2_rating + K_team * (S2 - team2_expected)
+  elo_team_ratings$rating[elo_team_ratings$team == team1] <- team1_rating_new
+  elo_team_ratings$rating[elo_team_ratings$team == team2] <- team2_rating_new
+  results_no_forfeits$t1_end_rating[i] <- team1_rating_new
+  results_no_forfeits$t2_end_rating[i] <- team2_rating_new
+}
+
+elo_team_ratings %>% 
+  inner_join(team_names_2019, by = "team") %>% 
+  mutate(rating = round(rating)) %>% 
+  arrange(-rating)
+```
+
+```{r}
+latest_match_date <- 
+  results_no_forfeits %>% 
+  pull(match_date) %>% 
+  max()
+
+saveRDS(elo_team_ratings, str_c("other_data/elo_team_ratings_", latest_match_date, ".Rdata"))
+saveRDS(results_no_forfeits, str_c("match_data/results_no_forfeits_", latest_match_date, ".Rdata"))
+```
+
+```{r}
+
+```
+

@@ -88,7 +88,7 @@ How much do ratings change over time?
 
 Do new players have starter ratings?
 
-* Players begin with a rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some set period of time, we let the results follow the data even if that data is noisy at first. Within three games, more weight starts to be placed on actual match results than on the initial rating peg.
+* Players begin with an implied rating of 500, but from the very beginning their match results start to affect their ratings. Instead of holding a new player to an arbitrary starter rating for some set period of time, we let the results follow the data even if that data is noisy at first. Within three games, more weight starts to be placed on actual match results than on the initial rating peg.
 
 How many games are needed to indicate that a rating is trustworthy?
 
