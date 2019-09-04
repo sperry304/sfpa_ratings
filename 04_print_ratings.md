@@ -378,7 +378,6 @@ August 2019
 
 <br>
 
-Data sources: Spring 2018 SFPA season, Fall 2018 SFPA season, Spring
-2019 SFPA season, Spring 2019 SFPA 8-ball tournament, Spring 2019 Slate
-8-ball tournament, 2016-2019 Slate Saturday night tournaments, 2016-2019
-Happy singles tournaments
+Data sources: Spring 2018-Fall 2019 SFPA seasons, Spring 2019 SFPA
+8-ball tournament, Spring 2019 Slate 8-ball tournament, 2016-2019 Slate
+Saturday night tournaments, 2016-2019 Happy singles tournaments

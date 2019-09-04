@@ -181,4 +181,3 @@ for (i in 1:num_dates) {
   saveRDS(fargo_df, str_c("fargo_ratings/fargo_", results_date, ".Rdata"))
 }
 ```
-
