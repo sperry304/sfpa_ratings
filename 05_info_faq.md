@@ -47,7 +47,7 @@ Do new players have starter ratings?
     is noisy at first. Within three games, more weight starts to be
     placed on actual match results than on the initial rating peg.
 
-How many games are needed to indicate that a rating is trustworthy?
+How many games are needed to indicate that a rating is reliable?
 
   - This is not a simple question. We are in the process of generating
     confidence intervals (or, more accurately, Bayesian credible
@@ -58,8 +58,8 @@ How many games are needed to indicate that a rating is trustworthy?
 
 ### The Math Behind the Ratings
 
-These ratings are based on the Bradley-Terry model, which since the
-1950s has been one of the standard methods of assessing the skill of
+This system is based on the Bradley-Terry model, which since the 1950s
+has been one of the standard methods of assessing the skill of
 competitors who are repeatedly paired against one another. Considering
 two players *i* and *j* with ratings *π<sub>i</sub>* and
 *π<sub>j</sub>*, the model estimates that player *i* has the following
@@ -75,9 +75,9 @@ maximum likelihood estimation. Under the above framework, each game’s
 outcome has a specific probability of occurring: a win by player *i*
 happens with probability *π<sub>i</sub>/(π<sub>i</sub> +
 π<sub>j</sub>)*, while a win by player *j* happens with 1 minus that
-probability. If we assume that game results are independent and
-identically distributed, we get a *likelihood* of the complete data set
-by multiplying together the occurrence probabilities of all contested
+term. If we assume that game results are independent and identically
+distributed, we get a *likelihood* of the complete data set by
+multiplying together the occurrence probabilities of all contested
 games. The maximum likelihood estimate, or MLE, is the collection of
 player ratings *π<sub>1</sub>, …, π<sub>n</sub>* for all *n* players in
 the league that maximizes the value of this likelihood function.
@@ -162,8 +162,8 @@ between players rated 200 and 300 (a 60% win probability for the
 higher-ranked player) means something different than the same 100-point
 gap between players rated 800 and 900 (a 53% win probability for the
 higher-ranked player). A solution is to transform the raw rating
-*π<sub>i</sub>* into a new rating *R<sub>i</sub>*, where *µ* is the
-mean logged rating across the league:
+*π<sub>i</sub>* into a new rating *R<sub>i</sub>*, where *µ* is defined
+as the mean logged rating across the league:
 
 <!-- $$R_i = 144 \text{ log}(\pi_i) + 500 - \mu$$ -->
 
@@ -187,12 +187,12 @@ ratings that are easier to understand. First, the *500 - µ* factor means
 the system is explicitly centered at 500. Second, the scaling factor in
 the exponential denominator results in rating comparisons having a
 consistent meaning: no matter how high or low a player is ranked, an
-advantage of 100 rating points means they have 2-to-1 odds to win a
-game, regardless of whether the matchup in question is 200 vs. 300 or
-600 vs. 700. These differences are multiplicative, meaning that a
-200-point advantage predicts 4-to-1 odds, a 300-point advantage 8-to-1,
-and so on. This has the follow-on effect of reducing rightward skew in
-the data and providing a natural limit to players’ ratings.
+advantage of 100 points means that player has 2-to-1 odds to win a game,
+regardless of whether the matchup in question is 200 vs. 300 or 600
+vs. 700. These differences are multiplicative, meaning that a 200-point
+advantage predicts 4-to-1 odds, a 300-point advantage 8-to-1, and so on.
+This has the follow-on effect of reducing rightward skew in the data and
+providing a natural limit to players’ ratings.
 
 Other considerations included:
 
@@ -262,13 +262,13 @@ We can think of this as akin to a player putting poker chips into the
 pot before each game, and receiving a reward proportional to their
 likelihood of winning. The greater a player’s chance of winning, the
 smaller the increase in their rating will be if they win and the larger
-the decrease will be if they lose. The \(K\) term is a velocity
-parameter that determines how quickly ratings change along with new
-information. A higher value of \(K\) results in faster updates, but also
-more noise in the model. This is a sequential process in which rating
-updates are applied after each game or match, and only the ratings of
-the two players involved are affected. Like all models, this has its
-pluses and minuses:
+the decrease will be if they lose. The *K* term is a velocity parameter
+that determines how quickly ratings change along with new information. A
+higher value of *K* results in faster updates, but also more noise in
+the model. This is a sequential process in which rating updates are
+applied after each game or match, and only the ratings of the two
+players involved are affected. Like all models, it has pluses and
+minuses:
 
 Pros:
 
@@ -292,13 +292,13 @@ Experiments with Elo ratings in the current context with various *K*
 formulations showed slightly weaker predictive results than the
 Bradley-Terry model, probably because this data set has the triple
 challenges of sparsity (most players don’t play each other and when they
-do play each other it’s only once), weak connections in the data (teams
-across the skill level spectrum only play each other for the first five
-weeks of the season), and a high-variance input (one game of 8-ball,
-where even beginners can run out with a good layout). Low or strongly
-decreasing values of *K* along with number of games played resulted in
-rating changes moving too slowly; higher values of *K* created too much
-noise.
+do play each other it’s only once per night), weak connections in the
+data (teams across the skill level spectrum only play each other for the
+first five weeks of the season), and a high-variance input (one game of
+8-ball, where even beginners can run out with a good layout). Low or
+strongly decreasing values of *K* along with number of games played
+resulted in rating changes moving too slowly; higher values of *K*
+created too much noise.
 
 More importantly, it is clear from a conceptual standpoint that each
 game can provide useful information about more than the two players
