@@ -61,41 +61,45 @@ How many games are needed to indicate that a rating is trustworthy?
 These ratings are based on the Bradley-Terry model, which since the
 1950s has been one of the standard methods of assessing the skill of
 competitors who are repeatedly paired against one another. Considering
-two players \(i\) and \(j\) with ratings \(\pi_i\) and \(\pi_j\), the
-model estimates that player \(i\) has the following probability of
-defeating player
-\(j\):
+two players *i* and *j* with ratings *π<sub>i</sub>* and
+*π<sub>j</sub>*, the model estimates that player *i* has the following
+probability of defeating player
+*j*:
 
 <!-- $$\text{P[Player } i \text{ defeats player } j] = p_{i > j} = \frac{\pi_i}{\pi_i + \pi_j}$$ -->
 
-![](images/eqn1.png)
+<img src="images/eqn1.png" width="40%">
 
 A common place to start when trying to compute parameters like these is
 maximum likelihood estimation. Under the above framework, each game’s
-outcome has a specific probability of occurring: a win by player \(i\)
-happens with probability \(\pi_i/(\pi_i + \pi_j)\), while a win by
-player \(j\) happens with 1 minus that probability. If we assume that
-game results are independent and identically distributed, we get a
-*likelihood* of the complete data set by multiplying together the
-occurrence probabilities of all contested games. The maximum likelihood
-estimate, or MLE, is the collection of player ratings
-\(\pi_1, ..., \pi_n\) for all \(n\) players in the league that maximizes
-the value of this likelihood function.
+outcome has a specific probability of occurring: a win by player *i*
+happens with probability *π<sub>i</sub>/(π<sub>i</sub> +
+π<sub>j</sub>)*, while a win by player *j* happens with 1 minus that
+probability. If we assume that game results are independent and
+identically distributed, we get a *likelihood* of the complete data set
+by multiplying together the occurrence probabilities of all contested
+games. The maximum likelihood estimate, or MLE, is the collection of
+player ratings *π<sub>1</sub>, …, π<sub>n</sub>* for all *n* players in
+the league that maximizes the value of this likelihood function.
 
 While there is no general analytical solution for the MLE in this case,
-iterative methods can be used to find a result. Letting \(\pi_i\) be
-player \(i\)’s rating, \(w_i\) the number of times player \(i\) won a
-game, \(n_{ij}\) the number of games played between players \(i\) and
-\(j\), and \((t)\) labeling the result at the \(t^{th}\) iteration, we
-can use the following update
+iterative methods can be used to find a result. Letting *π<sub>i</sub>*
+be player *i*’s rating, *w<sub>i</sub>* the number of times player *i*
+won a game, *n<sub>ij</sub>* the number of games played between players
+*i* and *j*, and *(t)* labeling the result at the *t<sup>th</sup>*
+iteration, we can use the following update
 formula:
 
-\[\pi_i^{(t)} = \frac{w_i}{\sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}\]
+<!-- $$\pi_i^{(t)} = \frac{w_i}{\sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$ -->
+
+<img src="images/eqn2.png" width="22%">
 
 Or, in a format that may be easier to
 understand:
 
-\[\pi_i^{new} = \frac{\text{# of total wins by player } i}{\sum_{\text{All games played by } i} \frac{\text{# of games between } i, j}{\pi_i^{current} + \pi_j^{current}}}\]
+<!-- $$\pi_i^{new} = \frac{\text{# of total wins by player } i}{\sum_{\text{All games played by } i} \frac{\text{# of games between } i, j}{\pi_i^{current} + \pi_j^{current}}}$$ -->
+
+<img src="images/eqn3.png" width="37%">
 
 This adaptation of the expectation-maximization (EM) algorithm loops
 through each player, updating their rating using the latest estimates of
@@ -119,36 +123,38 @@ players with no wins at all.
 Bayesian methods allow us to avoid these problems. Instead of finding an
 MLE after taking undesirable steps like omitting winless players or
 mandating a minimum number of games, we calculate the maximum a priori
-(MAP) estimate of **\(\pi\)** by setting a \(G(a, b)\) prior on \(\pi\),
-where \(G\) is a gamma distribution with shape and rate parameters \(a\)
-and \(b\). This prior is conjugate to the complete data likelihood
-function and results in the following update
+(MAP) estimate of ***π*** by setting a *G(a, b)* prior on *π*, where *G*
+is a gamma distribution with shape and rate parameters *a* and *b*. This
+prior is conjugate to the complete data likelihood function and results
+in the following update
 formula:
 
-\[\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}\]
+<!-- $$\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$ -->
+
+<img src="images/eqn4.png" width="25%">
 
 Like the MLE, MAP estimation provides a point estimate, though in this
 case it is the mode of a posterior distribution rather than the value at
-which a likelihood function is maximized. (Note that for \(a = 1\) and
-\(b = 0\), the MAP and maximum likelihood estimates are equivalent; see
-Caron and Doucet (2012) for more information.)
+which a likelihood function is maximized. (Note that for *a = 1* and *b
+= 0*, the MAP and maximum likelihood estimates are equivalent; see Caron
+and Doucet (2012) for more information.)
 
 Under this setup, as in many Bayesian applications, the choice of prior
-has a major impact on the model. When \(a = 1\), we get the MLE; as the
-value of \(a\) increases, the impact of actual game results decreases as
+has a major impact on the model. When *a = 1*, we get the MLE; as the
+value of *a* increases, the impact of actual game results decreases as
 the numerator and denominator in the update formula become dominated by
-the constant \(a-1\) and \(b\) terms. Hyperparameter tuning for \(a\)
+the constant *a - 1* and *b* terms. Hyperparameter tuning for *a*
 resulted in an optimal choice of 3 - a weakly informative prior.
 
 The scale of these ratings is arbitrary; any set of ratings can be
 multiplied by some positive constant and result in the same probability
-\(p_{i>j}\) for all \(i\) and \(j\). As a result, in the MLE context, we
-would need to peg a player rating \(\pi_i\) to a particular value, or
-set up an additional constraint such as
-\(1 / n * \sum_{i=1}^{n} \pi_i = 1000\), in order to arrive at a unique
-solution. In the MAP formulation, we can make the model identifiable by
-setting \(b = (a - 1) / 500\) and ensure a rough average player rating
-of about 500 in the process.
+*p<sub>i\>j</sub>* for all *i* and *j*. As a result, in the MLE context,
+we would need to peg a player rating *π<sub>i</sub>* to a particular
+value, or set up an additional constraint such as *Σ<sub>n</sub> π\_i =
+1000/n*, in order to arrive at a unique solution. In the MAP
+formulation, we can make the model identifiable by setting *b = (a - 1)
+/ 500* and ensure a rough average player rating of about 500 in the
+process.
 
 One issue with the system as described so far is interpretability.
 Ratings are only meaningful in relation to each other; a 100-point gap
@@ -156,29 +162,34 @@ between players rated 200 and 300 (a 60% win probability for the
 higher-ranked player) means something different than the same 100-point
 gap between players rated 800 and 900 (a 53% win probability for the
 higher-ranked player). A solution is to transform the raw rating
-\(\pi_i\) into a new rating \(R_i\), where \(\mu\) is the mean logged
-rating across the league:
+*π<sub>i</sub>* into a new rating *R<sub>i</sub>*, where *µ* is the
+mean logged rating across the league:
 
-\[R_i = 144 \text{ log}(\pi_i) + 500 - \mu\]
+<!-- $$R_i = 144 \text{ log}(\pi_i) + 500 - \mu$$ -->
 
-Then we get a new formula for \(p_{i > j}\), the probability that player
-\(i\) defeats player
-\(j\):
+<img src="images/eqn5.png" width="23%">
 
-\[p_{i > j} = \frac{1}{1 + \text{exp}\Big{(}\frac{R_j - R_i}{144}\Big{)}}\]
+Then we get a new formula for *p<sub>i\>j</sub>*, the probability that
+player *i* defeats player
+*j*:
 
-(Plugging in the formulas for \(R_i\) and \(R_j\) in the above will
-demonstrate the equality of this formulation with the original
-\(p_{i > j} = \pi_i/(\pi_i + \pi_j)\).)
+<!-- $$p_{i > j} = \frac{1}{1 + \text{exp}\Big{(}\frac{R_j - R_i}{144}\Big{)}}$$ -->
+
+<img src="images/eqn6.png" width="21%">
+
+(Plugging in the formulas for *R<sub>i</sub>* and *R<sub>j</sub>* in the
+above will demonstrate the equality of this formulation with the
+original *p<sub>i\>j</sub> = π<sub>i</sub>/(π<sub>i</sub> +
+π<sub>j</sub>)*.)
 
 This transformation adds one more step to the process but leads to
-ratings that are easier to understand. First, the \(500 - \mu\) factor
-means the system is explicitly centered at 500. Second, the scaling
-factor in the exponential denominator results in rating comparisons
-having a consistent meaning: no matter how high or low a player is
-ranked, an advantage of 100 rating points means they have 2-to-1 odds to
-win a game, regardless of whether the matchup in question is 200 vs. 300
-or 600 vs. 700. These differences are multiplicative, meaning that a
+ratings that are easier to understand. First, the *500 - µ* factor means
+the system is explicitly centered at 500. Second, the scaling factor in
+the exponential denominator results in rating comparisons having a
+consistent meaning: no matter how high or low a player is ranked, an
+advantage of 100 rating points means they have 2-to-1 odds to win a
+game, regardless of whether the matchup in question is 200 vs. 300 or
+600 vs. 700. These differences are multiplicative, meaning that a
 200-point advantage predicts 4-to-1 odds, a 300-point advantage 8-to-1,
 and so on. This has the follow-on effect of reducing rightward skew in
 the data and providing a natural limit to players’ ratings.
@@ -188,17 +199,17 @@ Other considerations included:
   - Home-table advantage: In the past three seasons, about 52% of games
     have been won by the home team, a small but significant edge to the
     home player. There also exists a simple way to incorporate this
-    factor into the ratings, letting
-    \(p_{i>j} = \frac{\theta \pi_i}{\theta \pi_i + \pi_j}\) where
-    \(\theta > 1\) is the home-table advantage (or \(\theta < 1\) if
-    it’s a disadvantage). Unfortunately, this is a noisy input: due to
-    scheduling conflicts and bar remodeling, teams often play “home”
-    games at other bars; most week 1 games are home games for both
-    teams; and playoff games represent an uneven playing field since
-    higher-seeded teams play at home while lower-seeded teams play on
-    the road, among other factors. After quite a bit of experimentation
-    in this area failed to improve model performance, I omitted the
-    home-table advantage from the rating system.
+    factor into the ratings, letting *p<sub>i\>j</sub> =
+    θπ<sub>i</sub>/(θπ<sub>i</sub> + π<sub>j</sub>)* where *θ \> 1* is
+    the home-table advantage (or *θ \< 1* if it’s a disadvantage).
+    Unfortunately, this is a noisy input: due to scheduling conflicts
+    and bar remodeling, teams often play “home” games at other bars;
+    most week 1 games are home games for both teams; and playoff games
+    represent an uneven playing field since higher-seeded teams play at
+    home while lower-seeded teams play on the road, among other factors.
+    After quite a bit of experimentation in this area failed to improve
+    model performance, I omitted the home-table advantage from the
+    rating system.
 
   - Time decay: In pool, a player’s skill level can sometimes change
     over time. One approach to this phenomenon is to assume that these
@@ -243,7 +254,9 @@ new rating conditional on the eventual result. Unlike the complex
 iterative method used to find a Bradley-Terry estimate, the Elo rating
 update formula is simple:
 
-\[R_{new} = R_{old} + K(1_{win} - P_{win})\]
+<!-- $$R_{new} = R_{old} + K(1_{win} - P_{win})$$ -->
+
+<img src="images/eqn7.png" width="27%">
 
 We can think of this as akin to a player putting poker chips into the
 pot before each game, and receiving a reward proportional to their
@@ -273,14 +286,14 @@ Cons:
     opponents, especially in the second half of the season when teams of
     similar overall skill level play against each other
 
-  - Different values of \(K\) have a drastic impact on the model
+  - Different values of *K* have a drastic impact on the model
 
   - Each game only affects two players; Bradley-Terry populates changes
     throughout the entire player population
 
 See Aldous (2017) for a more in-depth discussion of this subject.
 
-Experiments with Elo ratings in the current context with various \(K\)
+Experiments with Elo ratings in the current context with various *K*
 formulations showed slightly weaker predictive results than the
 Bradley-Terry model, probably because this data set has the triple
 challenges of sparsity (most players don’t play each other and when they
@@ -288,9 +301,9 @@ do play each other it’s only once), weak connections in the data (teams
 across the skill level spectrum only play each other for the first five
 weeks of the season), and a high-variance input (one game of 8-ball,
 where even beginners can run out with a good layout). Low or strongly
-decreasing values of \(K\) along with number of games played resulted in
-rating changes moving too slowly; higher values of \(K\) created too
-much noise.
+decreasing values of *K* along with number of games played resulted in
+rating changes moving too slowly; higher values of *K* created too much
+noise.
 
 More importantly, it is clear from a conceptual standpoint that each
 game can provide useful information about more than the two players
