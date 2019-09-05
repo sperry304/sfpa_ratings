@@ -1,17 +1,9 @@
----
-title: "SFPA Ratings v.1"
-author: "Skip Perry"
-date: "August 2019"
-output: github_document
----
+SFPA Ratings v.1
+================
+Skip Perry
+August 2019
 
-```{r setup, include=FALSE, message=FALSE, warning=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-library(tidyverse)
-library(lubridate)
-```
-
-```{r}
+``` r
 latest_results_date <- 
   list.files("match_data", pattern = "results_no_forfeits") %>% 
   str_extract("\\d+-\\d+-\\d+") %>% 
@@ -21,8 +13,6 @@ results_no_forfeits <-
   str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata") %>% 
   read_rds()
 
-# Uses game database and current rating estimates to provide a new rating 
-# estimate for a given player 
 get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
   game_count <- 
     results_df %>% 
@@ -76,9 +66,6 @@ get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
     pull(rating)
 }
 
-# Computes udpated ratings for all players until the absolute difference 
-# in the vector of ratings between iterations reaches the desired threshold
-# Usually takes about 20-30 iterations to converge
 results_to_ratings <- function(results_df, a, mae_stop = 100) {
   player_list <- 
     bind_rows(
@@ -112,7 +99,7 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
 }
 ```
 
-```{r}
+``` r
 fargo_df <- 
   results_to_ratings(results_no_forfeits, a = 3, mae_stop = 50) %>% 
   mutate(
@@ -120,17 +107,66 @@ fargo_df <-
     rating = log(rating) * 144,
     rating = rating - mean(rating) + 500
   )
+```
 
+    ## [1] "Mean absolute difference: 54616.8535648443"
+    ## [1] "Mean absolute difference: 22647.0497643958"
+    ## [1] "Mean absolute difference: 13409.8591531681"
+    ## [1] "Mean absolute difference: 9217.66049131892"
+    ## [1] "Mean absolute difference: 6704.89499325998"
+    ## [1] "Mean absolute difference: 5004.41038353445"
+    ## [1] "Mean absolute difference: 3781.68047195564"
+    ## [1] "Mean absolute difference: 2875.15350921884"
+    ## [1] "Mean absolute difference: 2194.35765614295"
+    ## [1] "Mean absolute difference: 1678.16562044306"
+    ## [1] "Mean absolute difference: 1286.09032415291"
+    ## [1] "Mean absolute difference: 987.061696481261"
+    ## [1] "Mean absolute difference: 758.914049124838"
+    ## [1] "Mean absolute difference: 585.078406216763"
+    ## [1] "Mean absolute difference: 452.670944672919"
+    ## [1] "Mean absolute difference: 352.457048126266"
+    ## [1] "Mean absolute difference: 277.040597131791"
+    ## [1] "Mean absolute difference: 220.87845974196"
+    ## [1] "Mean absolute difference: 179.302418660182"
+    ## [1] "Mean absolute difference: 148.771952232115"
+    ## [1] "Mean absolute difference: 126.804018736124"
+    ## [1] "Mean absolute difference: 111.208961306008"
+    ## [1] "Mean absolute difference: 99.0183401520261"
+    ## [1] "Mean absolute difference: 89.0049300861722"
+    ## [1] "Mean absolute difference: 80.5934457991019"
+    ## [1] "Mean absolute difference: 73.4197070226071"
+    ## [1] "Mean absolute difference: 67.2386727662251"
+    ## [1] "Mean absolute difference: 61.8593950235237"
+    ## [1] "Mean absolute difference: 57.1327611222419"
+    ## [1] "Mean absolute difference: 52.9420098377601"
+    ## [1] "Mean absolute difference: 49.195403103857"
+    ## [1] "Number of iterations: 31"
+
+``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-```{r}
+    ## # A tibble: 497 x 3
+    ##    player           rating raw_rating
+    ##    <chr>             <dbl>      <dbl>
+    ##  1 Mike Maxwell       737.      2128.
+    ##  2 Hector Ortega      736.      2111.
+    ##  3 Skip Perry         702.      1669.
+    ##  4 Ryan Piaget        700.      1650.
+    ##  5 Evan Burgess       699.      1635.
+    ##  6 Bob Simon          693.      1575.
+    ##  7 Michael Gonzales   693.      1574.
+    ##  8 Nick Lansdown      691.      1546.
+    ##  9 Rhys Hughes        686.      1493.
+    ## 10 Diogo Martini      685.      1485.
+    ## # … with 487 more rows
+
+``` r
 saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))
 ```
 
-```{r}
-# Create a single file with all known player ratings
+``` r
 fargo_files <- 
   list.files("fargo_ratings", pattern = "^fargo")
 
@@ -154,7 +190,7 @@ all_fargo_ratings <-
 saveRDS(all_fargo_ratings, str_c("fargo_ratings/all_fargo_ratings.Rdata"))
 ```
 
-```{r, eval=FALSE}
+``` r
 # Do this to update previous fargo ratings after adding new games to database
 # from before current week, making changes to player names, etc.
 date_list <- 

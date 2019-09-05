@@ -100,7 +100,7 @@ This system is based on the Bradley-Terry model, which since the 1950s has been 
 
 <!-- $$\text{P[Player } i \text{ defeats player } j] = p_{i > j} = \frac{\pi_i}{\pi_i + \pi_j}$$ -->
 
-<img src="images/eqn1.png" width="40%">
+<img src="images/eqn1.png" width="43%">
 
 A common place to start when trying to compute parameters like these is maximum likelihood estimation. Under the above framework, each game's outcome has a specific probability of occurring: a win by player _i_ happens with probability _π<sub>i</sub>/(π<sub>i</sub> + π<sub>j</sub>)_, while a win by player _j_ happens with 1 minus that term. If we assume that game results are independent and identically distributed, we get a _likelihood_ of the complete data set by multiplying together the occurrence probabilities of all contested games. The maximum likelihood estimate, or MLE, is the collection of player ratings _π<sub>1</sub>, ..., π<sub>n</sub>_ for all _n_ players in the league that maximizes the value of this likelihood function.
 
@@ -108,13 +108,13 @@ While there is no general analytical solution for the MLE in this case, iterativ
 
 <!-- $$\pi_i^{(t)} = \frac{w_i}{\sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$ -->
 
-<img src="images/eqn2.png" width="22%">
+<img src="images/eqn2.png" width="25%">
 
 Or, in a format that may be easier to understand: 
 
 <!-- $$\pi_i^{new} = \frac{\text{# of total wins by player } i}{\sum_{\text{All games played by } i} \frac{\text{# of games between } i, j}{\pi_i^{current} + \pi_j^{current}}}$$ -->
 
-<img src="images/eqn3.png" width="37%">
+<img src="images/eqn3.png" width="40%">
 
 This adaptation of the expectation-maximization (EM) algorithm loops through each player, updating their rating using the latest estimates of all their opponents' ratings. Eventually, each update will have such a small effect on the vector of player ratings that we can stop the process.
 
@@ -124,7 +124,7 @@ Bayesian methods allow us to avoid these problems. Instead of finding an MLE aft
 
 <!-- $$\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$ -->
 
-<img src="images/eqn4.png" width="25%">
+<img src="images/eqn4.png" width="28%">
 
 Like the MLE, MAP estimation provides a point estimate, though in this case it is the mode of a posterior distribution rather than the value at which a likelihood function is maximized. (Note that for _a = 1_ and _b = 0_, the MAP and maximum likelihood estimates are equivalent; see @carondoucet for more information.) 
 
@@ -136,13 +136,13 @@ One issue with the system as described so far is interpretability. Ratings are o
 
 <!-- $$R_i = 144 \text{ log}(\pi_i) + 500 - \mu$$ -->
 
-<img src="images/eqn5.png" width="23%">
+<img src="images/eqn5.png" width="27%">
 
 Then we get a new formula for _p<sub>i>j</sub>_, the probability that player _i_ defeats player _j_:
 
 <!-- $$p_{i > j} = \frac{1}{1 + \text{exp}\Big{(}\frac{R_j - R_i}{144}\Big{)}}$$ -->
 
-<img src="images/eqn6.png" width="21%">
+<img src="images/eqn6.png" width="24%">
 
 (Plugging in the formulas for _R<sub>i</sub>_ and _R<sub>j</sub>_ in the above will demonstrate the equality of this formulation with the original _p<sub>i>j</sub> = π<sub>i</sub>/(π<sub>i</sub> + π<sub>j</sub>)_.)
 
@@ -162,7 +162,7 @@ The Elo system, used in chess and many other zero-sum competitive settings, has 
 
 <!-- $$R_{new} = R_{old} + K(1_{win} - P_{win})$$ -->
 
-<img src="images/eqn7.png" width="27%">
+<img src="images/eqn7.png" width="30%">
 
 We can think of this as akin to a player putting poker chips into the pot before each game, and receiving a reward proportional to their likelihood of winning. The greater a player's chance of winning, the smaller the increase in their rating will be if they win and the larger the decrease will be if they lose. The _K_ term is a velocity parameter that determines how quickly ratings change along with new information. A higher value of _K_ results in faster updates, but also more noise in the model. This is a sequential process in which rating updates are applied after each game or match, and only the ratings of the two players involved are affected. Like all models, it has pluses and minuses:
 

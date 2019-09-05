@@ -68,7 +68,7 @@ probability of defeating player
 
 <!-- $$\text{P[Player } i \text{ defeats player } j] = p_{i > j} = \frac{\pi_i}{\pi_i + \pi_j}$$ -->
 
-<img src="images/eqn1.png" width="40%">
+<img src="images/eqn1.png" width="43%">
 
 A common place to start when trying to compute parameters like these is
 maximum likelihood estimation. Under the above framework, each game’s
@@ -92,14 +92,14 @@ formula:
 
 <!-- $$\pi_i^{(t)} = \frac{w_i}{\sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$ -->
 
-<img src="images/eqn2.png" width="22%">
+<img src="images/eqn2.png" width="25%">
 
 Or, in a format that may be easier to
 understand:
 
 <!-- $$\pi_i^{new} = \frac{\text{# of total wins by player } i}{\sum_{\text{All games played by } i} \frac{\text{# of games between } i, j}{\pi_i^{current} + \pi_j^{current}}}$$ -->
 
-<img src="images/eqn3.png" width="37%">
+<img src="images/eqn3.png" width="40%">
 
 This adaptation of the expectation-maximization (EM) algorithm loops
 through each player, updating their rating using the latest estimates of
@@ -131,7 +131,7 @@ formula:
 
 <!-- $$\pi_i^{(t)} = \frac{a - 1 + w_i}{b + \sum_{j \neq i} \frac{n_{ij}}{\pi_i^{(t-1)} + \pi_j^{(t-1)}}}$$ -->
 
-<img src="images/eqn4.png" width="25%">
+<img src="images/eqn4.png" width="28%">
 
 Like the MLE, MAP estimation provides a point estimate, though in this
 case it is the mode of a posterior distribution rather than the value at
@@ -167,7 +167,7 @@ as the mean logged rating across the league:
 
 <!-- $$R_i = 144 \text{ log}(\pi_i) + 500 - \mu$$ -->
 
-<img src="images/eqn5.png" width="23%">
+<img src="images/eqn5.png" width="27%">
 
 Then we get a new formula for *p<sub>i\>j</sub>*, the probability that
 player *i* defeats player
@@ -175,7 +175,7 @@ player *i* defeats player
 
 <!-- $$p_{i > j} = \frac{1}{1 + \text{exp}\Big{(}\frac{R_j - R_i}{144}\Big{)}}$$ -->
 
-<img src="images/eqn6.png" width="21%">
+<img src="images/eqn6.png" width="24%">
 
 (Plugging in the formulas for *R<sub>i</sub>* and *R<sub>j</sub>* in the
 above will demonstrate the equality of this formulation with the
@@ -256,7 +256,7 @@ update formula is simple:
 
 <!-- $$R_{new} = R_{old} + K(1_{win} - P_{win})$$ -->
 
-<img src="images/eqn7.png" width="27%">
+<img src="images/eqn7.png" width="30%">
 
 We can think of this as akin to a player putting poker chips into the
 pot before each game, and receiving a reward proportional to their
