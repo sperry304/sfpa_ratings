@@ -1,7 +1,7 @@
 ---
 title: "SFPA Ratings - Data Scraping"
 author: "Skip Perry"
-date: "March 2019"
+date: "September 2019"
 output: github_document
 ---
   
@@ -220,15 +220,10 @@ bind_rows(prev_matches, new_matches) %>%
 
 ```{r}
 # Add to previous results
-
-#all_matches_2019fall <- new_matches
-  
 all_matches_2019fall <- bind_rows(prev_matches, new_matches)
 
 saveRDS(all_matches_2019fall, "match_data/all_matches_2019fall.Rdata")
 ```
-
-
 
 ```{r, eval=FALSE, echo=FALSE}
 #Scrape an outside file from a tournament:
