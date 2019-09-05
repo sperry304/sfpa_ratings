@@ -14,38 +14,29 @@ library(lubridate)
 
 ```{r}
 # Produces a list of URLs of score sheets for a given completed week
-# Starts with week_url of form https://www.sfpapool.org/stats/week/52/
+# Starts with a URL of form week_url <- "https://www.sfpapool.org/stats/week/86/"
+# Grabs the first scoresheet in each row, so need to wait until results finalized
 
 get_week_match_urls <- function(week_url) {
-  webpage <- read_html(week_url)
-
-  webpage %>% 
-  html_nodes("tr") %>% 
-  html_nodes("td") %>% 
-  html_node("a") %>% 
-  html_attr("href") %>% 
-  enframe(name = NULL) %>% 
-  filter(str_detect(value, "score_sheet")) %>% 
-  transmute(score_sheets = str_c("https://www.sfpapool.org", value)) %>% 
-  pull(score_sheets)
+  week_url %>% 
+    read_html() %>% 
+    html_nodes("tr") %>% 
+    html_nodes("td") %>% 
+    html_node("a") %>% 
+    html_attr("href") %>% 
+    enframe(name = NULL) %>% 
+    filter(str_detect(value, "score_sheet")) %>% 
+    transmute(score_sheets = str_c("https://www.sfpapool.org", value)) %>% 
+    pull(score_sheets)
 }
 
 #get_week_match_urls("https://www.sfpapool.org/stats/week/58/")
-
-# Helper function for date
-date_to_season <- function(match_date) {
-  str_c(
-    ifelse(match_date %>% month < 7, "Spring", "Fall"),
-    match_date %>% year, 
-    sep = " "
-  )
-}
 
 # Parses a given score sheet and turns it into a data frame
 # Score sheet has form https://www.sfpapool.org/stats/score_sheet/1223/
 
 parse_score_sheet <- function(url) {
-  url <- 'https://www.sfpapool.org/stats/score_sheet/1799/'
+  #url <- 'https://www.sfpapool.org/stats/score_sheet/1799/'
 
   webpage <- read_html(url)
   
@@ -60,7 +51,12 @@ parse_score_sheet <- function(url) {
     str_extract("\\w+.\\s\\d+,\\s\\d+") %>% 
     mdy()
 
-  season <- date_to_season(match_date)
+  season <- 
+    str_c(
+      ifelse(match_date %>% month < 7, "Spring", "Fall"),
+      match_date %>% year, 
+      sep = " "
+    )
   
   week_number <- 
     webpage %>% 
@@ -153,6 +149,19 @@ parse_score_sheet <- function(url) {
       forfeit = "forfeit"
     )
   
+  #time_completed <- 
+  #  webpage %>% 
+  #  html_nodes("tr") %>% 
+  #  html_nodes("td") %>% 
+  #  toString() %>% 
+  #  str_extract_all(pattern = '\\d+\\:\\d+') %>% 
+  #  unlist() %>% 
+  #  enframe(name = NULL) %>% 
+  #  transmute(
+  #    game_num = row_number(),
+  #    time_completed = value
+  #  )
+
   match_summary <- 
     player_matchups %>% 
     mutate(
@@ -164,6 +173,7 @@ parse_score_sheet <- function(url) {
     ) %>% 
     select(season, match_date, week_number, home_team, away_team, game_num:game_winner) %>% 
     left_join(forfeited_games, by = "game_num")
+    #left_join(time_completed, by = "game_num")
   
   match_summary
 }
@@ -172,21 +182,21 @@ parse_score_sheet <- function(url) {
 
 # Function to turn a list of week URLs into a data frame of match results for a whole season
 # Cycles through each week URL, grabs the matches from that week, adds to data frame
-week_urls_to_all_matches <- function(week_urls) {
-  all_matches <- tibble() 
+week_urls_to_parsed_matches <- function(week_urls) {
+  parsed_matches <- tibble() 
 
   for (i in 1:length(week_urls)) {
     print(str_c("Starting week ", i))
     match_urls <- get_week_match_urls(week_urls[i])
     week_match_data <- map_dfr(match_urls, parse_score_sheet)
-    all_matches <- bind_rows(all_matches, week_match_data)
+    parsed_matches <- bind_rows(parsed_matches, week_match_data)
     print(str_c("Week ", i, " complete"))
   }
   
-  all_matches
+  parsed_matches
 }
 
-#week_urls_to_all_matches(str_c("https://www.sfpapool.org/stats/week/", c(57:58)))
+#week_urls_to_parsed_matches(str_c("https://www.sfpapool.org/stats/week/", c(57:58)))
 ```
 
 ```{r}
@@ -200,8 +210,8 @@ prev_matches %>%
 
 ```{r}
 # Get updated Spring 2019 results and check
-new_data_urls <- str_c("https://www.sfpapool.org/stats/week/", 86) # Most recent week
-new_matches <- week_urls_to_all_matches(new_data_urls)
+weeks_to_parse <- str_c("https://www.sfpapool.org/stats/week/", 86) # Most recent week
+new_matches <- week_urls_to_parsed_matches(weeks_to_parse)
 
 bind_rows(prev_matches, new_matches) %>% 
   group_by(match_date) %>% 
