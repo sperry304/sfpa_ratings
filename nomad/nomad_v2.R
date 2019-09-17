@@ -206,17 +206,18 @@ write_rds(happy_df, "nomad/happy_games_2016_2018_v1.Rdata")
 # Slate
 slate_url_list <- 
   c(
-    str_c("https://nomadpool.com/games?page=", 2, "&status=Final&venue_id=54"),
-    "https://nomadpool.com/games?status=Final&venue_id=54"
+    str_c("https://nomadpool.com/games?page=", 2, "&venue_id=54"),
+    "https://nomadpool.com/games?venue_id=54"
   )
 
 slate_df <- 
   slate_url_list %>% 
   url_list_to_nickname_df()
 
+# Choose only new tournament here
 new_slate_games <- 
   slate_df %>% 
-  filter(month(date) > 7)
+  filter(month(date) > 8)
 
 old_slate_games <- 
   read_rds("nomad/slate_games_2016.Rdata")
@@ -230,6 +231,9 @@ new_slate_games %>%
 updated_slate_df <-
   old_slate_games %>% 
   bind_rows(new_slate_games)
+
+updated_slate_df %>% 
+  count()
 
 write_rds(updated_slate_df, "nomad/slate_games_2016.Rdata")
 
