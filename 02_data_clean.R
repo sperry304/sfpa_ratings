@@ -18,6 +18,12 @@ spring19tournaments <-
     forfeit = NA_character_, game_type = NA_character_
   )
 fall19 <- read_rds("match_data/all_matches_2019fall.Rdata")
+fall19tournaments <- 
+  read_csv("tournaments/fall2019_tournaments.csv") %>% 
+  mutate(
+    home_team = NA_character_, away_team = NA_character_, 
+    forfeit = NA_character_, game_type = NA_character_
+  )
 
 nomad_name_list <- 
   read_ods("nomad/nomad_names.ods") %>% 
@@ -89,10 +95,33 @@ fiveforty_nicknamed_df <-
     game_type = NA_character_
   )
 
+standalone_nicknamed_df <-
+  read_rds("nomad/nomad_standalone_tourneys.Rdata") %>% 
+  filter(home == home2, !is.na(season)) %>% 
+  select(-c(home2, away2)) %>% 
+  group_by(date_short) %>% 
+  mutate(game_num = row_number()) %>% 
+  ungroup() %>% 
+  transmute(
+    league = "Other",
+    season, 
+    match_date = ymd(parse_date_time(date_short, orders = "%a %b %d %Y")),
+    week_number = 75,
+    home_team = NA_character_,
+    away_team = NA_character_,
+    game_num,
+    home_nickname = home,
+    away_nickname = away,
+    game_winner,
+    forfeit = NA_character_,
+    game_type = NA_character_
+  )
+
 nomad_df <- 
   slate_nicknamed_df %>% 
   bind_rows(happy_nicknamed_df) %>% 
   bind_rows(fiveforty_nicknamed_df) %>% 
+  bind_rows(standalone_nicknamed_df) %>% 
   left_join(
     nomad_name_list %>% transmute(home_nickname = nickname, home = name),
     by = "home_nickname"
@@ -141,6 +170,7 @@ results <-
       add_column(league = "SFPA", .before = "season") %>% 
       add_column(match_type = "regular", .before = "season") %>% 
       add_column(game_type = NA_character_),
+    fall19tournaments,
     nomad_df
   )
 

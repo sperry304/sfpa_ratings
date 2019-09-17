@@ -10,7 +10,7 @@ name_list <-
   filter(is.na(need_to_check)) %>% 
   select(nickname, name)
 
-#url <- "https://nomadpool.com/games?page=72&status=Final&venue_id=4"
+url <- "https://nomadpool.com/games?page=72&status=Final&venue_id=4"
 
 url_to_game_results_df <- function(url) {
   # Takes in a URL, creates data frame with date, players, result
@@ -192,15 +192,35 @@ url_list_to_nickname_df <- function(url_list) {
 # Happy
 happy_url_list <- 
   c(
-    str_c("https://nomadpool.com/games?page=", 135:2, "&status=Final&venue_id=2"),
-    "https://nomadpool.com/games?status=Final&venue_id=2"
+    str_c("https://nomadpool.com/games?page=", 2, "&venue_id=2"),
+    "https://nomadpool.com/games?venue_id=2"
   )
 
 happy_df <- 
   happy_url_list %>% 
   url_list_to_nickname_df()
 
-write_rds(happy_df, "nomad/happy_games_2016_2018_v1.Rdata")
+new_happy_games <- 
+  happy_df %>% 
+  filter(home == home2)
+
+old_happy_games <- 
+  read_rds("nomad/happy_games_2016_2018_v1.Rdata")
+
+old_happy_games %>% 
+  count()
+
+new_happy_games %>% 
+  count()
+
+updated_happy_df <-
+  old_happy_games %>% 
+  bind_rows(new_happy_games)
+
+updated_happy_df %>% 
+  count()
+
+write_rds(updated_happy_df, "nomad/happy_games_2016_2018_v1.Rdata")
 
 
 # Slate
