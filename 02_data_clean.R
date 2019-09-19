@@ -214,6 +214,8 @@ remove_forfeits <- function(results_df) {
       away = if_else(away == "Jocelyn Rosen", "Josalyn Rosen", away),
       home = if_else(home == "Darrel Haslip", "Darrell Haslip", home),
       away = if_else(away == "Darrel Haslip", "Darrell Haslip", away),
+      home = if_else(home == "Jason XXX", "Jason Gilliland", home),
+      away = if_else(away == "Jason XXX", "Jason Gilliland", away),
       home = str_trim(home),
       away = str_trim(away),
       home_team = if_else(home_team == "The Black Willows", "Black Willows", home_team),

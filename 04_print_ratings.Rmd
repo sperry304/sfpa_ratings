@@ -81,7 +81,8 @@ team_names_by_player <-
     team = if_else(team == "Harry Harringtons v 2.0", "Harry Harringtons", team),
     player = if_else(player == "James Horsefall", "James Horsfall", player),
     player = if_else(player == "James Bavaso", "James Bavuso", player),
-    player = if_else(player == "Darrel Haslip", "Darrell Haslip", player)
+    player = if_else(player == "Darrel Haslip", "Darrell Haslip", player),
+    player = if_else(player == "Jason XXX", "Jason Gilliland", player)
   ) %>% 
   arrange(player)
 
