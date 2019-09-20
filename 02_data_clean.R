@@ -5,6 +5,12 @@ library(readODS)
 
 setwd("~/Documents/sfpa_ratings")
 
+spring17tournaments <- 
+  read_csv("tournaments/spring2017_tournaments.csv") %>% 
+  mutate(
+    home_team = NA_character_, away_team = NA_character_, 
+    forfeit = NA_character_, game_type = NA_character_
+  )
 spring18 <- read_rds("match_data/all_matches_2018spring.Rdata")
 spring18playoffs <- read_rds("match_data/all_matches_2018springplayoffs.Rdata")
 fall18 <- read_rds("match_data/all_matches_2018fall.Rdata")
@@ -141,6 +147,7 @@ nomad_df <-
 # Get combined file
 results <-
   bind_rows(
+    spring17tournaments,
     spring18 %>% 
       add_column(league = "SFPA", .before = "season") %>% 
       add_column(match_type = "regular", .before = "season") %>% 

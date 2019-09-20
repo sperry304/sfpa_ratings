@@ -123,8 +123,8 @@ players with no wins at all.
 Bayesian methods allow us to avoid these problems. Instead of finding an
 MLE after taking undesirable steps like omitting winless players or
 mandating a minimum number of games, we calculate the maximum a priori
-(MAP) estimate of ***π*** by setting a *G(a, b)* prior on *π*, where *G*
-is a gamma distribution with shape and rate parameters *a* and *b*. This
+(MAP) estimate of *π* by setting a *G(a, b)* prior on *π*, where *G* is
+a gamma distribution with shape and rate parameters *a* and *b*. This
 prior is conjugate to the complete data likelihood function and results
 in the following update
 formula:
@@ -150,11 +150,11 @@ The scale of these ratings is arbitrary; any set of ratings can be
 multiplied by some positive constant and result in the same probability
 *p<sub>i\>j</sub>* for all *i* and *j*. As a result, in the MLE context,
 we would need to peg a player rating *π<sub>i</sub>* to a particular
-value, or set up an additional constraint such as *Σ<sub>n</sub> π\_i =
-1000/n*, in order to arrive at a unique solution. In the MAP
-formulation, we can make the model identifiable by setting *b = (a - 1)
-/ 500* and ensure a rough average player rating of about 500 in the
-process.
+value, or set up an additional constraint such as *Σ<sub>n</sub>
+π<sub>i</sub> = 1000/n*, in order to arrive at a unique solution. In
+the MAP formulation, we can make the model identifiable by setting *b =
+(a - 1) / 500* and ensure a rough average player rating of about 500 in
+the process.
 
 One issue with the system as described so far is interpretability.
 Ratings are only meaningful in relation to each other; a 100-point gap

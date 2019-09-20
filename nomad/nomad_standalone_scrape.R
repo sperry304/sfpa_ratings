@@ -7,7 +7,7 @@ library(magrittr)
 setwd("~/Documents/sfpa_ratings")
 
 # Set URL
-url <- "https://nomadpool.com/tournaments/2985"
+url <- "https://nomadpool.com/tournaments/1592"
 
 # Look for last element number of table - was 25 in initial try
 webpage <- 
@@ -24,7 +24,7 @@ url_to_game_results_df <- function(url) {
     read_html() %>% 
     html_nodes("table") %>% 
     #### EDIT HERE
-    extract2(21) %>% 
+    extract2(17) %>% 
     #### EDIT HERE
     html_nodes("td") %>% 
     html_text() %>% 
@@ -32,6 +32,7 @@ url_to_game_results_df <- function(url) {
     mutate(
       value = str_trim(str_remove_all(value, "\t|\n"))
     ) %>% 
+    filter(!str_detect(value, "^@")) %>% ## this is because some start @rocksden
     mutate(
       row_type = rep(
         c("view", "game_type", "date_short", "blank", 
@@ -46,6 +47,7 @@ url_to_game_results_df <- function(url) {
     mutate(
       date = str_remove_all(date, "@|th| PT(.)+"),
       date = str_remove_all(date, "on\\sT\\-1"),
+      date = str_remove_all(date, "on\\sT\\-2"),
       date = str_remove_all(date, "\\son"),
       date = str_trim(date),
       date = str_remove_all(date, "\\s\\d+s$|\\d+s$"),

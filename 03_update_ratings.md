@@ -114,59 +114,61 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Mean absolute difference: 56592.2933241122"
-    ## [1] "Mean absolute difference: 23426.3265798308"
-    ## [1] "Mean absolute difference: 13870.1519056437"
-    ## [1] "Mean absolute difference: 9504.13022514167"
-    ## [1] "Mean absolute difference: 6936.78427080683"
-    ## [1] "Mean absolute difference: 5177.17635614753"
-    ## [1] "Mean absolute difference: 3908.94355713291"
-    ## [1] "Mean absolute difference: 2970.8788519962"
-    ## [1] "Mean absolute difference: 2267.08335354023"
-    ## [1] "Mean absolute difference: 1733.4900663423"
-    ## [1] "Mean absolute difference: 1328.43352391184"
-    ## [1] "Mean absolute difference: 1019.81264299719"
-    ## [1] "Mean absolute difference: 784.681246700143"
-    ## [1] "Mean absolute difference: 605.564067098324"
-    ## [1] "Mean absolute difference: 469.482313274931"
-    ## [1] "Mean absolute difference: 366.38631847099"
-    ## [1] "Mean absolute difference: 288.67795359848"
-    ## [1] "Mean absolute difference: 231.113189182123"
-    ## [1] "Mean absolute difference: 188.479421559642"
-    ## [1] "Mean absolute difference: 157.458100567541"
-    ## [1] "Mean absolute difference: 135.336194286698"
-    ## [1] "Mean absolute difference: 119.223476584195"
-    ## [1] "Mean absolute difference: 106.40961077595"
-    ## [1] "Mean absolute difference: 95.8016721063359"
-    ## [1] "Mean absolute difference: 86.8572223786176"
-    ## [1] "Mean absolute difference: 79.214907610391"
-    ## [1] "Mean absolute difference: 72.6187993190555"
-    ## [1] "Mean absolute difference: 66.8691476792999"
-    ## [1] "Mean absolute difference: 61.809717225204"
-    ## [1] "Mean absolute difference: 57.3179744755294"
-    ## [1] "Mean absolute difference: 53.29749444343"
-    ## [1] "Mean absolute difference: 49.6720892149939"
-    ## [1] "Number of iterations: 32"
+    ## [1] "Mean absolute difference: 57647.0310982099"
+    ## [1] "Mean absolute difference: 23817.7891004794"
+    ## [1] "Mean absolute difference: 13985.5743595134"
+    ## [1] "Mean absolute difference: 9552.60458655128"
+    ## [1] "Mean absolute difference: 6969.08612739492"
+    ## [1] "Mean absolute difference: 5215.59817105752"
+    ## [1] "Mean absolute difference: 3949.8867538593"
+    ## [1] "Mean absolute difference: 3007.77003010749"
+    ## [1] "Mean absolute difference: 2297.70169401673"
+    ## [1] "Mean absolute difference: 1759.08198522309"
+    ## [1] "Mean absolute difference: 1350.10139587393"
+    ## [1] "Mean absolute difference: 1038.09652845663"
+    ## [1] "Mean absolute difference: 800.530314166633"
+    ## [1] "Mean absolute difference: 619.468353062572"
+    ## [1] "Mean absolute difference: 481.716913579268"
+    ## [1] "Mean absolute difference: 377.556158524242"
+    ## [1] "Mean absolute difference: 299.312405427299"
+    ## [1] "Mean absolute difference: 241.209709266065"
+    ## [1] "Mean absolute difference: 198.128714335684"
+    ## [1] "Mean absolute difference: 166.782657947363"
+    ## [1] "Mean absolute difference: 144.631725345871"
+    ## [1] "Mean absolute difference: 128.155810638809"
+    ## [1] "Mean absolute difference: 114.824545900124"
+    ## [1] "Mean absolute difference: 103.684903477095"
+    ## [1] "Mean absolute difference: 94.2388943965351"
+    ## [1] "Mean absolute difference: 86.1390154761049"
+    ## [1] "Mean absolute difference: 79.1241206155581"
+    ## [1] "Mean absolute difference: 72.9898356155749"
+    ## [1] "Mean absolute difference: 67.5758864453702"
+    ## [1] "Mean absolute difference: 62.7562476164365"
+    ## [1] "Mean absolute difference: 58.4314941763707"
+    ## [1] "Mean absolute difference: 54.5228706336339"
+    ## [1] "Mean absolute difference: 50.967694727969"
+    ## [1] "Mean absolute difference: 47.7157973049901"
+    ## [1] "Number of iterations: 34"
 
 ``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 519 x 3
+    ## # A tibble: 527 x 3
     ##    player           rating raw_rating
     ##    <chr>             <dbl>      <dbl>
     ##  1 Mike Maxwell       737.      2134.
-    ##  2 Hector Ortega      732.      2067.
-    ##  3 Skip Perry         702.      1678.
-    ##  4 Ryan Piaget        700.      1651.
-    ##  5 Evan Burgess       698.      1626.
-    ##  6 Bob Simon          694.      1588.
-    ##  7 Michael Gonzales   693.      1580.
-    ##  8 Nick Lansdown      691.      1554.
-    ##  9 Alvin Ho           687.      1509.
-    ## 10 Rhys Hughes        685.      1492.
-    ## # … with 509 more rows
+    ##  2 Hector Ortega      730.      2036.
+    ##  3 Skip Perry         707.      1735.
+    ##  4 Evan Burgess       699.      1641.
+    ##  5 Ryan Piaget        696.      1609.
+    ##  6 Bob Simon          694.      1584.
+    ##  7 Michael Gonzales   694.      1583.
+    ##  8 Nick Lansdown      691.      1551.
+    ##  9 Alvin Ho           689.      1528.
+    ## 10 Rhys Hughes        685.      1493.
+    ## # … with 517 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))
