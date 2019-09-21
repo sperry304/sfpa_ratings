@@ -7,12 +7,9 @@ all_fargo_ratings <-
   "fargo_ratings/all_fargo_ratings.Rdata" %>% 
   read_rds()
 
-latest_fargo_ratings <-
+fargo_df <-
   all_fargo_ratings %>% 
   filter(date == max(date))
-
-fargo_df <- 
-  latest_fargo_ratings
 
 latest_results_date <- 
   list.files("match_data", pattern = "results_no_forfeits") %>% 
@@ -65,7 +62,7 @@ player_performance <- function(player_of_interest) {
     )
 } 
 
-player_results_history("Benito Taylor") %>% 
+player_results_history("Skip Perry") %>% 
   knitr::kable()
 
 player_of_interest <- "Benito Taylor"
@@ -111,3 +108,40 @@ all_fargo_ratings %>%
   geom_hline(yintercept = 500, color = "white", size = 2) +
   #geom_line(alpha = 0.1) +
   geom_line(data = . %>% filter(player %in% player_list), aes(color = player))
+
+
+
+library(tidyverse)
+library(readODS)
+
+setwd("~/Documents/sfpa_ratings")
+
+all_fargo_ratings <- 
+  "fargo_ratings/all_fargo_ratings.Rdata" %>% 
+  read_rds()
+
+mikepage_df <- 
+  "fargo_ratings/sfpa_mikepage_ratings.ods" %>% 
+  read_ods()
+
+mikepage_df %>% 
+  #group_by(player) %>% 
+  spread(date, fargo_rating) %>% 
+  mutate(
+    diff = `2019-09-17` - `2019-09-10`,
+    abs_diff = abs(diff)
+  ) %>% 
+  arrange(desc(abs_diff))
+
+mikepage_df %>% 
+  spread(date, fargo_rating) %>% 
+  mutate(
+    diff = `2019-09-17` - `2019-09-10`,
+    abs_diff = abs(diff)
+  ) %>% 
+  ggplot(aes(x = diff)) +
+  geom_histogram(binwidth = 1)
+
+mikepage_df %>% 
+  ggplot(aes(x = date, y = fargo_rating, group = player)) +
+  geom_line(alpha = 0.2)
