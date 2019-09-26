@@ -35,6 +35,7 @@ team_names_by_player <-
   mutate(
     team = if_else(team == "Harry Harringtons v 2.0", "Harry Harringtons", team),
     player = if_else(player == "James Horsefall", "James Horsfall", player),
+    player = if_else(player == "Humberto 'HJ' Gonzalez", "Humberto HJ Gonzalez", player),
     player = if_else(player == "Jules Tanseco", "Jukers Tanseco", player)
   ) %>% 
   arrange(player)

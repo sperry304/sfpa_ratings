@@ -114,40 +114,40 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Mean absolute difference: 57647.0310982099"
-    ## [1] "Mean absolute difference: 23817.7891004794"
-    ## [1] "Mean absolute difference: 13985.5743595134"
-    ## [1] "Mean absolute difference: 9552.60458655128"
-    ## [1] "Mean absolute difference: 6969.08612739492"
-    ## [1] "Mean absolute difference: 5215.59817105752"
-    ## [1] "Mean absolute difference: 3949.8867538593"
-    ## [1] "Mean absolute difference: 3007.77003010749"
-    ## [1] "Mean absolute difference: 2297.70169401673"
-    ## [1] "Mean absolute difference: 1759.08198522309"
-    ## [1] "Mean absolute difference: 1350.10139587393"
-    ## [1] "Mean absolute difference: 1038.09652845663"
-    ## [1] "Mean absolute difference: 800.530314166633"
-    ## [1] "Mean absolute difference: 619.468353062572"
-    ## [1] "Mean absolute difference: 481.716913579268"
-    ## [1] "Mean absolute difference: 377.556158524242"
-    ## [1] "Mean absolute difference: 299.312405427299"
-    ## [1] "Mean absolute difference: 241.209709266065"
-    ## [1] "Mean absolute difference: 198.128714335684"
-    ## [1] "Mean absolute difference: 166.782657947363"
-    ## [1] "Mean absolute difference: 144.631725345871"
-    ## [1] "Mean absolute difference: 128.155810638809"
-    ## [1] "Mean absolute difference: 114.824545900124"
-    ## [1] "Mean absolute difference: 103.684903477095"
-    ## [1] "Mean absolute difference: 94.2388943965351"
-    ## [1] "Mean absolute difference: 86.1390154761049"
-    ## [1] "Mean absolute difference: 79.1241206155581"
-    ## [1] "Mean absolute difference: 72.9898356155749"
-    ## [1] "Mean absolute difference: 67.5758864453702"
-    ## [1] "Mean absolute difference: 62.7562476164365"
-    ## [1] "Mean absolute difference: 58.4314941763707"
-    ## [1] "Mean absolute difference: 54.5228706336339"
-    ## [1] "Mean absolute difference: 50.967694727969"
-    ## [1] "Mean absolute difference: 47.7157973049901"
+    ## [1] "Mean absolute difference: 57817.1309279825"
+    ## [1] "Mean absolute difference: 23888.3980837912"
+    ## [1] "Mean absolute difference: 13984.0655296006"
+    ## [1] "Mean absolute difference: 9559.76073673504"
+    ## [1] "Mean absolute difference: 6975.30933790966"
+    ## [1] "Mean absolute difference: 5224.37469101459"
+    ## [1] "Mean absolute difference: 3958.10664776598"
+    ## [1] "Mean absolute difference: 3015.47968005183"
+    ## [1] "Mean absolute difference: 2304.76412090208"
+    ## [1] "Mean absolute difference: 1765.42267900604"
+    ## [1] "Mean absolute difference: 1355.6741394962"
+    ## [1] "Mean absolute difference: 1042.87544973843"
+    ## [1] "Mean absolute difference: 804.537519910572"
+    ## [1] "Mean absolute difference: 622.723405475913"
+    ## [1] "Mean absolute difference: 484.342138974684"
+    ## [1] "Mean absolute difference: 379.554946227713"
+    ## [1] "Mean absolute difference: 300.785626282908"
+    ## [1] "Mean absolute difference: 242.251479599025"
+    ## [1] "Mean absolute difference: 198.782094919857"
+    ## [1] "Mean absolute difference: 167.095121234502"
+    ## [1] "Mean absolute difference: 144.664341178115"
+    ## [1] "Mean absolute difference: 128.048147654503"
+    ## [1] "Mean absolute difference: 114.637363064974"
+    ## [1] "Mean absolute difference: 103.441306084544"
+    ## [1] "Mean absolute difference: 93.9576116030496"
+    ## [1] "Mean absolute difference: 85.832652285859"
+    ## [1] "Mean absolute difference: 78.802555829265"
+    ## [1] "Mean absolute difference: 72.6607321772765"
+    ## [1] "Mean absolute difference: 67.245120188939"
+    ## [1] "Mean absolute difference: 62.4282629749484"
+    ## [1] "Mean absolute difference: 58.1095963881735"
+    ## [1] "Mean absolute difference: 54.209463857952"
+    ## [1] "Mean absolute difference: 50.6644747841081"
+    ## [1] "Mean absolute difference: 47.4239067872548"
     ## [1] "Number of iterations: 34"
 
 ``` r
@@ -159,15 +159,15 @@ fargo_df %>%
     ##    player           rating raw_rating
     ##    <chr>             <dbl>      <dbl>
     ##  1 Mike Maxwell       737.      2134.
-    ##  2 Hector Ortega      730.      2036.
+    ##  2 Hector Ortega      730.      2033.
     ##  3 Skip Perry         707.      1735.
     ##  4 Evan Burgess       699.      1641.
-    ##  5 Ryan Piaget        696.      1609.
-    ##  6 Bob Simon          694.      1584.
-    ##  7 Michael Gonzales   694.      1583.
-    ##  8 Nick Lansdown      691.      1551.
-    ##  9 Alvin Ho           689.      1528.
-    ## 10 Rhys Hughes        685.      1493.
+    ##  5 Ryan Piaget        696.      1608.
+    ##  6 Bob Simon          694.      1583.
+    ##  7 Michael Gonzales   694.      1581.
+    ##  8 Nick Lansdown      691.      1550.
+    ##  9 Alvin Ho           688.      1526.
+    ## 10 Rhys Hughes        685.      1492.
     ## # … with 517 more rows
 
 ``` r

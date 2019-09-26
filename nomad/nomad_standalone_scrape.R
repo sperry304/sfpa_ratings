@@ -7,7 +7,7 @@ library(magrittr)
 setwd("~/Documents/sfpa_ratings")
 
 # Set URL
-url <- "https://nomadpool.com/tournaments/1592"
+url <- "https://nomadpool.com/tournaments/2967"
 
 # Look for last element number of table - was 25 in initial try
 webpage <- 
@@ -24,7 +24,7 @@ url_to_game_results_df <- function(url) {
     read_html() %>% 
     html_nodes("table") %>% 
     #### EDIT HERE
-    extract2(17) %>% 
+    extract2(22) %>% 
     #### EDIT HERE
     html_nodes("td") %>% 
     html_text() %>% 
