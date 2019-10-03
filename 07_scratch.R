@@ -145,3 +145,32 @@ mikepage_df %>%
 mikepage_df %>% 
   ggplot(aes(x = date, y = fargo_rating, group = player)) +
   geom_line(alpha = 0.2)
+
+
+
+library(tidyverse)
+library(readODS)
+
+df <- read_ods("~/Documents/sfpa_ratings/fargo_ratings/sfpa_mikepage_ratings.ods")
+
+df %>% 
+  ggplot(aes(x = date, y = fargo_rating, group = player)) +
+  geom_line(alpha = 0.2)
+
+p <- c(0.1, 0.3, 0.5, 0.7, 0.9)
+p_names <- map_chr(p, ~paste0(.x*100, "%"))
+p_funs <- 
+  map(p, ~partial(quantile, probs = .x, na.rm = TRUE)) %>% 
+  set_names(nm = p_names)
+
+df %>% 
+  group_by(date) %>% 
+  summarize(mean = mean(fargo_rating))
+
+df %>% 
+  group_by(date) %>% 
+  summarize_at(vars(fargo_rating), p_funs)
+
+
+
+
