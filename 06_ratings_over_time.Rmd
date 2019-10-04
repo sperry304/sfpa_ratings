@@ -8,8 +8,6 @@ output: github_document
 ```{r setup, include=FALSE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
-library(lubridate)
-library(rvest)
 
 latest_results_date <- 
   list.files("match_data", pattern = "results_no_forfeits") %>% 
@@ -19,28 +17,6 @@ latest_results_date <-
 results_no_forfeits <- 
   str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata") %>% 
   read_rds()
-
-# Old code for use in the early season when not everyone has played yet
-# team_names_by_player <- 
-#  read_html("https://www.sfpapool.org/stats/players/6") %>% 
-#  html_nodes("tr") %>% 
-#  html_nodes("a") %>% 
-#  html_text() %>% 
-#  enframe(name = NULL) %>% 
-#  mutate(
-#    row_type = rep(c("player", "team"), nrow(.) / 2),
-#    row_number = rep(1:(nrow(.) / 2), each = 2)
-#  ) %>% 
-#  spread(row_type, value) %>% 
-#  select(player, team) %>% 
-#  mutate(
-#    team = if_else(team == "Harry Harringtons v 2.0", "Harry Harringtons", team),
-#    player = if_else(player == "James Horsefall", "James Horsfall", player),
-#    player = if_else(player == "Humberto 'HJ' Gonzalez", "Humberto HJ Gonzalez", player),
-#    player = if_else(player == "Jason XXX", "Jason Gilliland", player),
-#    player = if_else(player == "Jules Tanseco", "Jukers Tanseco", player)
-#  ) %>% 
-#  arrange(player)
 
 team_names_by_player <- 
   bind_rows(
@@ -93,5 +69,30 @@ plot_player_ratings <- function(team_name) {
 
 ```{r, echo=FALSE}
 walk(team_list, plot_player_ratings)
+```
+
+```{r, echo=FALSE, eval=FALSE}
+# Old code for use in the early season when not everyone has played yet
+# library(rvest)
+# team_names_by_player <- 
+#  read_html("https://www.sfpapool.org/stats/players/6") %>% 
+#  html_nodes("tr") %>% 
+#  html_nodes("a") %>% 
+#  html_text() %>% 
+#  enframe(name = NULL) %>% 
+#  mutate(
+#    row_type = rep(c("player", "team"), nrow(.) / 2),
+#    row_number = rep(1:(nrow(.) / 2), each = 2)
+#  ) %>% 
+#  spread(row_type, value) %>% 
+#  select(player, team) %>% 
+#  mutate(
+#    team = if_else(team == "Harry Harringtons v 2.0", "Harry Harringtons", team),
+#    player = if_else(player == "James Horsefall", "James Horsfall", player),
+#    player = if_else(player == "Humberto 'HJ' Gonzalez", "Humberto HJ Gonzalez", player),
+#    player = if_else(player == "Jason XXX", "Jason Gilliland", player),
+#    player = if_else(player == "Jules Tanseco", "Jukers Tanseco", player)
+#  ) %>% 
+#  arrange(player)
 ```
 
