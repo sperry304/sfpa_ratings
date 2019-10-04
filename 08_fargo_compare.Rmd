@@ -1,0 +1,186 @@
+---
+title: "SFPA Player Ratings, v.1"
+author: "Skip Perry"
+date: "October 2019"
+output: github_document
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(readODS)
+library(ggridges)
+
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits <- 
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata") %>% 
+  read_rds()
+
+team_names_by_player <- 
+  bind_rows(
+    results_no_forfeits %>% 
+      filter(league == "SFPA", season == "Fall 2019") %>% 
+      select(player = home, team = home_team),
+    results_no_forfeits %>% 
+      filter(league == "SFPA", season == "Fall 2019") %>% 
+      select(player = away, team = away_team)
+  ) %>% 
+  distinct()
+
+all_sf_ratings <- 
+  "fargo_ratings/all_fargo_ratings.Rdata" %>% 
+  read_rds() %>% 
+  inner_join(team_names_by_player, by = "player") %>% 
+  select(-raw_rating)
+
+latest_sf_ratings <-
+  all_sf_ratings %>% 
+  filter(date == max(date))
+
+mikepage_df <- 
+  read_ods("~/Documents/sfpa_ratings/fargo_ratings/sfpa_mikepage_ratings.ods") %>% 
+  mutate(
+    player = if_else(player == "Nicholas Lansdown", "Nick Lansdown", player),
+    player = if_else(player == "Jim Neale", "James Neale", player),
+    player = if_else(player == "Jules Tanseco", "Jukers Tanseco", player),
+    player = if_else(player == "James Bavaso", "James Bavuso", player),
+    player = if_else(player == "Darrel Haslip", "Darrell Haslip", player),
+    player = if_else(player == "Steven Chamberlain", "Steven Chamberlin", player),
+    player = if_else(player == "Travis Yalup", "Travis Yallup", player),
+    player = if_else(player == "Jocelyn Rosen", "Josalyn Rosen", player),
+    player = if_else(player == "RIck Mariani", "Rick Mariani", player),
+    player = if_else(player == "Phillip Romano", "Philip Romano", player),
+    player = if_else(player == "Christopher Doornbos", "Chris Doornbos", player),
+    player = if_else(player == "Christopher Logan", "Chris Logan", player),
+    player = if_else(player == "Polo Black-Goude", "Polo Black Golde", player),
+    player = if_else(player == "Juan Chico", "Juan Chicho", player),
+    player = if_else(player == "LanAhn Kerr", "LanAnh Kerr", player),
+    player = if_else(player == "NIck Chackel", "Nick Chackel", player),
+    player = if_else(player == "Lorax Stalter", "Lorax", player),
+    player = if_else(player == "Jason Bucy", "Jason Quincy Bucy", player),
+    player = if_else(player == "Frank Augustine Jr", "Frank Augustine", player),
+    player = if_else(str_detect(player, "Tom Seymour"), "Tom Seymour", player),
+    player = if_else(str_detect(player, "HJ"), "Humberto HJ Gonzalez", player),
+    player = if_else(str_detect(player, "Reza"), "Reza Wang-Lotfi", player)
+  )
+
+joined_ratings <- 
+  mikepage_df %>% 
+  left_join(all_sf_ratings %>% select(date, player, rating, team), by = c("player", "date")) %>% 
+  select(date, player, team, fargo_rating, sf_rating = rating) %>% 
+  filter(!is.na(team))
+
+joined_ratings_tidy <- 
+  joined_ratings %>% 
+  gather(key = rating_type, value = rating, fargo_rating:sf_rating) 
+```
+
+```{r}
+joined_ratings %>% 
+  head(10) %>% 
+  mutate(sf_rating = round(sf_rating)) %>% 
+  knitr::kable()
+```
+
+#### Fargo ratings are drifting downward each week 
+
+```{r, message=FALSE}
+joined_ratings_tidy %>% 
+  group_by(date, rating_type) %>% 
+  summarize(mean_rating = mean(rating, na.rm = TRUE)) %>% 
+  spread(rating_type, mean_rating) %>% 
+  mutate(rating_diff = sf_rating - fargo_rating)
+
+joined_ratings_tidy %>% 
+  filter(date == max(date)) %>% 
+  spread(rating_type, rating) %>% 
+  mutate(rating_diff = sf_rating - fargo_rating) %>% 
+  ggplot(aes(x = rating_diff)) +
+  geom_histogram(bins = 15) +
+  geom_vline(xintercept = 0, color = "dodgerblue", size = 2)
+
+joined_ratings %>% 
+  filter(!is.na(sf_rating)) %>% 
+  mutate(rating_diff = sf_rating - fargo_rating) %>% 
+  ggplot(aes(x = rating_diff, y = date, group = date)) +
+  geom_density_ridges()
+
+p <- c(0.1, 0.3, 0.5, 0.7, 0.9)
+p_names <- map_chr(p, ~paste0(.x*100, "%"))
+p_funs <- 
+  map(p, ~partial(quantile, probs = .x, na.rm = TRUE)) %>% 
+  set_names(nm = p_names)
+
+quantiles_raw <-
+  mikepage_df %>% 
+  group_by(date) %>%
+  summarize_at(vars(fargo_rating), p_funs) 
+
+quantiles_tidy <- 
+  quantiles_raw %>% 
+  gather(key = pctile, value = fargo_rating, -date)
+
+mikepage_df %>% 
+  group_by(date) %>% 
+  summarize(mean = mean(fargo_rating)) %>% 
+  left_join(quantiles_raw, by = "date")
+
+mikepage_df %>% 
+  ggplot(aes(x = date, y = fargo_rating, group = player)) +
+  geom_line(alpha = 0.15) +
+  geom_line(data = quantiles_tidy, aes(group = pctile, color = pctile), size = 0.9) +
+  geom_point(data = quantiles_tidy, aes(group = pctile, color = pctile)) +
+  coord_cartesian(ylim = c(300, 600))
+
+mikepage_df %>% 
+  spread(date, fargo_rating) %>% 
+  arrange(desc(`2019-10-01`)) %>% 
+  head(20)
+
+mikepage_df %>% 
+  group_by(player) %>% 
+  summarize(sdev = sd(fargo_rating)) %>% 
+  arrange(desc(sdev)) %>% 
+  head(20)
+```
+
+#### The two leagues have similar ratings, but established Fargo players are much lower - suggesting the Fargo starter ratings are off by 100 points or more
+
+```{r}
+established <- 
+  c(
+    "Yuko Takahashi", "Patty West", "Thayer McDougle", "Rodney Zarnegar",
+    "Joina Liao", "Tom Seymour", "Nick Lansdown", "Skinner Arteaga",
+    "Annabelle Cabuhat", "Michael Romano", "Marcelo Aviles", "Joel Talevi",
+    "Wade Hargrove", "James Horsfall"
+  )
+
+#joined_ratings %>% 
+#  filter(player %in% established) %>% 
+#  ggplot(aes(x = date, y = fargo_rating, group = player, color = player)) +
+#  geom_line()
+
+joined_ratings %>% 
+  filter(player %in% established) %>% 
+  group_by(player) %>% 
+  summarize(
+    fargo_rating = mean(fargo_rating),
+    sf_rating = mean(sf_rating)
+  ) %>% 
+  mutate(difference = sf_rating - fargo_rating)
+
+joined_ratings %>% 
+  filter(player %in% established) %>% 
+  summarize(difference = mean(sf_rating - fargo_rating))
+```
+
+#### Ratings performance
+
+```{r}
+
+```
+
