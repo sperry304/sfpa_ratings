@@ -3,27 +3,18 @@ SFPA Player Ratings, v.1
 Skip Perry
 October 2019
 
+### Fargo ratings are tightly clustered around 500
+
 ``` r
-joined_ratings %>% 
-  head(10) %>% 
-  mutate(sf_rating = round(sf_rating)) %>% 
-  knitr::kable()
+joined_ratings_tidy %>% 
+  filter(date == max(date)) %>% 
+  ggplot(aes(x = rating, fill = rating_type)) +
+  geom_histogram(bins = 40, position = "dodge")
 ```
 
-| date       | player         | team                         | fargo\_rating | sf\_rating |
-| :--------- | :------------- | :--------------------------- | ------------: | ---------: |
-| 2019-09-10 | Skip Perry     | LeftDovres                   |           634 |        702 |
-| 2019-09-10 | Mike Maxwell   | Ginger Rawhides              |           571 |        737 |
-| 2019-09-10 | Rajat Kansal   | Lucky Horsehoe Ballbusters   |           566 |        608 |
-| 2019-09-10 | Diogo Martini  | LeftDovres                   |           553 |        686 |
-| 2019-09-10 | Patty West     | LeftDovres                   |           553 |        646 |
-| 2019-09-10 | James Horsfall | Lucky Horseshoe Glue Factory |           550 |        583 |
-| 2019-09-10 | Nick Lansdown  | Billiard Palacade Caballeros |           548 |        691 |
-| 2019-09-10 | James Neale    | Billiard Palacade Caballeros |           544 |        641 |
-| 2019-09-10 | Evan Burgess   | Billiard Palacade Caballeros |           543 |        698 |
-| 2019-09-10 | Rene Denis     | Smoke & Rumors               |           541 |        637 |
+![](08_fargo_compare_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
-#### Fargo ratings are drifting downward each week
+### Fargo ratings are drifting downward each week… but only slightly
 
 ``` r
 joined_ratings_tidy %>% 
@@ -41,28 +32,6 @@ joined_ratings_tidy %>%
     ## 2 2019-09-17         483       497.        14.0
     ## 3 2019-09-24         480.      497.        16.3
     ## 4 2019-10-01         479.      496.        16.8
-
-``` r
-joined_ratings_tidy %>% 
-  filter(date == max(date)) %>% 
-  spread(rating_type, rating) %>% 
-  mutate(rating_diff = sf_rating - fargo_rating) %>% 
-  ggplot(aes(x = rating_diff)) +
-  geom_histogram(bins = 15) +
-  geom_vline(xintercept = 0, color = "dodgerblue", size = 2)
-```
-
-![](08_fargo_compare_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
-
-``` r
-joined_ratings %>% 
-  filter(!is.na(sf_rating)) %>% 
-  mutate(rating_diff = sf_rating - fargo_rating) %>% 
-  ggplot(aes(x = rating_diff, y = date, group = date)) +
-  geom_density_ridges()
-```
-
-![](08_fargo_compare_files/figure-gfm/unnamed-chunk-2-2.png)<!-- -->
 
 ``` r
 p <- c(0.1, 0.3, 0.5, 0.7, 0.9)
@@ -103,7 +72,7 @@ mikepage_df %>%
   coord_cartesian(ylim = c(300, 600))
 ```
 
-![](08_fargo_compare_files/figure-gfm/unnamed-chunk-2-3.png)<!-- -->
+![](08_fargo_compare_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
 mikepage_df %>% 
@@ -166,7 +135,7 @@ mikepage_df %>%
     ## 19 Perry Logan       10.3 
     ## 20 Kurt Weitzmann     9.93
 
-#### The two leagues have similar ratings, but established Fargo players are much lower - suggesting the Fargo starter ratings are off by 100 points or more
+### The two leagues have similar ratings, but established Fargo players are much lower - suggesting the Fargo starter ratings are off by 100 points or more
 
 ``` r
 established <- 
@@ -174,7 +143,7 @@ established <-
     "Yuko Takahashi", "Patty West", "Thayer McDougle", "Rodney Zarnegar",
     "Joina Liao", "Tom Seymour", "Nick Lansdown", "Skinner Arteaga",
     "Annabelle Cabuhat", "Michael Romano", "Marcelo Aviles", "Joel Talevi",
-    "Wade Hargrove", "James Horsfall"
+    "Wade Hargrove", "James Horsfall", "Travis Yallup", "German Frigerio"
   )
 
 #joined_ratings %>% 
@@ -192,7 +161,7 @@ joined_ratings %>%
   mutate(difference = sf_rating - fargo_rating)
 ```
 
-    ## # A tibble: 14 x 4
+    ## # A tibble: 15 x 4
     ##    player            fargo_rating sf_rating difference
     ##    <chr>                    <dbl>     <dbl>      <dbl>
     ##  1 Annabelle Cabuhat         307.      466.      158. 
@@ -207,8 +176,9 @@ joined_ratings %>%
     ## 10 Skinner Arteaga           501.      628.      127. 
     ## 11 Thayer McDougle           529       683.      154. 
     ## 12 Tom Seymour               539       678.      139. 
-    ## 13 Wade Hargrove             501.      599.       97.7
-    ## 14 Yuko Takahashi            396.      508.      112.
+    ## 13 Travis Yallup             397.      550.      153. 
+    ## 14 Wade Hargrove             501.      599.       97.7
+    ## 15 Yuko Takahashi            396.      508.      112.
 
 ``` r
 joined_ratings %>% 
@@ -217,6 +187,6 @@ joined_ratings %>%
 ```
 
     ##   difference
-    ## 1   125.9903
+    ## 1   127.7955
 
 #### Ratings performance

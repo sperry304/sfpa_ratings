@@ -55,6 +55,7 @@ mikepage_df <-
     player = if_else(player == "RIck Mariani", "Rick Mariani", player),
     player = if_else(player == "Phillip Romano", "Philip Romano", player),
     player = if_else(player == "Christopher Doornbos", "Chris Doornbos", player),
+    player = if_else(player == "Gago Frigerio", "German Frigerio", player),
     player = if_else(player == "Christopher Logan", "Chris Logan", player),
     player = if_else(player == "Polo Black-Goude", "Polo Black Golde", player),
     player = if_else(player == "Juan Chico", "Juan Chicho", player),
@@ -79,14 +80,16 @@ joined_ratings_tidy <-
   gather(key = rating_type, value = rating, fargo_rating:sf_rating) 
 ```
 
+### Fargo ratings are tightly clustered around 500 
+
 ```{r}
-joined_ratings %>% 
-  head(10) %>% 
-  mutate(sf_rating = round(sf_rating)) %>% 
-  knitr::kable()
+joined_ratings_tidy %>% 
+  filter(date == max(date)) %>% 
+  ggplot(aes(x = rating, fill = rating_type)) +
+  geom_histogram(bins = 40, position = "dodge")
 ```
 
-#### Fargo ratings are drifting downward each week 
+### Fargo ratings are drifting downward each week... but only slightly
 
 ```{r, message=FALSE}
 joined_ratings_tidy %>% 
@@ -94,20 +97,6 @@ joined_ratings_tidy %>%
   summarize(mean_rating = mean(rating, na.rm = TRUE)) %>% 
   spread(rating_type, mean_rating) %>% 
   mutate(rating_diff = sf_rating - fargo_rating)
-
-joined_ratings_tidy %>% 
-  filter(date == max(date)) %>% 
-  spread(rating_type, rating) %>% 
-  mutate(rating_diff = sf_rating - fargo_rating) %>% 
-  ggplot(aes(x = rating_diff)) +
-  geom_histogram(bins = 15) +
-  geom_vline(xintercept = 0, color = "dodgerblue", size = 2)
-
-joined_ratings %>% 
-  filter(!is.na(sf_rating)) %>% 
-  mutate(rating_diff = sf_rating - fargo_rating) %>% 
-  ggplot(aes(x = rating_diff, y = date, group = date)) +
-  geom_density_ridges()
 
 p <- c(0.1, 0.3, 0.5, 0.7, 0.9)
 p_names <- map_chr(p, ~paste0(.x*100, "%"))
@@ -148,7 +137,7 @@ mikepage_df %>%
   head(20)
 ```
 
-#### The two leagues have similar ratings, but established Fargo players are much lower - suggesting the Fargo starter ratings are off by 100 points or more
+### The two leagues have similar ratings, but established Fargo players are much lower - suggesting the Fargo starter ratings are off by 100 points or more
 
 ```{r}
 established <- 
@@ -156,7 +145,7 @@ established <-
     "Yuko Takahashi", "Patty West", "Thayer McDougle", "Rodney Zarnegar",
     "Joina Liao", "Tom Seymour", "Nick Lansdown", "Skinner Arteaga",
     "Annabelle Cabuhat", "Michael Romano", "Marcelo Aviles", "Joel Talevi",
-    "Wade Hargrove", "James Horsfall"
+    "Wade Hargrove", "James Horsfall", "Travis Yallup"
   )
 
 #joined_ratings %>% 
@@ -182,5 +171,21 @@ joined_ratings %>%
 
 ```{r}
 
+```
+
+```{r, eval=FALSE, echo=FALSE}
+joined_ratings_tidy %>% 
+  filter(date == max(date)) %>% 
+  spread(rating_type, rating) %>% 
+  mutate(rating_diff = sf_rating - fargo_rating) %>% 
+  ggplot(aes(x = rating_diff)) +
+  geom_histogram(bins = 15) +
+  geom_vline(xintercept = 0, color = "dodgerblue", size = 2)
+
+joined_ratings %>% 
+  filter(!is.na(sf_rating)) %>% 
+  mutate(rating_diff = sf_rating - fargo_rating) %>% 
+  ggplot(aes(x = rating_diff, y = date, group = date)) +
+  geom_density_ridges()
 ```
 
