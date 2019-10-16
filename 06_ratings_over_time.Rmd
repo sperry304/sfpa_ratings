@@ -37,7 +37,7 @@ all_fargo_ratings <-
 
 team_list <- 
   all_fargo_ratings %>% 
-  filter(date == max(date)) %>% 
+  filter(date == max(date), !is.na(team)) %>% 
   group_by(team) %>% 
   summarize(rating = mean(rating)) %>% 
   arrange(desc(rating)) %>% 
