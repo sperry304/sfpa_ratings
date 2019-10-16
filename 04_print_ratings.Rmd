@@ -118,6 +118,9 @@ ratings_for_printing <-
   inner_join(player_list_no_fall_2018, by = "player") %>% 
   filter(sfpa_games > 0, player != "JT") %>% 
   #filter(total_games > 9) %>% 
+  group_by(player) %>% 
+  filter(row_number() == 1) %>% 
+  ungroup() %>% 
   arrange(desc(rating)) %>% 
   mutate(rank = row_number()) %>% 
   transmute(
@@ -380,9 +383,12 @@ all_fargo_ratings %>%
     change = round(curr - prev),
     abs_change = abs(change)
   ) %>% 
-  arrange(desc(abs_change)) %>% 
   left_join(team_names_by_player, by = "player") %>% 
   left_join(games_in_system, by = "player") %>% 
+  group_by(player) %>% 
+  filter(row_number() == 1) %>% 
+  ungroup() %>% 
+  arrange(desc(abs_change)) %>% 
   transmute(player, team, previous, current, change, games_in_system = total_games) %>% 
   slice(1:30) %>% 
   knitr::kable()
