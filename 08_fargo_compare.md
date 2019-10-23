@@ -143,7 +143,7 @@ established <-
     "Yuko Takahashi", "Patty West", "Thayer McDougle", "Rodney Zarnegar",
     "Joina Liao", "Tom Seymour", "Nick Lansdown", "Skinner Arteaga",
     "Annabelle Cabuhat", "Michael Romano", "Marcelo Aviles", "Joel Talevi",
-    "Wade Hargrove", "James Horsfall", "Travis Yallup", "German Frigerio"
+    "Wade Hargrove", "James Horsfall", "Travis Yallup"
   )
 
 #joined_ratings %>% 
