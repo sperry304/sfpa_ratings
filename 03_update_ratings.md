@@ -114,37 +114,37 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Sum of absolute difference: 59231.0779950405"
-    ## [1] "Sum of absolute difference: 24378.5967184269"
-    ## [1] "Sum of absolute difference: 14480.4453292367"
-    ## [1] "Sum of absolute difference: 10010.557573734"
-    ## [1] "Sum of absolute difference: 7392.20951962152"
-    ## [1] "Sum of absolute difference: 5583.02531760048"
-    ## [1] "Sum of absolute difference: 4259.82997089974"
-    ## [1] "Sum of absolute difference: 3264.89938324692"
-    ## [1] "Sum of absolute difference: 2507.99238501598"
-    ## [1] "Sum of absolute difference: 1929.84964212291"
-    ## [1] "Sum of absolute difference: 1487.35131692715"
-    ## [1] "Sum of absolute difference: 1147.48238763726"
-    ## [1] "Sum of absolute difference: 886.425422740423"
-    ## [1] "Sum of absolute difference: 685.991939773065"
-    ## [1] "Sum of absolute difference: 532.032830852261"
-    ## [1] "Sum of absolute difference: 413.864294184174"
-    ## [1] "Sum of absolute difference: 323.338858809695"
-    ## [1] "Sum of absolute difference: 254.514585190282"
-    ## [1] "Sum of absolute difference: 202.690235205801"
-    ## [1] "Sum of absolute difference: 164.08499524031"
-    ## [1] "Sum of absolute difference: 135.351751910521"
-    ## [1] "Sum of absolute difference: 114.398102971199"
-    ## [1] "Sum of absolute difference: 99.7660710159841"
-    ## [1] "Sum of absolute difference: 88.6752919376944"
-    ## [1] "Sum of absolute difference: 79.661872134021"
-    ## [1] "Sum of absolute difference: 72.1258816422949"
-    ## [1] "Sum of absolute difference: 65.7310423110535"
-    ## [1] "Sum of absolute difference: 60.2485567219627"
-    ## [1] "Sum of absolute difference: 55.5012923968854"
-    ## [1] "Sum of absolute difference: 51.350375580377"
-    ## [1] "Sum of absolute difference: 47.6867231375498"
+    ## [1] "Sum of absolute difference: 59076.9065872838"
+    ## [1] "Sum of absolute difference: 24356.2581563383"
+    ## [1] "Sum of absolute difference: 14465.902947231"
+    ## [1] "Sum of absolute difference: 10034.7858687471"
+    ## [1] "Sum of absolute difference: 7427.99182186079"
+    ## [1] "Sum of absolute difference: 5621.39518276279"
+    ## [1] "Sum of absolute difference: 4297.99733299166"
+    ## [1] "Sum of absolute difference: 3300.59022865693"
+    ## [1] "Sum of absolute difference: 2540.1362396112"
+    ## [1] "Sum of absolute difference: 1957.77606252111"
+    ## [1] "Sum of absolute difference: 1511.18512690423"
+    ## [1] "Sum of absolute difference: 1167.6696805126"
+    ## [1] "Sum of absolute difference: 903.276588017379"
+    ## [1] "Sum of absolute difference: 699.955515386098"
+    ## [1] "Sum of absolute difference: 543.5991519414"
+    ## [1] "Sum of absolute difference: 423.426709212279"
+    ## [1] "Sum of absolute difference: 331.416196865556"
+    ## [1] "Sum of absolute difference: 261.394379372278"
+    ## [1] "Sum of absolute difference: 208.662329970762"
+    ## [1] "Sum of absolute difference: 169.306939631301"
+    ## [1] "Sum of absolute difference: 139.92233543652"
+    ## [1] "Sum of absolute difference: 118.533449558005"
+    ## [1] "Sum of absolute difference: 103.541221728982"
+    ## [1] "Sum of absolute difference: 92.1013105041261"
+    ## [1] "Sum of absolute difference: 82.8372339753115"
+    ## [1] "Sum of absolute difference: 75.0895047238497"
+    ## [1] "Sum of absolute difference: 68.5058772190618"
+    ## [1] "Sum of absolute difference: 62.855828053258"
+    ## [1] "Sum of absolute difference: 57.9587177976752"
+    ## [1] "Sum of absolute difference: 53.6727982577232"
+    ## [1] "Sum of absolute difference: 49.8866332749515"
     ## [1] "Number of iterations: 31"
 
 ``` r
@@ -153,18 +153,18 @@ fargo_df %>%
 ```
 
     ## # A tibble: 548 x 3
-    ##    player          rating raw_rating
-    ##    <chr>            <dbl>      <dbl>
-    ##  1 Mike Maxwell      737.      2140.
-    ##  2 Hector Ortega     729.      2030.
-    ##  3 Alvin Ho          702.      1681.
-    ##  4 Evan Burgess      697.      1628.
-    ##  5 Nick Lansdown     694.      1591.
-    ##  6 Ryan Piaget       694.      1588.
-    ##  7 Skip Perry        690.      1549.
-    ##  8 Bob Simon         689.      1541.
-    ##  9 Thayer McDougle   687.      1513.
-    ## 10 Rhys Hughes       685.      1497.
+    ##    player        rating raw_rating
+    ##    <chr>          <dbl>      <dbl>
+    ##  1 Mike Maxwell    736.      2122.
+    ##  2 Hector Ortega   729.      2032.
+    ##  3 Alvin Ho        706.      1726.
+    ##  4 Evan Burgess    695.      1601.
+    ##  5 Nick Lansdown   694.      1592.
+    ##  6 Ryan Piaget     694.      1587.
+    ##  7 Bob Simon       689.      1536.
+    ##  8 Skip Perry      688.      1524.
+    ##  9 Rhys Hughes     685.      1497.
+    ## 10 Diogo Martini   685.      1497.
     ## # … with 538 more rows
 
 ``` r
