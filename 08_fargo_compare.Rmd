@@ -125,10 +125,10 @@ mikepage_df %>%
   geom_point(data = quantiles_tidy, aes(group = pctile, color = pctile)) +
   coord_cartesian(ylim = c(300, 600))
 
-mikepage_df %>% 
-  spread(date, fargo_rating) %>% 
-  arrange(desc(`2019-10-01`)) %>% 
-  head(20)
+#mikepage_df %>% 
+#  spread(date, fargo_rating) %>% 
+#  arrange(desc(`2019-10-01`)) %>% 
+#  head(20)
 
 mikepage_df %>% 
   group_by(player) %>% 

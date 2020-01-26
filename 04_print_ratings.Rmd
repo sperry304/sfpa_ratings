@@ -236,7 +236,7 @@ plus_minus_by_week <- function(team_of_interest) {
 }
 
 match_dates <-
-  c(as_date("2019-07-23"), fall_2019_games %>% select(match_date) %>% distinct() %>% arrange() %>% pull())
+  c(as_date("2019-07-23"), fall_2019_games %>% filter(match_type == "regular") %>% select(match_date) %>% distinct() %>% arrange() %>% pull())
 
 team_plus_minus_by_date <-
   team_list %>% 
@@ -252,9 +252,13 @@ team_qtile_plus_minus_by_date <-
   team_plus_minus_by_date %>% 
   group_by(qtile, match_date) %>% 
   summarize(overall_plus_minus = mean(overall_plus_minus)) %>% 
-  mutate(team = str_c("Quintile", qtile, "Average", sep = " "))
+  mutate(team = str_c("Quintile", qtile, "Average", sep = " ")) %>% 
+  ## This is to stop including playoffs
+  filter(month(match_date) < 11)
 
 team_plus_minus_by_date %>% 
+  ## This is to stop including playoffs
+  filter(month(match_date) < 11) %>% 
   ggplot(aes(x = match_date, y = overall_plus_minus, color = qtile, group = team)) +
   geom_hline(yintercept = 0, color = "white", size = 2) +
   geom_line(alpha = 0.3) +

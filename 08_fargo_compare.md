@@ -24,14 +24,18 @@ joined_ratings_tidy %>%
   mutate(rating_diff = sf_rating - fargo_rating)
 ```
 
-    ## # A tibble: 4 x 4
-    ## # Groups:   date [4]
+    ## # A tibble: 8 x 4
+    ## # Groups:   date [8]
     ##   date       fargo_rating sf_rating rating_diff
     ##   <date>            <dbl>     <dbl>       <dbl>
     ## 1 2019-09-10         485.      499.        14.0
     ## 2 2019-09-17         483       497.        14.0
     ## 3 2019-09-24         480.      497.        16.3
     ## 4 2019-10-01         479.      496.        16.8
+    ## 5 2019-10-08         481.      496.        15.4
+    ## 6 2019-10-15         478.      496.        17.3
+    ## 7 2019-10-22         476.      496.        19.8
+    ## 8 2019-10-29         474.      495.        21.6
 
 ``` r
 p <- c(0.1, 0.3, 0.5, 0.7, 0.9)
@@ -55,13 +59,17 @@ mikepage_df %>%
   left_join(quantiles_raw, by = "date")
 ```
 
-    ## # A tibble: 4 x 7
+    ## # A tibble: 8 x 7
     ##   date        mean `10%` `30%` `50%` `70%` `90%`
     ##   <date>     <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
-    ## 1 2019-09-10  486.  416.  491    504  514.  526.
-    ## 2 2019-09-17  484.  416.  488    500  511   527.
-    ## 3 2019-09-24  481.  418.  482    497  511.  525 
-    ## 4 2019-10-01  480.  412.  480.   494  510   525
+    ## 1 2019-09-10  486.  416.  491   504   514.  526.
+    ## 2 2019-09-17  484.  416.  488   500   511   527.
+    ## 3 2019-09-24  481.  418.  482   497   511.  525 
+    ## 4 2019-10-01  480.  412.  480.  494   510   525 
+    ## 5 2019-10-08  482.  398.  479   494   510   525 
+    ## 6 2019-10-15  480.  398.  474   492.  507.  525 
+    ## 7 2019-10-22  477.  399.  469   488.  506   525 
+    ## 8 2019-10-29  475.  399.  464   486   504.  524.
 
 ``` r
 mikepage_df %>% 
@@ -75,35 +83,11 @@ mikepage_df %>%
 ![](08_fargo_compare_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ``` r
-mikepage_df %>% 
-  spread(date, fargo_rating) %>% 
-  arrange(desc(`2019-10-01`)) %>% 
-  head(20)
-```
+#mikepage_df %>% 
+#  spread(date, fargo_rating) %>% 
+#  arrange(desc(`2019-10-01`)) %>% 
+#  head(20)
 
-    ##              player 2019-09-10 2019-09-17 2019-09-24 2019-10-01
-    ## 1        Skip Perry        634        663        629        640
-    ## 2      Mike Maxwell        571        571        569        575
-    ## 3     Nick Lansdown        548        548        548        552
-    ## 4      Evan Burgess        543        545        547        546
-    ## 5  Joshua Maldonado        540        545        545        546
-    ## 6        Patty West        553        549        546        546
-    ## 7     Diogo Martini        553        551        544        544
-    ## 8          Alvin Ho        539        538        542        542
-    ## 9       Tom Seymour        539        536        540        541
-    ## 10   James Horsfall        550        550        540        540
-    ## 11     Victor Ramos         NA        533        536        540
-    ## 12        Bob Simon        534        531        532        537
-    ## 13      Ryan Piaget        541        538        536        537
-    ## 14      James Neale        544        547        542        536
-    ## 15     Rajat Kansal        566        562        535        536
-    ## 16     Adam Simpson        534        534        534        534
-    ## 17      Eric Babaki        533        531        531        532
-    ## 18      Noah Snyder        526        528        530        532
-    ## 19  Thayer McDougle        528        528        530        530
-    ## 20        Ben Green        530        527        525        528
-
-``` r
 mikepage_df %>% 
   group_by(player) %>% 
   summarize(sdev = sd(fargo_rating)) %>% 
@@ -114,26 +98,26 @@ mikepage_df %>%
     ## # A tibble: 20 x 2
     ##    player             sdev
     ##    <chr>             <dbl>
-    ##  1 Patrick Picard    27.0 
-    ##  2 Jukers Tanseco    20.4 
-    ##  3 Levon Sanossian   17.3 
-    ##  4 Rajat Kansal      16.5 
-    ##  5 Sharon Yencharis  15.2 
-    ##  6 Skip Perry        15.0 
-    ##  7 Todd Emmel        14.2 
-    ##  8 Philip Romano     14.1 
-    ##  9 Greg Micklas      12.3 
-    ## 10 Paul Martinez     12.2 
-    ## 11 Alex Peralta      11.6 
-    ## 12 Zeon Kitchiner    11.6 
-    ## 13 Malcolm King      11.2 
-    ## 14 Austin Day        11.1 
-    ## 15 Ian Jolly         10.8 
-    ## 16 Michael Bouey     10.7 
-    ## 17 Bernie Herschbein 10.4 
-    ## 18 Savonna Hasson    10.4 
-    ## 19 Perry Logan       10.3 
-    ## 20 Kurt Weitzmann     9.93
+    ##  1 Levon Sanossian   180. 
+    ##  2 Alex Peralta      156. 
+    ##  3 Tetyana Swann     135. 
+    ##  4 Jukers Tanseco    126. 
+    ##  5 Sharon Yencharis   95.8
+    ##  6 Cindy Kim          85.6
+    ##  7 Patrick Picard     85.0
+    ##  8 Katrina Ariola     56.2
+    ##  9 Lorax              56.1
+    ## 10 LanAnh Kerr        55.0
+    ## 11 Skip Perry         54.0
+    ## 12 Rocel Lhai         52.9
+    ## 13 Josalyn Rosen      52.8
+    ## 14 Priscilla Shiells  52.8
+    ## 15 Tamara Herring     51.9
+    ## 16 Savonna Hasson     51.8
+    ## 17 Travis Santos      51.3
+    ## 18 Alice Davis        50.2
+    ## 19 Jocelyn Angeles    48.5
+    ## 20 John Larkin        20.8
 
 ### The two leagues have similar ratings, but established Fargo players are much lower - suggesting the Fargo starter ratings are off by 100 points or more
 
@@ -164,21 +148,21 @@ joined_ratings %>%
     ## # A tibble: 15 x 4
     ##    player            fargo_rating sf_rating difference
     ##    <chr>                    <dbl>     <dbl>      <dbl>
-    ##  1 Annabelle Cabuhat         307.      466.      158. 
-    ##  2 James Horsfall            545       582.       36.8
-    ##  3 Joel Talevi               488.      610.      123. 
-    ##  4 Joina Liao                453.      612.      159. 
-    ##  5 Marcelo Aviles            438.      565.      128. 
-    ##  6 Michael Romano            386.      545.      158. 
-    ##  7 Nick Lansdown             549       691.      142. 
-    ##  8 Patty West                548.      646.       97.4
-    ##  9 Rodney Zarnegar           445.      576.      131. 
-    ## 10 Skinner Arteaga           501.      628.      127. 
-    ## 11 Thayer McDougle           529       683.      154. 
-    ## 12 Tom Seymour               539       678.      139. 
-    ## 13 Travis Yallup             397.      550.      153. 
-    ## 14 Wade Hargrove             501.      599.       97.7
-    ## 15 Yuko Takahashi            396.      508.      112.
+    ##  1 Annabelle Cabuhat         308       451.      143. 
+    ##  2 James Horsfall            543.      586.       43.5
+    ##  3 Joel Talevi               484       611.      127. 
+    ##  4 Joina Liao                448.      603.      156. 
+    ##  5 Marcelo Aviles            438.      567.      128. 
+    ##  6 Michael Romano            379.      541.      162. 
+    ##  7 Nick Lansdown             552.      693.      140. 
+    ##  8 Patty West                545       646.      101. 
+    ##  9 Rodney Zarnegar           445       574.      129. 
+    ## 10 Skinner Arteaga           499.      629.      129. 
+    ## 11 Thayer McDougle           529.      684.      156. 
+    ## 12 Tom Seymour               538.      678.      139. 
+    ## 13 Travis Yallup             394.      548.      154. 
+    ## 14 Wade Hargrove             503.      597.       94.1
+    ## 15 Yuko Takahashi            397.      522.      125.
 
 ``` r
 joined_ratings %>% 
@@ -187,6 +171,6 @@ joined_ratings %>%
 ```
 
     ##   difference
-    ## 1   127.7955
+    ## 1   128.4758
 
 #### Ratings performance
