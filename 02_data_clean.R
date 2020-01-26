@@ -30,6 +30,12 @@ fall19tournaments <-
     home_team = NA_character_, away_team = NA_character_, 
     forfeit = NA_character_, game_type = NA_character_
   )
+spring20tournaments <- 
+  read_csv("tournaments/spring2020_tournaments.csv") %>% 
+  mutate(
+    home_team = NA_character_, away_team = NA_character_, 
+    forfeit = NA_character_, game_type = NA_character_
+  )
 
 nomad_name_list <- 
   read_ods("nomad/nomad_names.ods") %>% 
@@ -146,6 +152,7 @@ results <-
       add_column(match_type = "regular", .before = "season") %>% 
       add_column(game_type = NA_character_),
     fall19tournaments,
+    spring20tournaments,
     nomad_df
   )
 

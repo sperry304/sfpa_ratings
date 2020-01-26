@@ -7,7 +7,7 @@ library(magrittr)
 setwd("~/Documents/sfpa_ratings")
 
 # Set URL
-url <- "https://nomadpool.com/tournaments/3044"
+url <- "https://nomadpool.com/tournaments/3127"
 
 # Look for last element number of table - was 25 in initial try
 webpage <- 
@@ -24,7 +24,7 @@ url_to_game_results_df <- function(url) {
     read_html() %>% 
     html_nodes("table") %>% 
     #### EDIT HERE
-    extract2(19) %>% 
+    extract2(23) %>% 
     #### EDIT HERE
     html_nodes("td") %>% 
     html_text() %>% 
@@ -54,27 +54,31 @@ url_to_game_results_df <- function(url) {
       date = str_remove_all(date, "\\s\\d+m$|\\d+m$"),
       date = str_remove_all(date, "\\d+h$"),
       date = if_else(
-        str_detect(date, "\\'18"),
-        str_c(date, " 2018"),
+        str_detect(date, "\\'19"),
+        str_c(date, " 2019"),
         if_else(
-          str_detect(date, "\\'17"),
-          str_c(date, " 2017"),
+          str_detect(date, "\\'18"),
+          str_c(date, " 2018"),
           if_else(
-            str_detect(date, "\\'16"),
-            str_c(date, " 2016"),
+            str_detect(date, "\\'17"),
+            str_c(date, " 2017"),
             if_else(
-              str_detect(date, "\\'15"),
-              str_c(date, " 2015"),
+              str_detect(date, "\\'16"),
+              str_c(date, " 2016"),
               if_else(
-                str_detect(date, "\\'14"),
-                str_c(date, " 2014"),
+                str_detect(date, "\\'15"),
+                str_c(date, " 2015"),
                 if_else(
-                  str_detect(date, "\\'13"),
-                  str_c(date, " 2013"),
+                  str_detect(date, "\\'14"),
+                  str_c(date, " 2014"),
                   if_else(
-                    str_detect(date, "\\'12"),
-                    str_c(date, " 2012"),
-                    str_c(date, " 2019")
+                    str_detect(date, "\\'13"),
+                    str_c(date, " 2013"),
+                    if_else(
+                      str_detect(date, "\\'12"),
+                      str_c(date, " 2012"),
+                      str_c(date, " 2020")
+                    )
                   )
                 )
               )

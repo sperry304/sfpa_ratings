@@ -69,7 +69,8 @@ get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
         season == "Spring 2018" ~ 0.9,
         season == "Fall 2018" ~ 0.95,
         season == "Spring 2019" ~ 1.0,
-        season == "Fall 2019" ~ 1.0
+        season == "Fall 2019" ~ 1.0,
+        season == "Spring 2020" ~ 1.0
       )
     ) %>% 
     summarize(rating = ((a - 1) + sum(W * decay)) / (b + sum(A * decay))) %>% 

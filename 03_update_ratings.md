@@ -61,7 +61,8 @@ get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
         season == "Spring 2018" ~ 0.9,
         season == "Fall 2018" ~ 0.95,
         season == "Spring 2019" ~ 1.0,
-        season == "Fall 2019" ~ 1.0
+        season == "Fall 2019" ~ 1.0,
+        season == "Spring 2020" ~ 1.0
       )
     ) %>% 
     summarize(rating = ((a - 1) + sum(W * decay)) / (b + sum(A * decay))) %>% 
@@ -114,62 +115,63 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Sum of absolute difference: 58800.5889025433"
-    ## [1] "Sum of absolute difference: 24382.3871983963"
-    ## [1] "Sum of absolute difference: 14517.3161976906"
-    ## [1] "Sum of absolute difference: 10117.8450167065"
-    ## [1] "Sum of absolute difference: 7520.86098647834"
-    ## [1] "Sum of absolute difference: 5709.9068001831"
-    ## [1] "Sum of absolute difference: 4379.82104188634"
-    ## [1] "Sum of absolute difference: 3374.2225454816"
-    ## [1] "Sum of absolute difference: 2604.67152307678"
-    ## [1] "Sum of absolute difference: 2013.6640732096"
-    ## [1] "Sum of absolute difference: 1559.27082001399"
-    ## [1] "Sum of absolute difference: 1208.83436739444"
-    ## [1] "Sum of absolute difference: 938.398282503833"
-    ## [1] "Sum of absolute difference: 729.802474534488"
-    ## [1] "Sum of absolute difference: 569.284964508907"
-    ## [1] "Sum of absolute difference: 445.713538404728"
-    ## [1] "Sum of absolute difference: 351.415609539257"
-    ## [1] "Sum of absolute difference: 279.824184648811"
-    ## [1] "Sum of absolute difference: 226.266113530157"
-    ## [1] "Sum of absolute difference: 186.365786611015"
-    ## [1] "Sum of absolute difference: 156.973190724517"
-    ## [1] "Sum of absolute difference: 136.060462416507"
-    ## [1] "Sum of absolute difference: 120.98980372992"
-    ## [1] "Sum of absolute difference: 108.872627388277"
-    ## [1] "Sum of absolute difference: 98.7691142631734"
-    ## [1] "Sum of absolute difference: 90.2050170575521"
-    ## [1] "Sum of absolute difference: 82.8614558502561"
-    ## [1] "Sum of absolute difference: 76.5020766527443"
-    ## [1] "Sum of absolute difference: 70.9410775704963"
-    ## [1] "Sum of absolute difference: 66.0321795246029"
-    ## [1] "Sum of absolute difference: 61.6599928479317"
-    ## [1] "Sum of absolute difference: 57.7332682229565"
-    ## [1] "Sum of absolute difference: 54.1796257863908"
-    ## [1] "Sum of absolute difference: 50.9414415218396"
-    ## [1] "Sum of absolute difference: 47.9726383907078"
-    ## [1] "Number of iterations: 35"
+    ## [1] "Sum of absolute difference: 59047.7792557733"
+    ## [1] "Sum of absolute difference: 24464.4601037863"
+    ## [1] "Sum of absolute difference: 14538.6428777318"
+    ## [1] "Sum of absolute difference: 10134.5444114516"
+    ## [1] "Sum of absolute difference: 7537.63971608931"
+    ## [1] "Sum of absolute difference: 5728.56941457221"
+    ## [1] "Sum of absolute difference: 4398.75312130063"
+    ## [1] "Sum of absolute difference: 3392.48592153888"
+    ## [1] "Sum of absolute difference: 2621.58736043888"
+    ## [1] "Sum of absolute difference: 2028.93258214317"
+    ## [1] "Sum of absolute difference: 1572.81317833618"
+    ## [1] "Sum of absolute difference: 1220.68712690932"
+    ## [1] "Sum of absolute difference: 948.690270300301"
+    ## [1] "Sum of absolute difference: 738.75254366312"
+    ## [1] "Sum of absolute difference: 577.05703290727"
+    ## [1] "Sum of absolute difference: 452.546631045164"
+    ## [1] "Sum of absolute difference: 357.536177825299"
+    ## [1] "Sum of absolute difference: 285.458294854662"
+    ## [1] "Sum of absolute difference: 231.517263405322"
+    ## [1] "Sum of absolute difference: 191.353560107839"
+    ## [1] "Sum of absolute difference: 161.832597562143"
+    ## [1] "Sum of absolute difference: 140.952726586668"
+    ## [1] "Sum of absolute difference: 125.601939044417"
+    ## [1] "Sum of absolute difference: 113.173521539216"
+    ## [1] "Sum of absolute difference: 102.77293521921"
+    ## [1] "Sum of absolute difference: 93.9347357429465"
+    ## [1] "Sum of absolute difference: 86.3436276440195"
+    ## [1] "Sum of absolute difference: 79.759793931697"
+    ## [1] "Sum of absolute difference: 73.9944483121878"
+    ## [1] "Sum of absolute difference: 68.8987551058153"
+    ## [1] "Sum of absolute difference: 64.3551434556906"
+    ## [1] "Sum of absolute difference: 60.2705078241433"
+    ## [1] "Sum of absolute difference: 56.5708905345575"
+    ## [1] "Sum of absolute difference: 53.1973263856134"
+    ## [1] "Sum of absolute difference: 50.1025970513372"
+    ## [1] "Sum of absolute difference: 47.2486969226562"
+    ## [1] "Number of iterations: 36"
 
 ``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 548 x 3
+    ## # A tibble: 549 x 3
     ##    player          rating raw_rating
     ##    <chr>            <dbl>      <dbl>
-    ##  1 Mike Maxwell      737.      2133.
-    ##  2 Hector Ortega     730.      2033.
-    ##  3 Alvin Ho          719.      1881.
-    ##  4 Nick Lansdown     696.      1613.
-    ##  5 Evan Burgess      690.      1541.
-    ##  6 Ryan Piaget       688.      1519.
-    ##  7 Thayer McDougle   687.      1510.
-    ##  8 Rhys Hughes       686.      1504.
-    ##  9 Bob Simon         685.      1495.
-    ## 10 Diogo Martini     685.      1488.
-    ## # … with 538 more rows
+    ##  1 Mike Maxwell      737.      2138.
+    ##  2 Hector Ortega     732.      2065.
+    ##  3 Alvin Ho          719.      1882.
+    ##  4 Nick Lansdown     697.      1615.
+    ##  5 Diogo Martini     688.      1524.
+    ##  6 Evan Burgess      688.      1521.
+    ##  7 Ryan Piaget       688.      1521.
+    ##  8 Thayer McDougle   687.      1513.
+    ##  9 Rhys Hughes       686.      1504.
+    ## 10 Bob Simon         686.      1496.
+    ## # … with 539 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))

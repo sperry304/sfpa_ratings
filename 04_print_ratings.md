@@ -3,24 +3,24 @@ SFPA Player Ratings, v.1
 Skip Perry
 August 2019
 
-### Ratings as of 2019-12-10:
+### Ratings as of 2020-01-25:
 
 | rank | player                 | current\_team                | rating | sfpa\_games | other\_games | total |
 | ---: | :--------------------- | :--------------------------- | -----: | ----------: | -----------: | ----: |
 |    1 | Mike Maxwell           | Ginger Rawhides              |    737 |         239 |           30 |   269 |
-|    2 | Hector Ortega          | –                            |    730 |          46 |          170 |   216 |
+|    2 | Hector Ortega          | –                            |    732 |          46 |          178 |   224 |
 |    3 | Alvin Ho               | LeftDovres                   |    719 |          58 |           14 |    72 |
-|    4 | Nick Lansdown          | Billiard Palacade Caballeros |    696 |         196 |           63 |   259 |
-|    5 | Evan Burgess           | Billiard Palacade Caballeros |    690 |         254 |            0 |   254 |
-|    6 | Ryan Piaget            | Clean Slate                  |    688 |         182 |            0 |   182 |
-|    7 | Thayer McDougle        | Billiard Palacade Caballeros |    687 |         236 |           32 |   268 |
-|    8 | Rhys Hughes            | –                            |    686 |         112 |            0 |   112 |
-|    9 | Bob Simon              | Ginger Rawhides              |    685 |         218 |            1 |   219 |
-|   10 | Diogo Martini          | LeftDovres                   |    685 |         179 |           48 |   227 |
+|    4 | Nick Lansdown          | Billiard Palacade Caballeros |    697 |         196 |           63 |   259 |
+|    5 | Diogo Martini          | LeftDovres                   |    688 |         179 |           53 |   232 |
+|    6 | Evan Burgess           | Billiard Palacade Caballeros |    688 |         258 |            0 |   258 |
+|    7 | Ryan Piaget            | Clean Slate                  |    688 |         182 |            0 |   182 |
+|    8 | Thayer McDougle        | Billiard Palacade Caballeros |    687 |         236 |           32 |   268 |
+|    9 | Rhys Hughes            | –                            |    686 |         112 |            0 |   112 |
+|   10 | Bob Simon              | Ginger Rawhides              |    686 |         218 |            1 |   219 |
 |   11 | Tom Seymour            | Ginger Rawhides              |    683 |         201 |            0 |   201 |
-|   12 | Matt Frisbie           | –                            |    682 |          62 |           17 |    79 |
-|   13 | Stefano Lopez          | –                            |    681 |          48 |            0 |    48 |
-|   14 | Skip Perry             | LeftDovres                   |    679 |         168 |           23 |   191 |
+|   12 | Skip Perry             | LeftDovres                   |    682 |         174 |           23 |   197 |
+|   13 | Matt Frisbie           | –                            |    682 |          62 |           17 |    79 |
+|   14 | Stefano Lopez          | –                            |    681 |          48 |            0 |    48 |
 |   15 | Nick Callado           | –                            |    677 |          39 |            4 |    43 |
 |   16 | Andy Luong             | –                            |    665 |          83 |            0 |    83 |
 |   17 | Joshua Maldonado       | Ginger Rawhides              |    662 |         151 |            0 |   151 |
@@ -29,23 +29,23 @@ August 2019
 |   20 | Rudy Guzman            | –                            |    653 |          47 |            0 |    47 |
 |   21 | Chris DuCoing          | Smoke & Rumors               |    650 |         175 |            0 |   175 |
 |   22 | Hugo Valseca           | –                            |    649 |          51 |            0 |    51 |
-|   23 | Danny Mullan           | Ginger Rawhides              |    649 |         185 |           14 |   199 |
-|   24 | Patty West             | LeftDovres                   |    649 |         183 |           88 |   271 |
+|   23 | Patty West             | LeftDovres                   |    649 |         183 |           93 |   276 |
+|   24 | Danny Mullan           | Ginger Rawhides              |    649 |         185 |           14 |   199 |
 |   25 | Leon Waki              | –                            |    645 |          81 |            6 |    87 |
 |   26 | Alonza Bear Davis      | –                            |    644 |          12 |            0 |    12 |
 |   27 | James Neale            | Billiard Palacade Caballeros |    643 |         217 |            0 |   217 |
 |   28 | Tae Yim                | –                            |    640 |          29 |            0 |    29 |
 |   29 | Buddy Giguere          | Smoke & Rumors               |    637 |         144 |            0 |   144 |
-|   30 | Skinner Arteaga        | Billiard Palacade Caballeros |    636 |         181 |            0 |   181 |
+|   30 | Skinner Arteaga        | Billiard Palacade Caballeros |    637 |         181 |            0 |   181 |
 |   31 | Joel Talevi            | Clean Slate                  |    629 |         176 |           30 |   206 |
-|   32 | Crystal Kelem          | Tandy Warhols                |    628 |         217 |            0 |   217 |
-|   33 | Wyatt Moss             | Barrel Proof Nice Rack       |    627 |         161 |            0 |   161 |
-|   34 | Rene Denis             | Smoke & Rumors               |    626 |         209 |            0 |   209 |
+|   32 | Wyatt Moss             | Barrel Proof Nice Rack       |    627 |         161 |            0 |   161 |
+|   33 | Rene Denis             | Smoke & Rumors               |    626 |         209 |            0 |   209 |
+|   34 | Crystal Kelem          | Tandy Warhols                |    626 |         218 |            0 |   218 |
 |   35 | Eugene Fan             | Rumors Never Die             |    624 |         141 |            0 |   141 |
 |   36 | Bob Schnatterly        | Cinch Pack                   |    623 |         214 |            0 |   214 |
-|   37 | Martin Smidak          | LeftDovres                   |    621 |         157 |            8 |   165 |
+|   37 | Martin Smidak          | LeftDovres                   |    622 |         157 |            8 |   165 |
 |   38 | Pancho Palma           | –                            |    621 |          47 |            0 |    47 |
-|   39 | Rick Mariani           | Ginger Rawhides              |    619 |         154 |            0 |   154 |
+|   39 | Rick Mariani           | Ginger Rawhides              |    620 |         154 |            0 |   154 |
 |   40 | Isaac Wong             | Smoke & Rumors               |    614 |         147 |            0 |   147 |
 |   41 | Hugh Fountain          | –                            |    609 |         111 |            0 |   111 |
 |   42 | Dave Ward              | Dovre & Out                  |    607 |         214 |            0 |   214 |
@@ -53,11 +53,11 @@ August 2019
 |   44 | Rajat Kansal           | Lucky Horsehoe Ballbusters   |    601 |         141 |            0 |   141 |
 |   45 | Paul Krohn             | Clean Slate                  |    600 |         178 |           23 |   201 |
 |   46 | James Horsfall         | Lucky Horseshoe Glue Factory |    600 |          96 |           28 |   124 |
-|   47 | Jon Williams           | Lucky Horsehoe Ballbusters   |    599 |         126 |           21 |   147 |
-|   48 | Wade Hargrove          | Front Page Players           |    599 |          27 |          105 |   132 |
-|   49 | Alan Lowe              | –                            |    599 |         139 |            0 |   139 |
-|   50 | Tommy Mudd             | –                            |    599 |          39 |            5 |    44 |
-|   51 | Preston Hudson         | –                            |    597 |          94 |            3 |    97 |
+|   47 | Alan Lowe              | –                            |    599 |         139 |            0 |   139 |
+|   48 | Tommy Mudd             | –                            |    599 |          39 |            5 |    44 |
+|   49 | Wade Hargrove          | Front Page Players           |    599 |          27 |          105 |   132 |
+|   50 | Preston Hudson         | –                            |    597 |          94 |            3 |    97 |
+|   51 | Jon Williams           | Lucky Horsehoe Ballbusters   |    597 |         126 |           24 |   150 |
 |   52 | Will Chadwick          | Lucky Horsehoe Ballbusters   |    596 |         226 |            2 |   228 |
 |   53 | Humberto HJ Gonzalez   | Pilsner Penguins             |    595 |         137 |            0 |   137 |
 |   54 | Gilbert Morales        | –                            |    595 |          44 |            0 |    44 |
@@ -65,18 +65,18 @@ August 2019
 |   56 | Darrell Haslip         | Smoke & Rumors               |    593 |         150 |            0 |   150 |
 |   57 | Adam Simpson           | Churchill Churchaholics      |    592 |          54 |            0 |    54 |
 |   58 | Todd Emmel             | Pilsner Penguins             |    590 |          46 |           24 |    70 |
-|   59 | Andrew Creech          | –                            |    589 |         118 |            0 |   118 |
-|   60 | Polo Black Golde       | Clean Slate                  |    589 |         164 |            3 |   167 |
-|   61 | Joina Liao             | Front Page Players           |    589 |         117 |           13 |   130 |
+|   59 | Polo Black Golde       | Clean Slate                  |    589 |         164 |            3 |   167 |
+|   60 | Andrew Creech          | –                            |    589 |         118 |            0 |   118 |
+|   61 | Joina Liao             | Front Page Players           |    588 |         117 |           13 |   130 |
 |   62 | Robert Hoo             | –                            |    587 |          46 |            0 |    46 |
-|   63 | Chris Beal             | –                            |    587 |          34 |            0 |    34 |
-|   64 | Thom Moyer             | Cinch Phoenix                |    584 |         184 |            0 |   184 |
+|   63 | Thom Moyer             | Cinch Phoenix                |    587 |         189 |            0 |   189 |
+|   64 | Chris Beal             | –                            |    587 |          34 |            0 |    34 |
 |   65 | Patrick Hyde           | Dovre & Out                  |    583 |          27 |            3 |    30 |
 |   66 | Jason Rogers           | –                            |    582 |          88 |            4 |    92 |
 |   67 | Victor Ramos           | Smoke & Rumors               |    581 |         109 |           47 |   156 |
 |   68 | Amy Peterson           | –                            |    580 |          34 |            0 |    34 |
-|   69 | Miguel Chimas          | Cinch You’re Down There      |    577 |         104 |            2 |   106 |
-|   70 | Jerry Ball             | Ginger Rawhides              |    577 |          88 |            0 |    88 |
+|   69 | Jerry Ball             | Ginger Rawhides              |    577 |          88 |            0 |    88 |
+|   70 | Miguel Chimas          | Cinch You’re Down There      |    577 |         104 |            2 |   106 |
 |   71 | Nima Gaadadsuren       | Cinch You’re Down There      |    577 |         222 |            0 |   222 |
 |   72 | Mark Butler            | –                            |    576 |          86 |           23 |   109 |
 |   73 | Cuong Vuong            | –                            |    576 |          98 |            0 |    98 |
@@ -89,8 +89,8 @@ August 2019
 |   80 | Adam Moore             | Dovre & Out                  |    569 |         119 |            0 |   119 |
 |   81 | Kirby Aho              | Whomping Willows             |    569 |          41 |            0 |    41 |
 |   82 | Alex Mendes da Costa   | Rumors Never Die             |    568 |         114 |            0 |   114 |
-|   83 | Nithin Tharakan        | Slate 6 Holes                |    567 |         173 |           24 |   197 |
-|   84 | Marcelo Aviles         | Clean Slate                  |    566 |         144 |           37 |   181 |
+|   83 | Marcelo Aviles         | Clean Slate                  |    566 |         144 |           37 |   181 |
+|   84 | Nithin Tharakan        | Slate 6 Holes                |    566 |         173 |           27 |   200 |
 |   85 | Rich Hatcher           | –                            |    566 |           3 |            5 |     8 |
 |   86 | Salvador Miranda       | Billiard Palacade Caballeros |    564 |         172 |            8 |   180 |
 |   87 | Ian Montbrun           | Cinch You’re Down There      |    562 |         209 |            0 |   209 |
@@ -105,15 +105,15 @@ August 2019
 |   96 | Colton Callahan        | Slate 6 Holes                |    555 |          58 |            0 |    58 |
 |   97 | Bob Rice               | –                            |    553 |          45 |            0 |    45 |
 |   98 | Dan Sorge              | Dovre & Out                  |    553 |         214 |           14 |   228 |
-|   99 | Brendan McCarthy       | Zeitgeist Death Bunnies      |    553 |          42 |            0 |    42 |
-|  100 | Eric Babaki            | Ginger Strokes               |    553 |          70 |            3 |    73 |
+|   99 | Eric Babaki            | Ginger Strokes               |    553 |          70 |            3 |    73 |
+|  100 | Brendan McCarthy       | Zeitgeist Death Bunnies      |    553 |          42 |            0 |    42 |
 |  101 | Brian Bolitho          | –                            |    552 |         108 |            0 |   108 |
 |  102 | Nick Wells             | –                            |    552 |          88 |            0 |    88 |
 |  103 | Niecy Sorrell          | –                            |    552 |           8 |            0 |     8 |
 |  104 | Fran Herman            | Pilsner Penguins             |    552 |         166 |            0 |   166 |
 |  105 | Matt Kwong             | –                            |    549 |          76 |            0 |    76 |
 |  106 | Michael Romano         | Lucky Horseshoe Glue Factory |    548 |         205 |            0 |   205 |
-|  107 | Yuko Takahashi         | Front Page Players           |    548 |          45 |           20 |    65 |
+|  107 | Yuko Takahashi         | Front Page Players           |    547 |          45 |           20 |    65 |
 |  108 | Travis Yallup          | Churchill Churchaholics      |    546 |         200 |            0 |   200 |
 |  109 | Matt Raine             | –                            |    546 |          20 |            0 |    20 |
 |  110 | Justin Taylor          | –                            |    543 |          84 |            0 |    84 |
@@ -124,14 +124,14 @@ August 2019
 |  115 | Arthur Patterson       | Slate 6 Holes                |    540 |         192 |           23 |   215 |
 |  116 | Chris Logan            | Lucky Horsehoe Ballbusters   |    538 |         198 |            0 |   198 |
 |  117 | Nick Radford           | Harry Harringtons            |    538 |          55 |            0 |    55 |
-|  118 | Leif Smith             | Harry Harringtons            |    537 |         214 |            0 |   214 |
-|  119 | Patrick Picard         | Pilsner Innmates             |    537 |         108 |            0 |   108 |
-|  120 | Dylan Pulliam          | Nap-Our-Tandy                |    537 |          41 |            0 |    41 |
+|  118 | Patrick Picard         | Pilsner Innmates             |    537 |         108 |            0 |   108 |
+|  119 | Dylan Pulliam          | Nap-Our-Tandy                |    537 |          41 |            0 |    41 |
+|  120 | Leif Smith             | Harry Harringtons            |    536 |         216 |            0 |   216 |
 |  121 | Eric Gruttemeyer       | Cinchsationals               |    534 |         209 |            0 |   209 |
 |  122 | Dylan Scandalios       | –                            |    533 |         153 |            5 |   158 |
-|  123 | Hakim Boukhaloua       | Barrel Proof                 |    532 |         100 |            0 |   100 |
+|  123 | Quinn Reilly           | –                            |    532 |          74 |            7 |    81 |
 |  124 | Sheree Taft            | Churchill Churchaholics      |    532 |         107 |            0 |   107 |
-|  125 | Quinn Reilly           | –                            |    532 |          74 |            7 |    81 |
+|  125 | Hakim Boukhaloua       | Barrel Proof                 |    532 |         100 |            0 |   100 |
 |  126 | Ell Jackson            | –                            |    531 |         130 |            0 |   130 |
 |  127 | Tom Golden             | Nap-Our-Tandy                |    529 |          10 |            0 |    10 |
 |  128 | Alex Gilbert           | –                            |    528 |          26 |            0 |    26 |
@@ -150,8 +150,8 @@ August 2019
 |  141 | Carlos Gonzalez        | Rumors Never Die             |    515 |         182 |            0 |   182 |
 |  142 | Perry Logan            | Tandy Warhols                |    515 |         199 |            0 |   199 |
 |  143 | Anthony Hydron         | Lucky Horseshoe Glue Factory |    514 |         137 |            0 |   137 |
-|  144 | Paul McCue             | Cinch Phoenix                |    514 |         149 |            0 |   149 |
-|  145 | John Frakes            | Cinch Pack                   |    514 |         135 |            0 |   135 |
+|  144 | John Frakes            | Cinch Pack                   |    514 |         135 |            0 |   135 |
+|  145 | Paul McCue             | Cinch Phoenix                |    514 |         149 |            0 |   149 |
 |  146 | Rob Cosgriff           | Barrel Proof Nice Rack       |    513 |         103 |            0 |   103 |
 |  147 | Jonathan Garcia        | –                            |    512 |          45 |            0 |    45 |
 |  148 | Huu Nguyen             | Barrel Proof Nice Rack       |    510 |         167 |            0 |   167 |
@@ -178,10 +178,10 @@ August 2019
 |  169 | Andrew Keller          | –                            |    491 |          48 |            2 |    50 |
 |  170 | Mark Sorensen          | Lucky Horsehoe Ballbusters   |    490 |         178 |            5 |   183 |
 |  171 | Paul Martinez          | Lone Star Longhorns          |    488 |          51 |            3 |    54 |
-|  172 | Jimmy Fails            | Barrel Proof                 |    487 |           4 |            0 |     4 |
-|  173 | Sandra Davis           | Cinch Phoenix                |    486 |         121 |            0 |   121 |
-|  174 | Sebastian Jellema      | Pilsner Innmates             |    485 |          21 |            0 |    21 |
-|  175 | Stern Montoya          | Churchill Bulldogs           |    485 |         196 |            4 |   200 |
+|  172 | Stern Montoya          | Churchill Bulldogs           |    487 |         200 |            4 |   204 |
+|  173 | Jimmy Fails            | Barrel Proof                 |    487 |           4 |            0 |     4 |
+|  174 | Sandra Davis           | Cinch Phoenix                |    486 |         121 |            0 |   121 |
+|  175 | Sebastian Jellema      | Pilsner Innmates             |    485 |          21 |            0 |    21 |
 |  176 | Thomas Messer          | Hole in the Wall Howlers     |    484 |         130 |            0 |   130 |
 |  177 | Adam Lucero            | –                            |    483 |           2 |            0 |     2 |
 |  178 | Doug Johnston          | Barrel Proof Nice Rack       |    483 |         132 |            0 |   132 |
@@ -192,15 +192,15 @@ August 2019
 |  183 | Ali Rad                | –                            |    477 |          23 |            0 |    23 |
 |  184 | Daniel Scrivano        | Zeitgeist Death Bunnies      |    477 |          35 |            0 |    35 |
 |  185 | Lisa Filippini         | –                            |    475 |          57 |            0 |    57 |
-|  186 | Jenny Lee              | –                            |    472 |           8 |            0 |     8 |
-|  187 | Eric Kalisa            | Nap-Our-Tandy                |    472 |         191 |            0 |   191 |
+|  186 | Eric Kalisa            | Nap-Our-Tandy                |    472 |         191 |            0 |   191 |
+|  187 | Jenny Lee              | –                            |    472 |           8 |            0 |     8 |
 |  188 | Bob Ponze              | –                            |    472 |           4 |            0 |     4 |
 |  189 | Fernando Reyes         | –                            |    469 |          69 |            0 |    69 |
 |  190 | Nick Chackel           | Black Willows                |    469 |          55 |            0 |    55 |
 |  191 | Elvis McElhatton       | –                            |    468 |          33 |            0 |    33 |
 |  192 | Joan Pettijohn         | Cinch Pack                   |    466 |         175 |            0 |   175 |
-|  193 | Ana Stewart            | –                            |    465 |          78 |            0 |    78 |
-|  194 | Brendan Payne          | Lucky Horsehoe Ballbusters   |    464 |          38 |            0 |    38 |
+|  193 | Brendan Payne          | Lucky Horsehoe Ballbusters   |    465 |          38 |            0 |    38 |
+|  194 | Ana Stewart            | –                            |    465 |          78 |            0 |    78 |
 |  195 | Cindy Kim              | Front Page Players           |    464 |          39 |            0 |    39 |
 |  196 | Brad Shewmake          | Zeitgeist Death Bunnies      |    463 |          44 |            0 |    44 |
 |  197 | Anthony Vasquez        | –                            |    462 |          44 |            0 |    44 |
@@ -212,26 +212,26 @@ August 2019
 |  203 | Priscilla Shiells      | Front Page Players           |    457 |          20 |            1 |    21 |
 |  204 | Juan Carlos Buenrostro | Harry Harringtons            |    456 |          92 |            0 |    92 |
 |  205 | Cristina Urreaga       | Cinch You’re Down There      |    456 |         174 |            0 |   174 |
-|  206 | Keith Rubia            | Front Page Players           |    454 |          24 |            2 |    26 |
+|  206 | Keith Rubia            | Front Page Players           |    455 |          24 |            2 |    26 |
 |  207 | Julian Ostrow          | Rumors Never Die             |    454 |         194 |            0 |   194 |
 |  208 | Mike Britt             | –                            |    453 |         109 |            0 |   109 |
 |  209 | Shepard Gault          | –                            |    451 |          26 |            0 |    26 |
 |  210 | Jocelyn Angeles        | Tandy Warhols                |    450 |         168 |            0 |   168 |
-|  211 | Josh Buttram           | Barrel Proof                 |    449 |           7 |            0 |     7 |
-|  212 | Robin Brun             | –                            |    449 |          18 |            2 |    20 |
+|  211 | Robin Brun             | –                            |    449 |          18 |            2 |    20 |
+|  212 | Josh Buttram           | Barrel Proof                 |    449 |           7 |            0 |     7 |
 |  213 | JM Reasonda            | Mixfits                      |    448 |         156 |            0 |   156 |
 |  214 | Ninad Desai            | Pilsner Penguins             |    447 |         141 |            3 |   144 |
 |  215 | Timmy Reeves           | Black Willows                |    447 |           8 |            0 |     8 |
 |  216 | John McNulty           | Lone Star Longhorns          |    446 |         180 |            0 |   180 |
 |  217 | Taylor Hobbs           | –                            |    445 |          67 |            0 |    67 |
-|  218 | Peter Lee              | Ginger Strokes               |    445 |         185 |            0 |   185 |
+|  218 | Danny Chavez           | Nap-Our-Tandy                |    444 |           5 |            0 |     5 |
 |  219 | Matt Paul              | Dovre & Out                  |    444 |         158 |            0 |   158 |
-|  220 | Danny Chavez           | Nap-Our-Tandy                |    444 |           5 |            0 |     5 |
-|  221 | Bryant Labitag         | Mixunderstood                |    444 |          21 |            0 |    21 |
+|  220 | Bryant Labitag         | Mixunderstood                |    444 |          21 |            0 |    21 |
+|  221 | Carlos Rodrigues       | Lucky Horseshoe Glue Factory |    443 |          57 |            0 |    57 |
 |  222 | Matt Weyls             | Slate 6 Holes                |    443 |          73 |            0 |    73 |
-|  223 | Carlos Rodrigues       | Lucky Horseshoe Glue Factory |    443 |          57 |            0 |    57 |
-|  224 | Douglas Cox            | –                            |    443 |          67 |            0 |    67 |
-|  225 | Tetyana Swann          | Lone Star Longhorns          |    443 |          53 |            0 |    53 |
+|  223 | Douglas Cox            | –                            |    443 |          67 |            0 |    67 |
+|  224 | Tetyana Swann          | Lone Star Longhorns          |    443 |          53 |            0 |    53 |
+|  225 | Peter Lee              | Ginger Strokes               |    443 |         187 |            0 |   187 |
 |  226 | Max Sanchez            | Smoke & Rumors               |    441 |         101 |            0 |   101 |
 |  227 | Eric Marrujo           | –                            |    439 |         134 |            0 |   134 |
 |  228 | Mar Ronquillo          | Black Willows                |    439 |         215 |            0 |   215 |
@@ -254,7 +254,7 @@ August 2019
 |  245 | John Thong             | –                            |    424 |          75 |            0 |    75 |
 |  246 | Noel Alpin             | Churchill Bulldogs           |    424 |          28 |            0 |    28 |
 |  247 | Danny Joseph           | –                            |    424 |          62 |            0 |    62 |
-|  248 | Nathan Davis           | Zeitgeist Death Bunnies      |    421 |          34 |            0 |    34 |
+|  248 | Nathan Davis           | Zeitgeist Death Bunnies      |    422 |          34 |            0 |    34 |
 |  249 | Milan Plevnik          | Cinchsationals               |    418 |         170 |            0 |   170 |
 |  250 | Antonio Herrera        | Churchill Churchaholics      |    417 |          55 |            0 |    55 |
 |  251 | Michael Moreno         | Mixunderstood                |    417 |         140 |            0 |   140 |
@@ -277,8 +277,8 @@ August 2019
 |  268 | Jerry Ervin            | Tandy Warhols                |    393 |         165 |            0 |   165 |
 |  269 | Kelvin Chung           | Black Willows                |    393 |          58 |            0 |    58 |
 |  270 | Michael Bouey          | Lone Star Longhorns          |    392 |         187 |            0 |   187 |
-|  271 | Laura Wiggins          | Front Page Players           |    390 |          20 |            2 |    22 |
-|  272 | Patrick Hunt           | Hole in the Wall Howlers     |    390 |          79 |            0 |    79 |
+|  271 | Patrick Hunt           | Hole in the Wall Howlers     |    390 |          79 |            0 |    79 |
+|  272 | Laura Wiggins          | Front Page Players           |    390 |          20 |            2 |    22 |
 |  273 | JD David               | Churchill Bulldogs           |    390 |          20 |            0 |    20 |
 |  274 | Caleb Christian        | Hole in the Wall Bangers     |    387 |          50 |            0 |    50 |
 |  275 | Josalyn Rosen          | Churchill Bulldogs           |    387 |          67 |            0 |    67 |
@@ -314,7 +314,7 @@ August 2019
 |  305 | John Larkin            | Harry Harringtons            |    348 |          96 |            0 |    96 |
 |  306 | David Evans            | –                            |    348 |          34 |            0 |    34 |
 |  307 | Philip Romano          | Churchill Churchaholics      |    344 |          31 |            0 |    31 |
-|  308 | Robbie Connelly        | –                            |    344 |          90 |            0 |    90 |
+|  308 | Robbie Connelly        | –                            |    343 |          90 |            0 |    90 |
 |  309 | Brian Martin           | –                            |    341 |          29 |            0 |    29 |
 |  310 | Tamara Herring         | Mixunderstood                |    340 |          30 |            0 |    30 |
 |  311 | Trish Gardner          | Whomping Willows             |    339 |         178 |            0 |   178 |
@@ -331,8 +331,8 @@ August 2019
 |  322 | Mike Myers             | –                            |    290 |          33 |            0 |    33 |
 |  323 | Keelin Ingoldsby       | –                            |    287 |          36 |            0 |    36 |
 |  324 | Greg Micklas           | Zeitgeist Death Bunnies      |    286 |          30 |            0 |    30 |
-|  325 | Levon Sanossian        | Lone Star Rebels             |    278 |          92 |            0 |    92 |
-|  326 | Jason Gilliland        | Churchill Bulldogs           |    278 |           5 |            0 |     5 |
+|  325 | Jason Gilliland        | Churchill Bulldogs           |    278 |           5 |            0 |     5 |
+|  326 | Levon Sanossian        | Lone Star Rebels             |    278 |          92 |            0 |    92 |
 |  327 | Brady Ralston          | –                            |    274 |          30 |            0 |    30 |
 |  328 | Alice Davis            | Lone Star Rebels             |    273 |          44 |            0 |    44 |
 |  329 | Kurt Weitzmann         | Black Willows                |    240 |          81 |            0 |    81 |
@@ -351,38 +351,38 @@ August 2019
 
 #### This week’s biggest movers:
 
-| player               | team                         | previous | current | change | games\_in\_system |
-| :------------------- | :--------------------------- | -------: | ------: | -----: | ----------------: |
-| Brad Shewmake        | Zeitgeist Death Bunnies      |      437 |     463 |     26 |                44 |
-| Ozzie Orozco         | Mixunderstood                |      404 |     379 |   \-24 |                41 |
-| Noah Snyder          | Clean Slate                  |      635 |     658 |     23 |                57 |
-| Patrick Hyde         | Dovre & Out                  |      560 |     583 |     23 |                30 |
-| Dylan Pulliam        | Nap-Our-Tandy                |      556 |     537 |   \-20 |                41 |
-| Malav Shah           | Pilsner Penguins             |      356 |     375 |     19 |                21 |
-| Colton Callahan      | Slate 6 Holes                |      538 |     555 |     18 |                58 |
-| Joel Talevi          | Clean Slate                  |      613 |     629 |     16 |               206 |
-| Adam Moore           | Dovre & Out                  |      582 |     569 |   \-13 |               119 |
-| Tetyana Swann        | Lone Star Longhorns          |      430 |     443 |     13 |                53 |
-| Alex Peralta         | Rumors Never Die             |      507 |     495 |   \-12 |               125 |
-| Humberto HJ Gonzalez | Pilsner Penguins             |      583 |     595 |     12 |               137 |
-| Doug Johnston        | Barrel Proof Nice Rack       |      472 |     483 |     11 |               132 |
-| Patrick Picard       | Pilsner Innmates             |      526 |     537 |     11 |               108 |
-| Philip Romano        | Churchill Churchaholics      |      332 |     344 |     11 |                31 |
-| Huu Nguyen           | Barrel Proof Nice Rack       |      520 |     510 |   \-10 |               167 |
-| Jerry Ervin          | Tandy Warhols                |      383 |     393 |     10 |               165 |
-| LanAnh Kerr          | Mixfits                      |      413 |     403 |   \-10 |                55 |
-| Nick Chackel         | Black Willows                |      459 |     469 |     10 |                55 |
-| Austin Day           | Whomping Willows             |      343 |     334 |    \-9 |                83 |
-| Kelvin Chung         | Black Willows                |      402 |     393 |    \-9 |                58 |
-| Skip Perry           | LeftDovres                   |      688 |     679 |    \-9 |               191 |
-| Brendan McCarthy     | Zeitgeist Death Bunnies      |      545 |     553 |      8 |                42 |
-| Evan Burgess         | Billiard Palacade Caballeros |      698 |     690 |    \-8 |               254 |
-| Kirby Aho            | Whomping Willows             |      577 |     569 |    \-8 |                41 |
-| Milan Plevnik        | Cinchsationals               |      410 |     418 |      8 |               170 |
-| Rick Bradford        | Lucky Horseshoe Glue Factory |      566 |     573 |      8 |               125 |
-| Alvin Ho             | LeftDovres                   |      711 |     719 |      7 |                72 |
-| Buddy Giguere        | Smoke & Rumors               |      644 |     637 |    \-7 |               144 |
-| Chris Doornbos       | Rumors Never Die             |      555 |     562 |      7 |                45 |
+| player             | team                         | previous | current | change | games\_in\_system |
+| :----------------- | :--------------------------- | -------: | ------: | -----: | ----------------: |
+| Floyd Adriano      | NA                           |      517 |     481 |   \-36 |                 8 |
+| Kevin Meehan       | NA                           |      526 |     490 |   \-36 |                 5 |
+| Gabriela Benuto    | NA                           |      499 |     489 |   \-10 |                35 |
+| Diogo Martini      | LeftDovres                   |      685 |     688 |      4 |               232 |
+| Greg Mar           | NA                           |      543 |     540 |    \-4 |                91 |
+| Thom Moyer         | Cinch Phoenix                |      584 |     587 |      4 |               189 |
+| Jon Williams       | Lucky Horsehoe Ballbusters   |      599 |     597 |    \-3 |               150 |
+| Paul Crouch        | NA                           |      580 |     583 |      3 |                14 |
+| Skip Perry         | LeftDovres                   |      679 |     682 |      3 |               197 |
+| Crystal Kelem      | Tandy Warhols                |      628 |     626 |    \-2 |               218 |
+| Evan Burgess       | Billiard Palacade Caballeros |      690 |     688 |    \-2 |               258 |
+| Hector Ortega      | NA                           |      730 |     732 |      2 |               224 |
+| Leif Smith         | Harry Harringtons            |      537 |     536 |    \-2 |               216 |
+| Peter Lee          | Ginger Strokes               |      445 |     443 |    \-2 |               187 |
+| Stern Montoya      | Churchill Bulldogs           |      485 |     487 |      2 |               204 |
+| Alyssa Rogers      | NA                           |      455 |     454 |    \-1 |                 2 |
+| Antonio Cracchiolo | NA                           |      650 |     651 |      1 |                25 |
+| Audra Kalfass      | NA                           |      413 |     412 |    \-1 |                 9 |
+| CHINOSON           | NA                           |      613 |     612 |    \-1 |                52 |
+| Cristian Rubi      | NA                           |      499 |     498 |    \-1 |                 3 |
+| Dave Willett       | NA                           |      633 |     633 |      1 |                24 |
+| Dave55             | NA                           |      511 |     510 |    \-1 |                18 |
+| Erika Bebe         | NA                           |      474 |     473 |    \-1 |                 8 |
+| Howard Fong        | NA                           |      406 |     405 |    \-1 |                 9 |
+| James Thielfoldt   | NA                           |      576 |     577 |      1 |                35 |
+| Krish kbgb         | NA                           |      456 |     457 |      1 |                 3 |
+| Mark Maxam         | NA                           |      510 |     509 |    \-1 |                29 |
+| Mike Runyan        | NA                           |      507 |     506 |    \-1 |                 3 |
+| Moon Kim           | NA                           |      577 |     577 |    \-1 |                 2 |
+| Ninh Thai          | NA                           |      593 |     593 |    \-1 |                82 |
 
 <br>
 
