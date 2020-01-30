@@ -1,7 +1,7 @@
 ---
 title: "SFPA Player Ratings, v.1"
 author: "Skip Perry"
-date: "August 2019"
+date: "January 2020"
 output: github_document
 ---
 
@@ -66,7 +66,7 @@ games_in_system <-
   map_dfr(player_list, count_games_by_player)
 
 team_names_by_player <- 
-  read_html("https://www.sfpapool.org/stats/players/6") %>% 
+  read_html("https://www.sfpapool.org/stats/players/7") %>% 
   html_nodes("tr") %>% 
   html_nodes("a") %>% 
   html_text() %>% 
@@ -87,25 +87,25 @@ team_names_by_player <-
   ) %>% 
   arrange(player)
 
-team_names_by_player <- 
-  bind_rows(
-    results_no_forfeits %>% 
-      filter(league == "SFPA", season == "Fall 2019") %>% 
-      transmute(player = home, team = home_team),
-    results_no_forfeits %>% 
-      filter(league == "SFPA", season == "Fall 2019") %>% 
-      transmute(player = away, team = away_team)
-  ) %>% 
-  distinct() %>% 
-  arrange(player)
+#team_names_by_player <- 
+#  bind_rows(
+#    results_no_forfeits %>% 
+#      filter(league == "SFPA", season == "Spring 2020") %>% 
+#      transmute(player = home, team = home_team),
+#    results_no_forfeits %>% 
+#      filter(league == "SFPA", season == "Spring 2020") %>% 
+#      transmute(player = away, team = away_team)
+#  ) %>% 
+#  distinct() %>% 
+#  arrange(player)
 
-player_list_no_fall_2018 <- 
+player_list_since_2019 <- 
   bind_rows(
     results_no_forfeits %>% 
-      filter(season != "Spring 2018") %>% 
+      filter(season %in% c("Spring 2019", "Fall 2019", "Spring 2020")) %>% 
       transmute(player = home),
     results_no_forfeits %>% 
-      filter(season != "Spring 2018") %>% 
+      filter(season %in% c("Spring 2019", "Fall 2019", "Spring 2020")) %>% 
       transmute(player = away)
   ) %>% 
   distinct() %>% 
@@ -115,7 +115,7 @@ ratings_for_printing <-
   fargo_df %>% 
   left_join(team_names_by_player, by = "player") %>% 
   left_join(games_in_system, by = "player") %>% 
-  inner_join(player_list_no_fall_2018, by = "player") %>% 
+  inner_join(player_list_since_2019, by = "player") %>% 
   filter(sfpa_games > 0, player != "JT") %>% 
   #filter(total_games > 9) %>% 
   group_by(player) %>% 
@@ -204,12 +204,12 @@ team_list <-
   team_ratings %>% 
   pull(team)
 
-fall_2019_games <- 
+current_season_games <- 
   results_no_forfeits %>% 
-  filter(league == "SFPA", season == "Fall 2019")
+  filter(league == "SFPA", season == "Spring 2020")
 
 plus_minus_by_week <- function(team_of_interest) {
-  fall_2019_games %>% 
+  current_season_games %>% 
     filter(home_team == team_of_interest | away_team == team_of_interest) %>% 
     transmute(
       match_date,
@@ -236,13 +236,15 @@ plus_minus_by_week <- function(team_of_interest) {
 }
 
 match_dates <-
-  c(as_date("2019-07-23"), fall_2019_games %>% filter(match_type == "regular") %>% select(match_date) %>% distinct() %>% arrange() %>% pull())
+  c(as_date("2020-01-14"), current_season_games %>% filter(match_type == "regular") %>% select(match_date) %>% distinct() %>% arrange() %>% pull())
 
 team_plus_minus_by_date <-
   team_list %>% 
   enframe(name = NULL) %>% 
   transmute(
-    team = value, match_date = as_date("2019-07-23"), overall_plus_minus = 0L
+    team = value, 
+    match_date = as_date("2020-01-14"), 
+    overall_plus_minus = 0L
   ) %>% 
   bind_rows(map_dfr(team_list, plus_minus_by_week)) %>% 
   arrange(team, match_date) %>% 
@@ -254,11 +256,11 @@ team_qtile_plus_minus_by_date <-
   summarize(overall_plus_minus = mean(overall_plus_minus)) %>% 
   mutate(team = str_c("Quintile", qtile, "Average", sep = " ")) %>% 
   ## This is to stop including playoffs
-  filter(month(match_date) < 11)
+  filter(month(match_date) < 6)
 
 team_plus_minus_by_date %>% 
   ## This is to stop including playoffs
-  filter(month(match_date) < 11) %>% 
+  filter(month(match_date) < 6) %>% 
   ggplot(aes(x = match_date, y = overall_plus_minus, color = qtile, group = team)) +
   geom_hline(yintercept = 0, color = "white", size = 2) +
   geom_line(alpha = 0.3) +
@@ -284,7 +286,7 @@ team_plus_minus_by_date %>%
 ```
 
 ```{r, echo=FALSE}
-test_date <- "2019-04-23"
+test_date <- "2019-08-06"
 
 test_fargo_df <- 
   str_c("fargo_ratings/fargo_", test_date, ".Rdata") %>% 
@@ -353,7 +355,7 @@ win_prob_summary %>%
     x = "Predicted Win Probability of Favored Player",
     y = "Actual Win Percentage of Favored Player",
     title = "Predictions vs. Actual Results",
-    caption = "Ratings as of 4/23, results post-4/23, shaded area 95% CI"
+    caption = "Ratings as of 8/26, results post-8/26, shaded area 95% CI"
   ) +
   theme(
     plot.title = element_text(hjust = 0.5)
@@ -400,7 +402,49 @@ all_fargo_ratings %>%
 
 <br> 
 
-Data sources: Spring 2018-Fall 2019 SFPA seasons, Spring 2019 SFPA 8-ball tournament, Spring 2019 Slate 8-ball tournament, 2016-2019 Slate Saturday night tournaments, 2016-2019 Happy singles tournaments
+#### This week's biggest upsets:
+
+```{r, echo=FALSE}
+current_ratings <- 
+  ratings_for_printing %>% 
+  select(player, rating)
+
+results_no_forfeits %>% 
+  filter(season == "Spring 2020", league == "SFPA", match_type == "regular") %>% 
+  filter(match_date == max(match_date)) %>% 
+  select(home_team, away_team, home, away, game_winner) %>% 
+  left_join(current_ratings %>% transmute(home = player, home_rating = rating), by = "home") %>% 
+  left_join(current_ratings %>% transmute(away = player, away_rating = rating), by = "away") %>% 
+  mutate(
+    favorite = case_when(
+      home_rating > away_rating ~ "home",
+      away_rating > home_rating ~ "away",
+      TRUE ~ NA_character_
+    )
+  ) %>% 
+  filter(game_winner != favorite) %>% 
+  mutate(win_prob = 1 / (1 + exp(abs(home_rating - away_rating) / 144))) %>% 
+  arrange(win_prob) %>% 
+  transmute(
+    winner = if_else(
+      home_rating < away_rating, 
+      str_c(home, " (", home_rating, ")"), 
+      str_c(away, " (", away_rating, ")")
+    ),
+    winner_team = if_else(home_rating < away_rating, home_team, away_team),
+    loser = if_else(
+      home_rating < away_rating, 
+      str_c(away, " (", away_rating, ")"),
+      str_c(home, " (", home_rating, ")")
+    ),
+    loser_team = if_else(home_rating < away_rating, away_team, home_team),
+    win_prob = str_c(round(win_prob * 100), "%")
+  ) %>% 
+  slice(1:20) %>% 
+  knitr::kable()
+```
+
+Data sources: Spring 2018-Spring 2020 SFPA seasons, various Spring 2019-Spring 2020 SFPA tournaments, Spring 2019 Slate 8-ball tournament, 2016-2020 Slate Saturday night tournaments, 2016-2019 Happy singles tournaments
 
 ```{r}
 

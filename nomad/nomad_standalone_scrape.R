@@ -7,13 +7,15 @@ library(magrittr)
 setwd("~/Documents/sfpa_ratings")
 
 # Set URL
-url <- "https://nomadpool.com/tournaments/3127"
+url <- "https://nomadpool.com/tournaments/3129"
 
 # Look for last element number of table - was 25 in initial try
-webpage <- 
-  url %>% 
-  read_html() %>% 
-  html_nodes("table")
+#webpage <- 
+#  url %>% 
+#  read_html() %>% 
+#  html_nodes("table")
+
+#length(webpage)
 
 # EDIT NUMBER IN FUNCTION BELOW
 
@@ -24,7 +26,8 @@ url_to_game_results_df <- function(url) {
     read_html() %>% 
     html_nodes("table") %>% 
     #### EDIT HERE
-    extract2(23) %>% 
+    #extract2(23) %>% 
+    extract2(length(.)) %>% 
     #### EDIT HERE
     html_nodes("td") %>% 
     html_text() %>% 
@@ -86,7 +89,7 @@ url_to_game_results_df <- function(url) {
           )
         )
       ),
-      date = str_remove_all(date, " \\'12| \\'13| \\'14| \\'15| \\'16| \\'17| \\'18"),
+      date = str_remove_all(date, " \\'12| \\'13| \\'14| \\'15| \\'16| \\'17| \\'18| \\'19"),
       date = parse_date_time(date, orders = "%a %b %d %I:%M%p%Y", tz = "America/Los_Angeles"),
       date_short = if_else(
         date_short == "", 

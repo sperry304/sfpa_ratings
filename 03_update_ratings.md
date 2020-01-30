@@ -115,63 +115,62 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Sum of absolute difference: 59047.7792557733"
-    ## [1] "Sum of absolute difference: 24464.4601037863"
-    ## [1] "Sum of absolute difference: 14538.6428777318"
-    ## [1] "Sum of absolute difference: 10134.5444114516"
-    ## [1] "Sum of absolute difference: 7537.63971608931"
-    ## [1] "Sum of absolute difference: 5728.56941457221"
-    ## [1] "Sum of absolute difference: 4398.75312130063"
-    ## [1] "Sum of absolute difference: 3392.48592153888"
-    ## [1] "Sum of absolute difference: 2621.58736043888"
-    ## [1] "Sum of absolute difference: 2028.93258214317"
-    ## [1] "Sum of absolute difference: 1572.81317833618"
-    ## [1] "Sum of absolute difference: 1220.68712690932"
-    ## [1] "Sum of absolute difference: 948.690270300301"
-    ## [1] "Sum of absolute difference: 738.75254366312"
-    ## [1] "Sum of absolute difference: 577.05703290727"
-    ## [1] "Sum of absolute difference: 452.546631045164"
-    ## [1] "Sum of absolute difference: 357.536177825299"
-    ## [1] "Sum of absolute difference: 285.458294854662"
-    ## [1] "Sum of absolute difference: 231.517263405322"
-    ## [1] "Sum of absolute difference: 191.353560107839"
-    ## [1] "Sum of absolute difference: 161.832597562143"
-    ## [1] "Sum of absolute difference: 140.952726586668"
-    ## [1] "Sum of absolute difference: 125.601939044417"
-    ## [1] "Sum of absolute difference: 113.173521539216"
-    ## [1] "Sum of absolute difference: 102.77293521921"
-    ## [1] "Sum of absolute difference: 93.9347357429465"
-    ## [1] "Sum of absolute difference: 86.3436276440195"
-    ## [1] "Sum of absolute difference: 79.759793931697"
-    ## [1] "Sum of absolute difference: 73.9944483121878"
-    ## [1] "Sum of absolute difference: 68.8987551058153"
-    ## [1] "Sum of absolute difference: 64.3551434556906"
-    ## [1] "Sum of absolute difference: 60.2705078241433"
-    ## [1] "Sum of absolute difference: 56.5708905345575"
-    ## [1] "Sum of absolute difference: 53.1973263856134"
-    ## [1] "Sum of absolute difference: 50.1025970513372"
-    ## [1] "Sum of absolute difference: 47.2486969226562"
-    ## [1] "Number of iterations: 36"
+    ## [1] "Sum of absolute difference: 61065.3626540196"
+    ## [1] "Sum of absolute difference: 24943.6554888669"
+    ## [1] "Sum of absolute difference: 14789.128746525"
+    ## [1] "Sum of absolute difference: 10295.7350777393"
+    ## [1] "Sum of absolute difference: 7649.01053802111"
+    ## [1] "Sum of absolute difference: 5816.97068809527"
+    ## [1] "Sum of absolute difference: 4471.75165585166"
+    ## [1] "Sum of absolute difference: 3453.34096983562"
+    ## [1] "Sum of absolute difference: 2672.296297529"
+    ## [1] "Sum of absolute difference: 2071.19005813308"
+    ## [1] "Sum of absolute difference: 1607.80089359437"
+    ## [1] "Sum of absolute difference: 1249.51167381019"
+    ## [1] "Sum of absolute difference: 972.148608632895"
+    ## [1] "Sum of absolute difference: 757.525851549458"
+    ## [1] "Sum of absolute difference: 591.682898055535"
+    ## [1] "Sum of absolute difference: 463.755260935666"
+    ## [1] "Sum of absolute difference: 365.533130405559"
+    ## [1] "Sum of absolute difference: 290.588009019401"
+    ## [1] "Sum of absolute difference: 234.151408612309"
+    ## [1] "Sum of absolute difference: 192.035516735281"
+    ## [1] "Sum of absolute difference: 160.751422602693"
+    ## [1] "Sum of absolute difference: 138.11932152256"
+    ## [1] "Sum of absolute difference: 122.07745492685"
+    ## [1] "Sum of absolute difference: 109.431278430287"
+    ## [1] "Sum of absolute difference: 99.0266001657501"
+    ## [1] "Sum of absolute difference: 90.2429895252969"
+    ## [1] "Sum of absolute difference: 82.7301872345531"
+    ## [1] "Sum of absolute difference: 76.2424452140188"
+    ## [1] "Sum of absolute difference: 70.5861096090344"
+    ## [1] "Sum of absolute difference: 65.6083881624703"
+    ## [1] "Sum of absolute difference: 61.1885235150765"
+    ## [1] "Sum of absolute difference: 57.230867746577"
+    ## [1] "Sum of absolute difference: 53.6594548755697"
+    ## [1] "Sum of absolute difference: 50.4137509331984"
+    ## [1] "Sum of absolute difference: 47.4453281709196"
+    ## [1] "Number of iterations: 35"
 
 ``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 549 x 3
+    ## # A tibble: 564 x 3
     ##    player          rating raw_rating
     ##    <chr>            <dbl>      <dbl>
-    ##  1 Mike Maxwell      737.      2138.
-    ##  2 Hector Ortega     732.      2065.
-    ##  3 Alvin Ho          719.      1882.
-    ##  4 Nick Lansdown     697.      1615.
-    ##  5 Diogo Martini     688.      1524.
-    ##  6 Evan Burgess      688.      1521.
-    ##  7 Ryan Piaget       688.      1521.
-    ##  8 Thayer McDougle   687.      1513.
-    ##  9 Rhys Hughes       686.      1504.
-    ## 10 Bob Simon         686.      1496.
-    ## # … with 539 more rows
+    ##  1 Mike Maxwell      738.      2164.
+    ##  2 Hector Ortega     736.      2125.
+    ##  3 Alvin Ho          714.      1826.
+    ##  4 Nick Lansdown     694.      1593.
+    ##  5 Ryan Piaget       691.      1562.
+    ##  6 Diogo Martini     689.      1541.
+    ##  7 Evan Burgess      689.      1536.
+    ##  8 Bob Simon         688.      1524.
+    ##  9 Rhys Hughes       686.      1509.
+    ## 10 Thayer McDougle   686.      1506.
+    ## # … with 554 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))

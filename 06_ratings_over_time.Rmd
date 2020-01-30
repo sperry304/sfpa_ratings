@@ -21,10 +21,10 @@ results_no_forfeits <-
 team_names_by_player <- 
   bind_rows(
     results_no_forfeits %>% 
-      filter(league == "SFPA", season == "Fall 2019") %>% 
+      filter(league == "SFPA", season == "Spring 2020") %>% 
       select(player = home, team = home_team),
     results_no_forfeits %>% 
-      filter(league == "SFPA", season == "Fall 2019") %>% 
+      filter(league == "SFPA", season == "Spring 2020") %>% 
       select(player = away, team = away_team)
   ) %>% 
   distinct()
