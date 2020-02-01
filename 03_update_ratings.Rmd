@@ -155,7 +155,7 @@ all_fargo_ratings <-
 saveRDS(all_fargo_ratings, str_c("fargo_ratings/all_fargo_ratings.Rdata"))
 ```
 
-```{r, eval=FALSE}
+```{r, echo=FALSE, eval=FALSE}
 # Do this to update previous fargo ratings after adding new games to database
 # from before current week, making changes to player names, etc.
 date_list <- 
