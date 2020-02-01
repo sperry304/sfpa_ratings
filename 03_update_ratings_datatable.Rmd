@@ -1,7 +1,7 @@
 ---
 title: "SFPA Ratings v.1"
 author: "Skip Perry"
-date: "August 2019"
+date: "January 2020"
 output: github_document
 ---
 
@@ -9,6 +9,8 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
+library(data.table)
+library(dtplyr)
 ```
 
 ```{r}
@@ -19,8 +21,70 @@ latest_results_date <-
 
 results_no_forfeits <- 
   str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata") %>% 
-  read_rds()
+  read_rds() %>% 
+  lazy_dt()
+```
 
+```{r}
+player_of_interest <- "Skip Perry"
+results_df <- results_no_forfeits
+ratings_df <- fargo_ratings
+a <- 3
+```
+
+```{r}
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits <- 
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata") %>% 
+  read_rds() %>% 
+  lazy_dt()
+```
+
+```{r}
+results_df <- results_no_forfeits
+
+player_list <- 
+  bind_rows(
+    results_df %>% transmute(player = home) %>% as_tibble(), 
+    results_df %>% transmute(player = away) %>% as_tibble()
+  ) %>% 
+  distinct() %>% 
+  arrange(player) %>% 
+  lazy_dt()
+
+game_count <- 
+  bind_rows(
+    results_df %>% transmute(player = home) %>% as_tibble(), 
+    results_df %>% transmute(player = away) %>% as_tibble()
+  ) %>% 
+  group_by(player) %>% 
+  count()
+
+player_list_with_game_count <- 
+  player_list %>% 
+  left_join(game_count, by = "player")
+```
+
+```{r}
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits <- 
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata") %>% 
+  read_rds() %>% 
+  lazy_dt()
+
+results_no_forfeits %>% 
+  filter(player == "Skip Perry")
+```
+
+```{r}
 # Uses game database and current rating estimates to provide a new rating 
 # estimate for a given player 
 get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
@@ -83,8 +147,8 @@ get_updated_rating <- function(player_of_interest, results_df, ratings_df, a) {
 results_to_ratings <- function(results_df, a, mae_stop = 100) {
   player_list <- 
     bind_rows(
-      results_df %>% transmute(player = home), 
-      results_df %>% transmute(player = away)
+      results_df %>% transmute(player = home) %>% as_tibble(), 
+      results_df %>% transmute(player = away) %>% as_tibble()
     ) %>% 
     distinct() %>% 
     arrange(player)

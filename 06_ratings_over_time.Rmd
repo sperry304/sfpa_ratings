@@ -1,7 +1,7 @@
 ---
 title: "SFPA Player Ratings, v.1"
 author: "Skip Perry"
-date: "October 2019"
+date: "January 2020"
 output: github_document
 ---
 
@@ -34,6 +34,18 @@ all_fargo_ratings <-
   read_rds() %>% 
   inner_join(team_names_by_player, by = "player") %>% 
   select(-raw_rating)
+
+initial_500_ratings <- 
+  all_fargo_ratings %>% 
+  group_by(player, team) %>% 
+  summarize(min_date = min(date)) %>% 
+  ungroup() %>% 
+  filter(min_date > "2018-08-07") %>% 
+  transmute(player, rating = 500, date = min_date - 7, team)
+
+all_fargo_ratings <- 
+  all_fargo_ratings %>% 
+  bind_rows(initial_500_ratings)
 
 team_list <- 
   all_fargo_ratings %>% 
