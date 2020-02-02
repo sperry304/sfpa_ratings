@@ -396,6 +396,7 @@ all_fargo_ratings %>%
   filter(row_number() == 1) %>% 
   ungroup() %>% 
   arrange(desc(abs_change)) %>% 
+  #mutate(change = cell_spec(change, "html", color = ifelse(change > 0, "red", "blue")))
   transmute(player, team, previous, current, change, games_in_system = total_games) %>% 
   slice(1:20) %>% 
   knitr::kable()
