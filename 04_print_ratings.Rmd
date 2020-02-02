@@ -316,33 +316,15 @@ test_data_with_win_probs <-
     #favorite_win_prob_round = round(favorite_win_prob, 1)
   )
 
-win_prob_summary <- 
-  test_data_with_win_probs %>% 
+test_data_with_win_probs %>% 
   filter(!is.na(favorite_win_prob)) %>% 
-  group_by(favorite_win_prob_round) %>% 
-  summarize(
-    wins = sum(favorite_win),
-    nsize = n(),
-    win_pct = wins / nsize
-  ) %>% 
-  mutate(
-    lo_ci = win_pct - 1.96 * sqrt(win_pct * (1 - win_pct) / nsize),
-    hi_ci = win_pct + 1.96 * sqrt(win_pct * (1 - win_pct) / nsize),
-    lo_ci = if_else(lo_ci < 0, 0, lo_ci),
-    hi_ci = if_else(hi_ci > 1, 1, hi_ci)
-  )
-
-win_prob_summary %>% 
-  filter(nsize > 25) %>% 
-  ggplot(aes(x = favorite_win_prob_round, y = win_pct)) +
-  geom_line() +
+  ggplot(aes(x = favorite_win_prob, y = favorite_win)) +
   geom_abline(slope = 1, intercept = 0, color = "white", size = 2) +
-  geom_point() +
-  geom_line() +
-  geom_ribbon(aes(ymin = lo_ci, ymax = hi_ci), linetype = 2, alpha = 0.1) +
+  #geom_point() +
+  geom_smooth(method = "loess") +
   coord_fixed(
-    xlim = c(0.5, 0.9), 
-    ylim = c(0.5, 0.9)
+    xlim = c(0.5, 0.95), 
+    ylim = c(0.5, 0.95)
   ) +
   scale_x_continuous(
     breaks = seq(0.5, 0.9, by = 0.1),
@@ -356,7 +338,7 @@ win_prob_summary %>%
     x = "Predicted Win Probability of Favored Player",
     y = "Actual Win Percentage of Favored Player",
     title = "Predictions vs. Actual Results",
-    caption = "Ratings as of 8/26, results post-8/26, shaded area 95% CI"
+    caption = "Ratings as of 8/6, results post-8/6, shaded area 95% CI"
   ) +
   theme(
     plot.title = element_text(hjust = 0.5)
@@ -450,5 +432,53 @@ Data sources: Spring 2018-Spring 2020 SFPA seasons, various Spring 2019-Spring 2
 
 ```{r}
 
+```
+
+```{r, eval=FALSE, echo=FALSE}
+win_prob_summary <- 
+  test_data_with_win_probs %>% 
+  filter(!is.na(favorite_win_prob)) %>% 
+  group_by(favorite_win_prob_round) %>% 
+  summarize(
+    wins = sum(favorite_win),
+    nsize = n(),
+    win_pct = wins / nsize
+  ) %>% 
+  mutate(
+    lo_ci = win_pct - 1.96 * sqrt(win_pct * (1 - win_pct) / nsize),
+    hi_ci = win_pct + 1.96 * sqrt(win_pct * (1 - win_pct) / nsize),
+    lo_ci = if_else(lo_ci < 0, 0, lo_ci),
+    hi_ci = if_else(hi_ci > 1, 1, hi_ci)
+  )
+
+win_prob_summary %>% 
+  filter(nsize > 25) %>% 
+  ggplot(aes(x = favorite_win_prob_round, y = win_pct)) +
+  #geom_line() +
+  geom_abline(slope = 1, intercept = 0, color = "white", size = 2) +
+  geom_point() +
+  geom_line() +
+  geom_ribbon(aes(ymin = lo_ci, ymax = hi_ci), linetype = 2, alpha = 0.1) +
+  coord_fixed(
+    xlim = c(0.5, 0.9), 
+    ylim = c(0.5, 0.9)
+  ) +
+  scale_x_continuous(
+    breaks = seq(0.5, 0.9, by = 0.1),
+    labels = str_c(seq(50, 90, by = 10), "%")
+  ) +
+  scale_y_continuous(
+    breaks = seq(0.5, 0.9, by = 0.1),
+    labels = str_c(seq(50, 90, by = 10), "%")
+  ) +
+  labs(
+    x = "Predicted Win Probability of Favored Player",
+    y = "Actual Win Percentage of Favored Player",
+    title = "Predictions vs. Actual Results",
+    caption = "Ratings as of 8/26, results post-8/26, shaded area 95% CI"
+  ) +
+  theme(
+    plot.title = element_text(hjust = 0.5)
+  )
 ```
 

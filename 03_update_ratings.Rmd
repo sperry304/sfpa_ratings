@@ -1,7 +1,7 @@
 ---
 title: "SFPA Ratings v.1"
 author: "Skip Perry"
-date: "August 2019"
+date: "January 2020"
 output: github_document
 ---
 
@@ -9,7 +9,9 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
+```
 
+```{r}
 latest_results_date <- 
   list.files("match_data", pattern = "results_no_forfeits") %>% 
   str_extract("\\d+-\\d+-\\d+") %>% 
@@ -18,14 +20,13 @@ latest_results_date <-
 results_no_forfeits <- 
   str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata") %>% 
   read_rds()
-```
 
-```{r}
 # Computes udpated ratings for all players until the absolute difference 
 # in the vector of ratings between iterations reaches the desired threshold
 # Usually takes about 20-30 iterations to converge
 results_to_ratings <- function(results_df, a, mae_stop = 100) {
-  
+  start_time <- Sys.time()
+
   # Set up initial ratings at 500
   fargo_ratings <- 
     bind_rows(
@@ -36,10 +37,9 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
     arrange(player) %>% 
     mutate(rating = 500)
   
-  # Turn all of the games into season-player-opponent-result-decay format to pass 
-  # into the get_updated_rating function
-  # # # This definition is inside the function because it uses results_df which  
-  # # # is passed into results_to_ratings
+  # Creates a data frame with columns for season-player-opponent-result-decay 
+  # for a single player. This definition is inside the function because it uses 
+  # results_df which is passed into results_to_ratings.
   collect_game_results <- function(player_of_interest) {
     results_df %>% 
       filter(away == player_of_interest | home == player_of_interest) %>% 
@@ -74,30 +74,36 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
       )
   }
 
+  # This un-tidy data frame has 2 rows for every game played. For each game, 
+  # there is one row with player 1 as the target and another row with player 2 
+  # as the target. Results can then be grouped by player and allow for a fast,
+  # vectorized rating update after joining to the current ratings. 
   collected_game_results <- 
     map_dfr(fargo_ratings %>% pull(player), collect_game_results)
   
+  # Set hyperparameters and convergence limits  
   abs_diff <- 100000
   n_iter <- 0
   b <- (a - 1) / 500
   
+  # Update ratings
   while (abs_diff > mae_stop) {
-    
-    #start_time <- Sys.time() ### TIMING
-
     n_iter <- n_iter + 1
     old_ratings <- fargo_ratings %>% pull(rating) # For convergence test
 
     fargo_ratings <- 
-      collected_game_results %>% 
+      collected_game_results %>%
+      # Add current player ratings
       inner_join(
         fargo_ratings %>% transmute(player, player_rating = rating), 
         by = "player"
       ) %>% 
+      # Add current opponent ratings
       inner_join(
         fargo_ratings %>% transmute(opponent = player, opponent_rating = rating), 
         by = "opponent"
       ) %>% 
+      # Use current ratings to calculate new ratings for each player
       mutate(
         A = 1 / (player_rating + opponent_rating),
         W = if_else(game_result == "W", 1, 0)
@@ -109,12 +115,13 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
     
     print(str_c("Sum of absolute difference: ", sum(abs(old_ratings - new_ratings))))
     
-    #end_time <- Sys.time() ### TIMING
-    #print(end_time - start_time) ### TIMING
-
     abs_diff <- sum(abs(old_ratings - new_ratings))
   }
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+
   print(str_c("Number of iterations: ", n_iter))
+  print(str_c("Time taken: ", round(time_taken, 2), " seconds"))
   
   fargo_ratings
 }
@@ -173,7 +180,7 @@ date_list <-
   pull()
 
 num_dates <- 126
-# Last time ran back to 2018-08-07
+# Last time ran back to beginning of 2018
 
 #length(date_list)
 tail(date_list, num_dates)

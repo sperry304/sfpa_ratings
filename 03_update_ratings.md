@@ -1,14 +1,24 @@
 SFPA Ratings v.1
 ================
 Skip Perry
-August 2019
+January 2020
 
 ``` r
+latest_results_date <- 
+  list.files("match_data", pattern = "results_no_forfeits") %>% 
+  str_extract("\\d+-\\d+-\\d+") %>% 
+  max()
+
+results_no_forfeits <- 
+  str_c("match_data/results_no_forfeits_", latest_results_date, ".Rdata") %>% 
+  read_rds()
+
 # Computes udpated ratings for all players until the absolute difference 
 # in the vector of ratings between iterations reaches the desired threshold
 # Usually takes about 20-30 iterations to converge
 results_to_ratings <- function(results_df, a, mae_stop = 100) {
-  
+  start_time <- Sys.time()
+
   # Set up initial ratings at 500
   fargo_ratings <- 
     bind_rows(
@@ -19,10 +29,9 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
     arrange(player) %>% 
     mutate(rating = 500)
   
-  # Turn all of the games into season-player-opponent-result-decay format to pass 
-  # into the get_updated_rating function
-  # # # This definition is inside the function because it uses results_df which  
-  # # # is passed into results_to_ratings
+  # Creates a data frame with columns for season-player-opponent-result-decay 
+  # for a single player. This definition is inside the function because it uses 
+  # results_df which is passed into results_to_ratings.
   collect_game_results <- function(player_of_interest) {
     results_df %>% 
       filter(away == player_of_interest | home == player_of_interest) %>% 
@@ -57,30 +66,36 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
       )
   }
 
+  # This un-tidy data frame has 2 rows for every game played. For each game, 
+  # there is one row with player 1 as the target and another row with player 2 
+  # as the target. Results can then be grouped by player and allow for a fast,
+  # vectorized rating update after joining to the current ratings. 
   collected_game_results <- 
     map_dfr(fargo_ratings %>% pull(player), collect_game_results)
   
+  # Set hyperparameters and convergence limits  
   abs_diff <- 100000
   n_iter <- 0
   b <- (a - 1) / 500
   
+  # Update ratings
   while (abs_diff > mae_stop) {
-    
-    #start_time <- Sys.time() ### TIMING
-
     n_iter <- n_iter + 1
     old_ratings <- fargo_ratings %>% pull(rating) # For convergence test
 
     fargo_ratings <- 
-      collected_game_results %>% 
+      collected_game_results %>%
+      # Add current player ratings
       inner_join(
         fargo_ratings %>% transmute(player, player_rating = rating), 
         by = "player"
       ) %>% 
+      # Add current opponent ratings
       inner_join(
         fargo_ratings %>% transmute(opponent = player, opponent_rating = rating), 
         by = "opponent"
       ) %>% 
+      # Use current ratings to calculate new ratings for each player
       mutate(
         A = 1 / (player_rating + opponent_rating),
         W = if_else(game_result == "W", 1, 0)
@@ -92,12 +107,13 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
     
     print(str_c("Sum of absolute difference: ", sum(abs(old_ratings - new_ratings))))
     
-    #end_time <- Sys.time() ### TIMING
-    #print(end_time - start_time) ### TIMING
-
     abs_diff <- sum(abs(old_ratings - new_ratings))
   }
+  end_time <- Sys.time()
+  time_taken <- end_time - start_time
+
   print(str_c("Number of iterations: ", n_iter))
+  print(str_c("Time taken: ", round(time_taken, 2), " seconds"))
   
   fargo_ratings
 }
@@ -113,36 +129,37 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Sum of absolute difference: 60857.3837559568"
-    ## [1] "Sum of absolute difference: 24261.1647944961"
-    ## [1] "Sum of absolute difference: 14600.2816097301"
-    ## [1] "Sum of absolute difference: 10386.7989935682"
-    ## [1] "Sum of absolute difference: 7951.03502380144"
-    ## [1] "Sum of absolute difference: 6262.28004767788"
-    ## [1] "Sum of absolute difference: 4992.64873277543"
-    ## [1] "Sum of absolute difference: 4001.72394213314"
-    ## [1] "Sum of absolute difference: 3211.87928484926"
-    ## [1] "Sum of absolute difference: 2581.16237237709"
-    ## [1] "Sum of absolute difference: 2076.07207643211"
-    ## [1] "Sum of absolute difference: 1670.01932990926"
-    ## [1] "Sum of absolute difference: 1343.66366801252"
-    ## [1] "Sum of absolute difference: 1081.05770569894"
-    ## [1] "Sum of absolute difference: 869.613269942336"
-    ## [1] "Sum of absolute difference: 699.422657955289"
-    ## [1] "Sum of absolute difference: 562.476524778679"
-    ## [1] "Sum of absolute difference: 452.326702751977"
-    ## [1] "Sum of absolute difference: 363.773863751773"
-    ## [1] "Sum of absolute difference: 292.575217608388"
-    ## [1] "Sum of absolute difference: 235.350669737397"
-    ## [1] "Sum of absolute difference: 189.39043271104"
-    ## [1] "Sum of absolute difference: 152.58636209077"
-    ## [1] "Sum of absolute difference: 123.13912370927"
-    ## [1] "Sum of absolute difference: 99.5642943776248"
-    ## [1] "Sum of absolute difference: 80.849584642122"
-    ## [1] "Sum of absolute difference: 65.9428201809554"
-    ## [1] "Sum of absolute difference: 54.1863343084452"
-    ## [1] "Sum of absolute difference: 44.9856272578961"
+    ## [1] "Sum of absolute difference: 60727.6638567693"
+    ## [1] "Sum of absolute difference: 24218.3954083644"
+    ## [1] "Sum of absolute difference: 14555.5804508633"
+    ## [1] "Sum of absolute difference: 10361.4898515032"
+    ## [1] "Sum of absolute difference: 7934.68046940143"
+    ## [1] "Sum of absolute difference: 6253.89108773027"
+    ## [1] "Sum of absolute difference: 4990.14755556356"
+    ## [1] "Sum of absolute difference: 4003.29151001657"
+    ## [1] "Sum of absolute difference: 3216.04919887608"
+    ## [1] "Sum of absolute difference: 2586.86418846875"
+    ## [1] "Sum of absolute difference: 2082.5159516389"
+    ## [1] "Sum of absolute difference: 1676.70811133989"
+    ## [1] "Sum of absolute difference: 1350.17950052367"
+    ## [1] "Sum of absolute difference: 1087.24828726042"
+    ## [1] "Sum of absolute difference: 875.354866091785"
+    ## [1] "Sum of absolute difference: 704.668380555015"
+    ## [1] "Sum of absolute difference: 567.21823085787"
+    ## [1] "Sum of absolute difference: 456.586205237712"
+    ## [1] "Sum of absolute difference: 367.551211926015"
+    ## [1] "Sum of absolute difference: 295.92120642044"
+    ## [1] "Sum of absolute difference: 238.346443259844"
+    ## [1] "Sum of absolute difference: 192.229854056864"
+    ## [1] "Sum of absolute difference: 155.283516039974"
+    ## [1] "Sum of absolute difference: 125.686635684515"
+    ## [1] "Sum of absolute difference: 102.181344790666"
+    ## [1] "Sum of absolute difference: 83.4471885597901"
+    ## [1] "Sum of absolute difference: 68.67710079717"
+    ## [1] "Sum of absolute difference: 57.1127751762216"
+    ## [1] "Sum of absolute difference: 48.1442204365166"
     ## [1] "Number of iterations: 29"
+    ## [1] "Time taken: 3.15 seconds"
 
 ``` r
 fargo_df %>% 
@@ -152,16 +169,16 @@ fargo_df %>%
     ## # A tibble: 572 x 3
     ##    player          rating raw_rating
     ##    <chr>            <dbl>      <dbl>
-    ##  1 Hector Ortega     738.      2156.
-    ##  2 Mike Maxwell      738.      2156.
-    ##  3 Alvin Ho          719.      1891.
-    ##  4 Diogo Martini     694.      1596.
-    ##  5 Nick Lansdown     694.      1596.
-    ##  6 Ryan Piaget       689.      1534.
+    ##  1 Hector Ortega     739.      2171.
+    ##  2 Mike Maxwell      738.      2157.
+    ##  3 Alvin Ho          712.      1807.
+    ##  4 Nick Lansdown     694.      1597.
+    ##  5 Diogo Martini     693.      1580.
+    ##  6 Ryan Piaget       689.      1533.
     ##  7 Evan Burgess      688.      1531.
-    ##  8 Rhys Hughes       686.      1509.
-    ##  9 Thayer McDougle   686.      1502.
-    ## 10 Bobby Yulo        684.      1488.
+    ##  8 Rhys Hughes       686.      1510.
+    ##  9 Thayer McDougle   686.      1503.
+    ## 10 Bobby Yulo        684.      1490.
     ## # … with 562 more rows
 
 ``` r
