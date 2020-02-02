@@ -33,7 +33,8 @@ all_fargo_ratings <-
   "fargo_ratings/all_fargo_ratings.Rdata" %>% 
   read_rds() %>% 
   inner_join(team_names_by_player, by = "player") %>% 
-  select(-raw_rating)
+  select(-raw_rating) %>% 
+  filter(date >= "2018-08-07")
 
 initial_500_ratings <- 
   all_fargo_ratings %>% 

@@ -103,10 +103,10 @@ team_names_by_player <-
 player_list_since_2019 <- 
   bind_rows(
     results_no_forfeits %>% 
-      filter(season %in% c("Spring 2019", "Fall 2019", "Spring 2020")) %>% 
+      filter(season %in% c("Fall 2019", "Spring 2020")) %>% 
       transmute(player = home),
     results_no_forfeits %>% 
-      filter(season %in% c("Spring 2019", "Fall 2019", "Spring 2020")) %>% 
+      filter(season %in% c("Fall 2019", "Spring 2020")) %>% 
       transmute(player = away)
   ) %>% 
   distinct() %>% 
@@ -117,8 +117,8 @@ ratings_for_printing <-
   left_join(team_names_by_player, by = "player") %>% 
   left_join(games_in_system, by = "player") %>% 
   inner_join(player_list_since_2019, by = "player") %>% 
-  filter(sfpa_games > 0, player != "JT") %>% 
-  #filter(total_games > 9) %>% 
+  #filter(sfpa_games > 0, player != "JT") %>% 
+  filter(sfpa_games > 0 | total_games > 50) %>% 
   group_by(player) %>% 
   filter(row_number() == 1) %>% 
   ungroup() %>% 
@@ -397,7 +397,7 @@ all_fargo_ratings %>%
   ungroup() %>% 
   arrange(desc(abs_change)) %>% 
   transmute(player, team, previous, current, change, games_in_system = total_games) %>% 
-  slice(1:30) %>% 
+  slice(1:20) %>% 
   knitr::kable()
 ```
 
