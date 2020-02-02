@@ -9,6 +9,7 @@ output: github_document
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
+library(glue)
 ```
 
 ```{r}
@@ -124,10 +125,10 @@ results_to_ratings <- function(results_df, a, stop_value = 100) {
     abs_diff <- sum(abs(old_ratings - new_ratings))
   }
   end_time <- Sys.time()
-  time_taken <- end_time - start_time
+  time_taken <- round(end_time - start_time, 2)
 
-  print(str_c("Number of iterations: ", n_iter))
-  print(str_c("Time taken: ", round(time_taken, 2), " seconds"))
+  print(glue("Number of iterations: {n_iter}"))
+  print(glue("Time taken: {time_taken} seconds"))
   
   fargo_ratings
 }

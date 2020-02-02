@@ -116,10 +116,10 @@ results_to_ratings <- function(results_df, a, stop_value = 100) {
     abs_diff <- sum(abs(old_ratings - new_ratings))
   }
   end_time <- Sys.time()
-  time_taken <- end_time - start_time
+  time_taken <- round(end_time - start_time, 2)
 
-  print(str_c("Number of iterations: ", n_iter))
-  print(str_c("Time taken: ", round(time_taken, 2), " seconds"))
+  print(glue("Number of iterations: {n_iter}"))
+  print(glue("Time taken: {time_taken} seconds"))
   
   fargo_ratings
 }
@@ -164,8 +164,8 @@ fargo_df <-
     ## [1] "Sum of absolute difference: 68.67710079717"
     ## [1] "Sum of absolute difference: 57.1127751762216"
     ## [1] "Sum of absolute difference: 48.1442204365166"
-    ## [1] "Number of iterations: 29"
-    ## [1] "Time taken: 3.43 seconds"
+    ## Number of iterations: 29
+    ## Time taken: 3.16 seconds
 
 ``` r
 fargo_df %>% 
