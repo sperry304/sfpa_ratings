@@ -16,7 +16,7 @@ results_no_forfeits <-
 # Computes udpated ratings for all players until the absolute difference 
 # in the vector of ratings between iterations reaches the desired threshold
 # Usually takes about 20-30 iterations to converge
-results_to_ratings <- function(results_df, a, mae_stop = 100) {
+results_to_ratings <- function(results_df, a, stop_value = 100) {
   start_time <- Sys.time()
 
   # Set up initial ratings at 500
@@ -67,23 +67,27 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
   }
 
   # This un-tidy data frame has 2 rows for every game played. For each game, 
-  # there is one row with player 1 as the target and another row with player 2 
-  # as the target. Results can then be grouped by player and allow for a fast,
-  # vectorized rating update after joining to the current ratings. 
+  # one row has player 1 as the target and another row has player 2 as the 
+  # target. Results can then be grouped by player and produce a fast,
+  # vectorized rating update after joining to the latest rating predictions. 
   collected_game_results <- 
     map_dfr(fargo_ratings %>% pull(player), collect_game_results)
   
-  # Set hyperparameters and convergence limits  
+  # Set up convergence and MAP parameters 
   abs_diff <- 100000
   n_iter <- 0
   b <- (a - 1) / 500
   
-  # Update ratings
-  while (abs_diff > mae_stop) {
+  # Update ratings using iterative MAP algorithm from 05_info_faq.md
+  while (abs_diff > stop_value) {
     n_iter <- n_iter + 1
-    old_ratings <- fargo_ratings %>% pull(rating) # For convergence test
+    
+    # Existing vector of player ratings for convergence test
+    old_ratings <- fargo_ratings %>% pull(rating)
 
+    # Update rating estimates
     fargo_ratings <- 
+      # Start with collected results, arranged by player 
       collected_game_results %>%
       # Add current player ratings
       inner_join(
@@ -95,7 +99,7 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
         fargo_ratings %>% transmute(opponent = player, opponent_rating = rating), 
         by = "opponent"
       ) %>% 
-      # Use current ratings to calculate new ratings for each player
+      # Implement MAP algorithm 
       mutate(
         A = 1 / (player_rating + opponent_rating),
         W = if_else(game_result == "W", 1, 0)
@@ -103,10 +107,12 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
       group_by(player) %>% 
       summarize(rating = ((a - 1) + sum(W * decay)) / (b + sum(A * decay)))
 
-    new_ratings <- fargo_ratings %>% pull(rating) # For convergence test
+    # New vector of player ratings for convergence test
+    new_ratings <- fargo_ratings %>% pull(rating) 
     
     print(str_c("Sum of absolute difference: ", sum(abs(old_ratings - new_ratings))))
     
+    # Break out of loop if abs_diff < stop_value
     abs_diff <- sum(abs(old_ratings - new_ratings))
   }
   end_time <- Sys.time()
@@ -121,7 +127,7 @@ results_to_ratings <- function(results_df, a, mae_stop = 100) {
 
 ``` r
 fargo_df <- 
-  results_to_ratings(results_df = results_no_forfeits, a = 3, mae_stop = 50) %>% 
+  results_to_ratings(results_df = results_no_forfeits, a = 3, stop_value = 50) %>% 
   mutate(
     raw_rating = rating,
     rating = log(rating) * 144,
@@ -159,7 +165,7 @@ fargo_df <-
     ## [1] "Sum of absolute difference: 57.1127751762216"
     ## [1] "Sum of absolute difference: 48.1442204365166"
     ## [1] "Number of iterations: 29"
-    ## [1] "Time taken: 3.15 seconds"
+    ## [1] "Time taken: 3.43 seconds"
 
 ``` r
 fargo_df %>% 
