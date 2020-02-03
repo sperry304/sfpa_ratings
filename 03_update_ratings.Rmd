@@ -46,31 +46,13 @@ results_to_ratings <- function(results_df, a, stop_value = 100) {
       filter(away == player_of_interest | home == player_of_interest) %>% 
       transmute(
         season,
+        match_date,
         player = player_of_interest,
         opponent = if_else(home == player_of_interest, away, home),
         game_result = case_when(
           home == player_of_interest & game_winner == "home" ~ "W",
           away == player_of_interest & game_winner == "away" ~ "W",
           TRUE ~ "L"
-        ),
-        decay = case_when(
-          season == "Spring 2012" ~ 0.3,
-          season == "Fall 2012" ~ 0.35,
-          season == "Spring 2013" ~ 0.4,
-          season == "Fall 2013" ~ 0.45,
-          season == "Spring 2014" ~ 0.5,
-          season == "Fall 2014" ~ 0.55,
-          season == "Spring 2015" ~ 0.6,
-          season == "Fall 2015" ~ 0.65,
-          season == "Spring 2016" ~ 0.7,
-          season == "Fall 2016" ~ 0.75,
-          season == "Spring 2017" ~ 0.8,
-          season == "Fall 2017" ~ 0.85,
-          season == "Spring 2018" ~ 0.9,
-          season == "Fall 2018" ~ 0.95,
-          season == "Spring 2019" ~ 1.0,
-          season == "Fall 2019" ~ 1.0,
-          season == "Spring 2020" ~ 1.0
         )
       )
   }
@@ -79,11 +61,18 @@ results_to_ratings <- function(results_df, a, stop_value = 100) {
   # one row has player 1 as the target and another row has player 2 as the 
   # target. Results can then be grouped by player and produce a fast,
   # vectorized rating update after joining to the latest rating predictions. 
+  # Adds decay step factor of 5% for every six months from the latest game. 
   collected_game_results <- 
-    map_dfr(fargo_ratings %>% pull(player), collect_game_results)
+    map_dfr(fargo_ratings %>% pull(player), collect_game_results) %>% 
+    mutate(
+      max_date = max(match_date),
+      date_diff = interval(max_date, match_date) %/% months(6),
+      decay = 1 + date_diff * 0.05
+    ) %>% 
+    select(-max_date, -date_diff)
   
   # Set up convergence and MAP parameters 
-  abs_diff <- 100000
+  abs_diff <- 1e5
   n_iter <- 0
   b <- (a - 1) / 500
   
@@ -213,3 +202,47 @@ for (i in 1:num_dates) {
   saveRDS(fargo_df, str_c("fargo_ratings/fargo_", results_date, ".Rdata"))
 }
 ```
+
+```{r, eval=FALSE, echo=FALSE}
+# SCRATCH FROM CHANGING DECAY
+results_df <- results_no_forfeits
+player_of_interest <- "Patty West"
+
+results_df %>% 
+  filter(away == player_of_interest | home == player_of_interest) %>% 
+  transmute(
+    season,
+    player = player_of_interest,
+    opponent = if_else(home == player_of_interest, away, home),
+    game_result = case_when(
+      home == player_of_interest & game_winner == "home" ~ "W",
+      away == player_of_interest & game_winner == "away" ~ "W",
+      TRUE ~ "L"
+    ),
+    match_date
+  )
+    decay = case_when(
+      season == "Spring 2012" ~ 0.3,
+      season == "Fall 2012" ~ 0.35,
+      season == "Spring 2013" ~ 0.4,
+      season == "Fall 2013" ~ 0.45,
+      season == "Spring 2014" ~ 0.5,
+      season == "Fall 2014" ~ 0.55,
+      season == "Spring 2015" ~ 0.6,
+      season == "Fall 2015" ~ 0.65,
+      season == "Spring 2016" ~ 0.7,
+      season == "Fall 2016" ~ 0.75,
+      season == "Spring 2017" ~ 0.8,
+      season == "Fall 2017" ~ 0.85,
+      season == "Spring 2018" ~ 0.9,
+      season == "Fall 2018" ~ 0.95,
+      season == "Spring 2019" ~ 1.0,
+      season == "Fall 2019" ~ 1.0,
+      season == "Spring 2020" ~ 1.0
+    )
+  )
+```
+
+```{r}
+```
+
