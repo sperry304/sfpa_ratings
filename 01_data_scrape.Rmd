@@ -210,7 +210,7 @@ prev_matches %>%
 
 ```{r}
 # Get updated Spring 2019 results and check
-weeks_to_parse <- str_c("https://www.sfpapool.org/stats/week/", 105) # Most recent week
+weeks_to_parse <- str_c("https://www.sfpapool.org/stats/week/", 106) # Most recent week
 new_matches <- week_urls_to_parsed_matches(weeks_to_parse)
 
 bind_rows(prev_matches, new_matches) %>% 

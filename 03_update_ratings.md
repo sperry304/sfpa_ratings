@@ -37,31 +37,13 @@ results_to_ratings <- function(results_df, a, stop_value = 100) {
       filter(away == player_of_interest | home == player_of_interest) %>% 
       transmute(
         season,
+        match_date,
         player = player_of_interest,
         opponent = if_else(home == player_of_interest, away, home),
         game_result = case_when(
           home == player_of_interest & game_winner == "home" ~ "W",
           away == player_of_interest & game_winner == "away" ~ "W",
           TRUE ~ "L"
-        ),
-        decay = case_when(
-          season == "Spring 2012" ~ 0.3,
-          season == "Fall 2012" ~ 0.35,
-          season == "Spring 2013" ~ 0.4,
-          season == "Fall 2013" ~ 0.45,
-          season == "Spring 2014" ~ 0.5,
-          season == "Fall 2014" ~ 0.55,
-          season == "Spring 2015" ~ 0.6,
-          season == "Fall 2015" ~ 0.65,
-          season == "Spring 2016" ~ 0.7,
-          season == "Fall 2016" ~ 0.75,
-          season == "Spring 2017" ~ 0.8,
-          season == "Fall 2017" ~ 0.85,
-          season == "Spring 2018" ~ 0.9,
-          season == "Fall 2018" ~ 0.95,
-          season == "Spring 2019" ~ 1.0,
-          season == "Fall 2019" ~ 1.0,
-          season == "Spring 2020" ~ 1.0
         )
       )
   }
@@ -70,11 +52,18 @@ results_to_ratings <- function(results_df, a, stop_value = 100) {
   # one row has player 1 as the target and another row has player 2 as the 
   # target. Results can then be grouped by player and produce a fast,
   # vectorized rating update after joining to the latest rating predictions. 
+  # Adds decay step factor of 5% for every six months from the latest game. 
   collected_game_results <- 
-    map_dfr(fargo_ratings %>% pull(player), collect_game_results)
+    map_dfr(fargo_ratings %>% pull(player), collect_game_results) %>% 
+    mutate(
+      max_date = max(match_date),
+      date_diff = interval(max_date, match_date) %/% months(6),
+      decay = 1 + date_diff * 0.05
+    ) %>% 
+    select(-max_date, -date_diff)
   
   # Set up convergence and MAP parameters 
-  abs_diff <- 100000
+  abs_diff <- 1e5
   n_iter <- 0
   b <- (a - 1) / 500
   
@@ -135,57 +124,61 @@ fargo_df <-
   )
 ```
 
-    ## [1] "Sum of absolute difference: 60727.6638567693"
-    ## [1] "Sum of absolute difference: 24218.3954083644"
-    ## [1] "Sum of absolute difference: 14555.5804508633"
-    ## [1] "Sum of absolute difference: 10361.4898515032"
-    ## [1] "Sum of absolute difference: 7934.68046940143"
-    ## [1] "Sum of absolute difference: 6253.89108773027"
-    ## [1] "Sum of absolute difference: 4990.14755556356"
-    ## [1] "Sum of absolute difference: 4003.29151001657"
-    ## [1] "Sum of absolute difference: 3216.04919887608"
-    ## [1] "Sum of absolute difference: 2586.86418846875"
-    ## [1] "Sum of absolute difference: 2082.5159516389"
-    ## [1] "Sum of absolute difference: 1676.70811133989"
-    ## [1] "Sum of absolute difference: 1350.17950052367"
-    ## [1] "Sum of absolute difference: 1087.24828726042"
-    ## [1] "Sum of absolute difference: 875.354866091785"
-    ## [1] "Sum of absolute difference: 704.668380555015"
-    ## [1] "Sum of absolute difference: 567.21823085787"
-    ## [1] "Sum of absolute difference: 456.586205237712"
-    ## [1] "Sum of absolute difference: 367.551211926015"
-    ## [1] "Sum of absolute difference: 295.92120642044"
-    ## [1] "Sum of absolute difference: 238.346443259844"
-    ## [1] "Sum of absolute difference: 192.229854056864"
-    ## [1] "Sum of absolute difference: 155.283516039974"
-    ## [1] "Sum of absolute difference: 125.686635684515"
-    ## [1] "Sum of absolute difference: 102.181344790666"
-    ## [1] "Sum of absolute difference: 83.4471885597901"
-    ## [1] "Sum of absolute difference: 68.67710079717"
-    ## [1] "Sum of absolute difference: 57.1127751762216"
-    ## [1] "Sum of absolute difference: 48.1442204365166"
+    ## Note: method with signature 'Timespan#Timespan' chosen for function '%/%',
+    ##  target signature 'Interval#Period'.
+    ##  "Interval#ANY", "ANY#Period" would also be valid
+
+    ## [1] "Sum of absolute difference: 61622.2763169492"
+    ## [1] "Sum of absolute difference: 24382.1616230551"
+    ## [1] "Sum of absolute difference: 14571.066135857"
+    ## [1] "Sum of absolute difference: 10339.9504518653"
+    ## [1] "Sum of absolute difference: 7889.82577993214"
+    ## [1] "Sum of absolute difference: 6179.90452558875"
+    ## [1] "Sum of absolute difference: 4903.04152586104"
+    ## [1] "Sum of absolute difference: 3910.60490181471"
+    ## [1] "Sum of absolute difference: 3123.87830684027"
+    ## [1] "Sum of absolute difference: 2498.17589037206"
+    ## [1] "Sum of absolute difference: 1999.70704757271"
+    ## [1] "Sum of absolute difference: 1601.00496280451"
+    ## [1] "Sum of absolute difference: 1281.7000647081"
+    ## [1] "Sum of absolute difference: 1026.11550149024"
+    ## [1] "Sum of absolute difference: 821.59510332994"
+    ## [1] "Sum of absolute difference: 657.836552293839"
+    ## [1] "Sum of absolute difference: 526.746851659715"
+    ## [1] "Sum of absolute difference: 421.819847389392"
+    ## [1] "Sum of absolute difference: 337.904560044258"
+    ## [1] "Sum of absolute difference: 270.938788817621"
+    ## [1] "Sum of absolute difference: 217.58648098703"
+    ## [1] "Sum of absolute difference: 175.052489253161"
+    ## [1] "Sum of absolute difference: 141.366100563078"
+    ## [1] "Sum of absolute difference: 114.695310138216"
+    ## [1] "Sum of absolute difference: 93.7832591959939"
+    ## [1] "Sum of absolute difference: 77.4171941791269"
+    ## [1] "Sum of absolute difference: 64.7164128604982"
+    ## [1] "Sum of absolute difference: 54.8910372981594"
+    ## [1] "Sum of absolute difference: 47.4617264814782"
     ## Number of iterations: 29
-    ## Time taken: 3.16 seconds
+    ## Time taken: 2.91 seconds
 
 ``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 572 x 3
+    ## # A tibble: 575 x 3
     ##    player          rating raw_rating
     ##    <chr>            <dbl>      <dbl>
-    ##  1 Hector Ortega     739.      2171.
-    ##  2 Mike Maxwell      738.      2157.
+    ##  1 Mike Maxwell      738.      2158.
+    ##  2 Hector Ortega     738.      2156.
     ##  3 Alvin Ho          712.      1807.
-    ##  4 Nick Lansdown     694.      1597.
-    ##  5 Diogo Martini     693.      1580.
-    ##  6 Ryan Piaget       689.      1533.
-    ##  7 Evan Burgess      688.      1531.
-    ##  8 Rhys Hughes       686.      1510.
-    ##  9 Thayer McDougle   686.      1503.
-    ## 10 Bobby Yulo        684.      1490.
-    ## # … with 562 more rows
+    ##  4 Diogo Martini     692.      1570.
+    ##  5 Nick Lansdown     691.      1563.
+    ##  6 Ryan Piaget       687.      1523.
+    ##  7 Evan Burgess      687.      1517.
+    ##  8 Rhys Hughes       685.      1497.
+    ##  9 Bobby Yulo        684.      1483.
+    ## 10 Thayer McDougle   682.      1470.
+    ## # … with 565 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))
