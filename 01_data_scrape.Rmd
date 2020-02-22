@@ -309,3 +309,8 @@ all_matches_2018fallplayoffs %>%
 saveRDS(all_matches_2018fallplayoffs, "match_data/all_matches_2018fallplayoffs.Rdata")
 ```
 
+```{r, eval=FALSE, echo=FALSE}
+webpage %>% 
+  html_nodes(xpath = "/html/body/div[2]/div/div/table/thead/tr[2]/th[2]/h4/a") %>% 
+  .[[1]]
+```

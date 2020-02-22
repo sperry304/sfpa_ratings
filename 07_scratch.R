@@ -1,3 +1,15 @@
+install.packages("RSelenium")
+
+library(tidyverse)
+library(RSelenium)
+library(rvest)
+
+checkForServer()
+
+
+
+
+
 library(tidyverse)
 #library(lubridate)
 

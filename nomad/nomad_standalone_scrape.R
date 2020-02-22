@@ -7,7 +7,7 @@ library(magrittr)
 setwd("~/Documents/sfpa_ratings")
 
 # Set URL
-url <- "https://nomadpool.com/tournaments/3186"
+url <- "https://nomadpool.com/tournaments/3196"
 
 # Takes in a URL, creates data frame with date, players, result
 url_to_game_results_df <- function(url) {
