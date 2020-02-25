@@ -6,8 +6,25 @@ library(rvest)
 
 checkForServer()
 
+library(RSelenium)
 
+remDr <- remoteDriver(port=4445L)
+remDr$open()
+remDr$getStatus()
+remDr$navigate("https://www.sfpapool.org/stats/score_sheet/2174/")
+remDr$getCurrentUrl()
+remDr$screenshot(display = TRUE)
+remDr$close()
 
+read_html(remDr$getPageSource()[[1]]) %>% 
+  html_nodes("[class='scoresheet-square']") %>% 
+  as.character() %>% 
+  enframe(name = NULL) %>% 
+  filter(str_detect(value, "forfeit"))
+
+read_html(remDr$getPageSource()[[1]]) %>% 
+  html_nodes("input") %>% 
+  as.character()
 
 
 library(tidyverse)

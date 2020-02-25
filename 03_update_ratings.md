@@ -128,58 +128,57 @@ fargo_df <-
     ##  target signature 'Interval#Period'.
     ##  "Interval#ANY", "ANY#Period" would also be valid
 
-    ## [1] "Sum of absolute difference: 61560.6928379437"
-    ## [1] "Sum of absolute difference: 24607.0366001111"
-    ## [1] "Sum of absolute difference: 14686.8968146337"
-    ## [1] "Sum of absolute difference: 10397.81838154"
-    ## [1] "Sum of absolute difference: 7901.17380475497"
-    ## [1] "Sum of absolute difference: 6171.64525847507"
-    ## [1] "Sum of absolute difference: 4885.93493380399"
-    ## [1] "Sum of absolute difference: 3891.38840880362"
-    ## [1] "Sum of absolute difference: 3105.37594876338"
-    ## [1] "Sum of absolute difference: 2481.53080488011"
-    ## [1] "Sum of absolute difference: 1985.64510896738"
-    ## [1] "Sum of absolute difference: 1589.32926915067"
-    ## [1] "Sum of absolute difference: 1272.32507714004"
-    ## [1] "Sum of absolute difference: 1018.65558779425"
-    ## [1] "Sum of absolute difference: 815.590622365594"
-    ## [1] "Sum of absolute difference: 653.16546819334"
-    ## [1] "Sum of absolute difference: 523.231058301043"
-    ## [1] "Sum of absolute difference: 419.320566670663"
-    ## [1] "Sum of absolute difference: 336.322935940103"
-    ## [1] "Sum of absolute difference: 270.187040731271"
-    ## [1] "Sum of absolute difference: 217.50446766912"
-    ## [1] "Sum of absolute difference: 175.812553264676"
-    ## [1] "Sum of absolute difference: 142.764691683077"
-    ## [1] "Sum of absolute difference: 116.897138964566"
-    ## [1] "Sum of absolute difference: 96.7505233845963"
-    ## [1] "Sum of absolute difference: 81.1847699851194"
-    ## [1] "Sum of absolute difference: 69.1778560291795"
-    ## [1] "Sum of absolute difference: 60.2268551690916"
-    ## [1] "Sum of absolute difference: 53.6126916614659"
-    ## [1] "Sum of absolute difference: 48.3740152895841"
-    ## Number of iterations: 30
-    ## Time taken: 3.03 seconds
+    ## [1] "Sum of absolute difference: 62394.0071804515"
+    ## [1] "Sum of absolute difference: 25001.5515195053"
+    ## [1] "Sum of absolute difference: 14914.1044929087"
+    ## [1] "Sum of absolute difference: 10550.934031887"
+    ## [1] "Sum of absolute difference: 8034.94109191956"
+    ## [1] "Sum of absolute difference: 6288.11447385319"
+    ## [1] "Sum of absolute difference: 4984.47654555763"
+    ## [1] "Sum of absolute difference: 3973.35369572464"
+    ## [1] "Sum of absolute difference: 3173.04304063443"
+    ## [1] "Sum of absolute difference: 2538.01687719959"
+    ## [1] "Sum of absolute difference: 2032.13995820528"
+    ## [1] "Sum of absolute difference: 1627.54272791232"
+    ## [1] "Sum of absolute difference: 1303.59894265901"
+    ## [1] "Sum of absolute difference: 1044.11194018427"
+    ## [1] "Sum of absolute difference: 836.491111152716"
+    ## [1] "Sum of absolute difference: 670.124954667654"
+    ## [1] "Sum of absolute difference: 536.84535362586"
+    ## [1] "Sum of absolute difference: 430.101245289751"
+    ## [1] "Sum of absolute difference: 344.659558086638"
+    ## [1] "Sum of absolute difference: 276.332393806349"
+    ## [1] "Sum of absolute difference: 221.711813048033"
+    ## [1] "Sum of absolute difference: 178.163864114618"
+    ## [1] "Sum of absolute difference: 143.469549753575"
+    ## [1] "Sum of absolute difference: 115.946022032994"
+    ## [1] "Sum of absolute difference: 94.1687663272772"
+    ## [1] "Sum of absolute difference: 77.0815277700129"
+    ## [1] "Sum of absolute difference: 63.7550680698949"
+    ## [1] "Sum of absolute difference: 53.4342501116157"
+    ## [1] "Sum of absolute difference: 45.446346101776"
+    ## Number of iterations: 29
+    ## Time taken: 4.13 seconds
 
 ``` r
 fargo_df %>% 
   arrange(desc(rating))
 ```
 
-    ## # A tibble: 574 x 3
+    ## # A tibble: 589 x 3
     ##    player          rating raw_rating
     ##    <chr>            <dbl>      <dbl>
-    ##  1 Hector Ortega     741.      2198.
-    ##  2 Mike Maxwell      738.      2160.
-    ##  3 Alvin Ho          713.      1812.
-    ##  4 Diogo Martini     696.      1605.
-    ##  5 Nick Lansdown     693.      1572.
-    ##  6 Ryan Piaget       688.      1527.
-    ##  7 Evan Burgess      688.      1522.
-    ##  8 Rhys Hughes       686.      1502.
-    ##  9 Thayer McDougle   684.      1479.
-    ## 10 Jesse La Fear     682.      1458.
-    ## # … with 564 more rows
+    ##  1 Hector Ortega     744.      2251.
+    ##  2 Mike Maxwell      737.      2143.
+    ##  3 Alvin Ho          712.      1802.
+    ##  4 Nick Lansdown     691.      1563.
+    ##  5 Diogo Martini     691.      1562.
+    ##  6 Ryan Piaget       687.      1521.
+    ##  7 Evan Burgess      687.      1513.
+    ##  8 Rhys Hughes       685.      1495.
+    ##  9 Matt Frisbie      682.      1466.
+    ## 10 Thayer McDougle   681.      1456.
+    ## # … with 579 more rows
 
 ``` r
 saveRDS(fargo_df, str_c("fargo_ratings/fargo_", latest_results_date, ".Rdata"))
